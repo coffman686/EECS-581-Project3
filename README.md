@@ -30,12 +30,12 @@ The app leverages:
 ## 🧑‍💻 Team Members
 | Name               | Role  |
 |--------------------|-------|
-| Aidan Ingram       | TBD   |
-| Hale Coffman       | TBD   |
-| Aryan Kevat        | TBD   |
-| Olivia Blankenship | TBD   |
-| Sam Suggs          | TBD   | 
-| Landon Bever       | TBD   | 
+| Aidan Ingram       | Scrum Master  / Developer   |
+| Hale Coffman       | Product Owner / Developer   |
+| Aryan Kevat        | Developer / Head Logic Designer|
+| Olivia Blankenship | Developer / Tester   |
+| Sam Suggs          | Developer / Tester  | 
+| Landon Bever       | Developer / Tester   | 
 
 ---
 
