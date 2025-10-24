@@ -6,7 +6,7 @@
 ---
 
 ## 📌 Project Overview
-The **TBD Meal Application** is an application designed to help users plan meals efficiently by integrating **ingredient recognition**, **recipe recommendations**, **dietary filtering**, and **grocery list generation** into a single cohesive platform.
+The **Munch Mates** meal application is a program designed to help users plan meals efficiently by integrating **ingredient recognition**, **recipe recommendations**, **dietary filtering**, and **grocery list generation** into a single cohesive platform.
 
 The app leverages:
 - 🔐 User authentication
