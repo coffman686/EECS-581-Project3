@@ -3,25 +3,33 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
+    "dev": "next dev -p 3000",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint",
-    "lint:fix": "eslint --fix"
+    "kc:up": "docker compose -f login/keycloak/docker-compose.yml up -d --wait",
+    "kc:down": "docker compose -f login/keycloak/docker-compose.yml down",
+    "kc:nuke": "docker compose -f login/keycloak/docker-compose.yml down -v",
+    "kc:logs": "docker compose -f login/keycloak/docker-compose.yml logs -f",
+    "dev:all": "npx concurrently -k -n kc,next -c blue,green \"docker compose -f login/keycloak/docker-compose.yml up\" \"npx wait-on http://localhost:8080 && next dev -p 3000\"",
+    "dev:all:detached": "npm run kc:up && npx wait-on http://localhost:8080 && next dev -p 3000"
   },
   "dependencies": {
+    "jose": "^6.1.0",
+    "keycloak-js": "^26.2.1",
+    "next": "16.0.1",
     "react": "19.2.0",
-    "react-dom": "19.2.0",
-    "next": "16.0.1"
+    "react-dom": "19.2.0"
   },
   "devDependencies": {
-    "typescript": "^5",
+    "@tailwindcss/postcss": "^4",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
-    "@tailwindcss/postcss": "^4",
-    "tailwindcss": "^4",
+    "concurrently": "^9.2.1",
     "eslint": "^9",
-    "eslint-config-next": "16.0.1"
+    "eslint-config-next": "16.0.1",
+    "tailwindcss": "^4",
+    "typescript": "^5",
+    "wait-on": "^9.0.1"
   }
 }
