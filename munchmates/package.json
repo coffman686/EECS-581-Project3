@@ -3,11 +3,12 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
-    "build": "next build",
-    "start": "next start",
-    "lint": "eslint",
-    "lint:fix": "eslint --fix"
+    "dev": "next dev -p 3000",
+    "kc:up": "docker compose -f login/keycloak/docker-compose.yml up -d --wait",
+    "kc:down": "docker compose -f login/keycloak/docker-compose.yml down",
+    "kc:nuke": "docker compose -f login/keycloak/docker-compose.yml down -v",
+    "kc:logs": "docker compose -f login/keycloak/docker-compose.yml logs -f",
+    "dev:all": "npx concurrently -k -n kc,next -c blue,green \"docker compose -f login/keycloak/docker-compose.yml up\" \"npx wait-on http://localhost:8080 && next dev -p 3000\""
   },
   "dependencies": {
     "react": "19.2.0",

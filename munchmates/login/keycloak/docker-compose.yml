@@ -1,0 +1,47 @@
+version: "3.9"
+services:
+  db:
+    image: postgres:16
+    environment:
+      POSTGRES_DB: keycloak
+      POSTGRES_USER: keycloak
+      POSTGRES_PASSWORD: keycloak
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U keycloak -d keycloak"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  keycloak:
+    image: quay.io/keycloak/keycloak:26.4.2
+    depends_on:
+      db:
+        condition: service_healthy
+    command:
+      - start-dev
+      - --db=postgres
+      - --db-url=jdbc:postgresql://db:5432/keycloak
+      - --db-username=keycloak
+      - --db-password=keycloak
+      - --health-enabled=true
+      - --import-realm
+    environment:
+      KC_BOOTSTRAP_ADMIN_USERNAME: admin
+      KC_BOOTSTRAP_ADMIN_PASSWORD: admin
+      # If you later expose Keycloak behind a public URL, set this ENV (do NOT put it in command):
+      # KC_HOSTNAME: https://auth-dev.example.com
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./import:/opt/keycloak/data/import
+
+  mailpit:
+    image: axllent/mailpit:latest
+    ports:
+      - "8025:8025"   # Web UI
+      - "1025:1025"   # SMTP
+
+volumes:
+  pgdata:
