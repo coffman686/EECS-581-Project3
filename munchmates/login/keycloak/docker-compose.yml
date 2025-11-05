@@ -36,6 +36,8 @@ services:
       - "8080:8080"
     volumes:
       - ./import:/opt/keycloak/data/import
+      - ./themes:/opt/keycloak/themes
+
 
   mailpit:
     image: axllent/mailpit:latest

@@ -1,0 +1,82 @@
+/* keycloak/themes/munchmates/login/resources/css/custom.css */
+
+/* Change background color */
+body {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+/* Style the login card */
+#kc-content {
+    background: white;
+    border-radius: 12px;
+    padding: 40px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+    max-width: 450px;
+    margin: 50px auto;
+}
+
+/* Brand the header */
+#kc-header-wrapper {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+#kc-header-wrapper h1 {
+    color: #2563eb;
+    font-size: 32px;
+    font-weight: 700;
+}
+
+/* Style input fields */
+.pf-c-form-control {
+    padding: 12px;
+    border: 2px solid #e5e7eb;
+    border-radius: 6px;
+    font-size: 16px;
+}
+
+.pf-c-form-control:focus {
+    border-color: #2563eb;
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+/* Style buttons */
+.pf-c-button {
+    padding: 12px 24px;
+    border-radius: 6px;
+    font-weight: 600;
+    font-size: 16px;
+}
+
+.pf-c-button.pf-m-primary {
+    background-color: #2563eb;
+    border-color: #2563eb;
+}
+
+.pf-c-button.pf-m-primary:hover {
+    background-color: #1d4ed8;
+}
+
+/* Style links */
+#kc-form-options a,
+#kc-info a {
+    color: #2563eb;
+    text-decoration: none;
+}
+
+#kc-form-options a:hover,
+#kc-info a:hover {
+    text-decoration: underline;
+}
+
+/* Add logo */
+#kc-header::before {
+    content: '';
+    display: block;
+    width: 120px;
+    height: 120px;
+    margin: 0 auto 20px;
+    background: url('../img/logo.png') no-repeat center;
+    background-size: contain;
+}
