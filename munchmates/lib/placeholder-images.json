@@ -1,0 +1,58 @@
+{
+  "placeholderImages": [
+    {
+      "id": "hero",
+      "description": "A vibrant, healthy meal on a rustic table.",
+      "imageUrl": "https://images.unsplash.com/photo-1742646803128-6be31b9242bf?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxMHx8a2l0Y2hlbiUyMGZvb2R8ZW58MHx8fHwxNzYyMjM3MTg5fDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "kitchen food"
+    },
+    {
+      "id": "recipes",
+      "description": "An open cookbook with fresh ingredients around it.",
+      "imageUrl": "https://images.unsplash.com/photo-1530536476203-d77e573bc524?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwyfHxjb29rYm9vayUyMHJlY2lwZXxlbnwwfHx8fDE3NjIyOTc1NzJ8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "cookbook recipe"
+    },
+    {
+      "id": "grocery",
+      "description": "A paper bag full of colorful, fresh vegetables.",
+      "imageUrl": "https://images.unsplash.com/photo-1590779033100-9f60a05a013d?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw5fHxmcmVzaCUyMHZlZ2V0YWJsZXN8ZW58MHx8fHwxNzYyMjEzMzUyfDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "fresh vegetables"
+    },
+    {
+      "id": "planner",
+      "description": "A weekly meal planner notebook with a pen.",
+      "imageUrl": "https://images.unsplash.com/photo-1493770348161-369560ae357d?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw1fHxtZWFsJTIwcGxhbnxlbnwwfHx8fDE3NjIyOTc1NzJ8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "meal plan"
+    },
+    {
+      "id": "pantry",
+      "description": "Neatly organized pantry shelves with jars and containers.",
+      "imageUrl": "https://images.unsplash.com/photo-1759333081603-416fc3e4b8c3?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwzfHxwYW50cnklMjBzaGVsdmVzfGVufDB8fHx8MTc2MjI5NzU3Mnww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "pantry shelves"
+    },
+    {
+      "id": "community",
+      "description": "A group of friends laughing and cooking together in a kitchen.",
+      "imageUrl": "https://images.unsplash.com/photo-1556911220-e15b29be8c8f?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwyfHxwZW9wbGUlMjBjb29raW5nfGVufDB8fHx8MTc2MjI5NzU3Mnww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "people cooking"
+    },
+    {
+      "id": "recipe-card-1",
+      "description": "A close-up shot of a pasta dish.",
+      "imageUrl": "https://images.unsplash.com/photo-1621996346565-e3dbc646d9a9?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxwYXN0YSUyMGRpc2h8ZW58MHx8fHwxNzYyMjQzODM3fDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "pasta dish"
+    },
+    {
+      "id": "recipe-card-2",
+      "description": "A vibrant salad in a bowl.",
+      "imageUrl": "https://images.unsplash.com/photo-1626266798999-aa2b0c520cc9?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw1fHxoZWFsdGh5JTIwc2FsYWR8ZW58MHx8fHwxNzYyMjY3NTc4fDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "healthy salad"
+    },
+    {
+      "id": "recipe-card-3",
+      "description": "A stack of pancakes with syrup.",
+      "imageUrl": "https://images.unsplash.com/photo-1668507740203-0654d38b6201?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw1fHxwYW5jYWtlcyUyMGJyZWFrZmFzdHxlbnwwfHx8fDE3NjIyNzI2MDN8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "pancakes breakfast"
+    }
+  ]
+}

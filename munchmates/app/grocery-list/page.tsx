@@ -1,32 +1,20 @@
 // app/grocery-list/page.tsx
 
-'use client';
+import AppHeader from "@/components/layout/app-header";
 
-const GroceryList = () => {
-    const ingredients = [
-        { name: 'Ingredient 1', checked: false },
-        { name: 'Ingredient 2', checked: true },
-        { name: 'Ingredient 3', checked: false },
-    ];
-
+export default function GroceryListPage() {
     return (
-        <div>
-            <h2 style={{ textAlign: 'center', margin: '2rem 0' }}>Grocery List</h2>
-            <div style={{ maxWidth: '400px', margin: '0 auto', border: '1px solid var(--foreground)', padding: '1rem', borderRadius: '8px' }}>
-                {ingredients.map((item, index) => (
-                    <div key={index} style={{ display: 'flex', alignItems: 'center', marginBottom: '0.5rem' }}>
-                        <input type="checkbox" checked={item.checked} readOnly style={{ marginRight: '0.5rem' }} />
-                        <label>{item.name}</label>
+        <div className="flex h-full w-full flex-col">
+            <AppHeader title="Grocery List" />
+            <main className="flex-1 p-4 md:p-6 lg:p-8">
+                <div className="flex h-full items-center justify-center rounded-lg border-2 border-dashed">
+                    <div className="text-center">
+                        <h2 className="text-2xl font-bold font-headline">Smart Grocery List</h2>
+                        <p className="text-muted-foreground mt-2">Coming Soon</p>
                     </div>
-                ))}
-            </div>
-            <div style={{ textAlign: 'center', marginTop: '2rem' }}>
-                <button style={{ marginRight: '1rem' }}>Share List</button>
-                <button style={{ marginRight: '1rem' }}>Download</button>
-                <button>Clear Checked Items</button>
-            </div>
+                </div>
+            </main>
         </div>
     );
 };
 
-export default GroceryList;
