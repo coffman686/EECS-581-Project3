@@ -1,26 +1,122 @@
+@import url('https://fonts.googleapis.com/css2?family=Momo+Trust+Display&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Momo+Trust+Display&family=Noto+Sans:ital,wght@0,100..900;1,100..900&display=swap');
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #1C1C1C;
+    --foreground: #EDEDED;
+    --primary-accent: #66BB6A;
+  }
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
+  --font-sans: var(--font-body);
   --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-body);
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-heading);
+}
+
+@layer base {
+  :root {
+    --background: 25 56% 95%;
+    --foreground: 230 18% 15%;
+
+    --card: 25 56% 95%;
+    --card-foreground: 230 18% 15%;
+
+    --popover: 25 56% 95%;
+    --popover-foreground: 230 18% 15%;
+
+    --primary: 14 70% 62%;
+    --primary-foreground: 25 56% 98%;
+
+    --secondary: 14 30% 88%;
+    --secondary-foreground: 14 70% 30%;
+
+    --muted: 14 30% 92%;
+    --muted-foreground: 230 10% 40%;
+
+    --accent: 230 18% 30%;
+    --accent-foreground: 25 56% 98%;
+
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 0 0% 98%;
+
+    --border: 14 30% 80%;
+    --input: 14 30% 85%;
+    --ring: 14 70% 62%;
+
+    --radius: 0.5rem;
+
+    /* Sidebare specific colors for custom theme */
+    --sidebar-background: 25 50% 97%;
+    --sidebar-foreground: 230 18% 25%;
+    --sidebar-primary: 14 70% 62%;
+    --sidebar-primary-foreground: 25 56% 98%;
+    --sidebar-accent: 14 30% 90%;
+    --sidebar-accent-foreground: 14 70% 40%;
+    --sidebar-border: 14 30% 85%;
+    --sidebar-ring: 14 70% 62%;
+  }
+
+  .dark {
+    --background: 230 18% 10%;
+    --foreground: 25 56% 95%;
+
+    --card: 230 18% 10%;
+    --card-foreground: 25 56% 95%;
+
+    --popover: 230 18% 10%;
+    --popover-foreground: 25 56% 95%;
+
+    --primary: 14 70% 62%;
+    --primary-foreground: 25 56% 98%;
+
+    --secondary: 14 30% 30%;
+    --secondary-foreground: 14 70% 80%;
+
+    --muted: 230 18% 20%;
+    --muted-foreground: 230 10% 60%;
+
+    --accent: 14 30% 50%;
+    --accent-foreground: 25 56% 98%;
+
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 0 0% 98%;
+
+    --border: 230 18% 25%;
+    --input: 230 18% 20%;
+    --ring: 14 70% 62%;
+
+    /* Sidebar specific colors for custom dark theme */
+    --sidebar-background: 230 18% 15%;
+    --sidebar-foreground: 25 56% 90%;
+    --sidebar-primary: 14 70% 62%;
+    --sidebar-primary-foreground: 25 56% 98%;
+    --sidebar-accent: 230 18% 25%;
+    --sidebar-accent-foreground:14 70% 80%;
+    --sidebar-border: 230 18% 20%;
+    --sidebar-ring:14 70% 62%;
+  }
+}
+
+@layer base {
+  body {
+    @apply bg-background text-foreground;
+  }
 }

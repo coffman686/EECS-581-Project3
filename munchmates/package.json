@@ -14,6 +14,7 @@
     "dev:all:detached": "npm run kc:up && npx wait-on http://localhost:8080 && next dev -p 3000"
   },
   "dependencies": {
+    "docker": "^1.0.0",
     "jose": "^6.1.0",
     "keycloak-js": "^26.2.1",
     "next": "16.0.1",
