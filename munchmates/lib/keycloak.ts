@@ -40,6 +40,14 @@ export async function ensureToken() {
 }
 
 export const login = (opts?: KeycloakLoginOptions) => keycloak.login(opts);
+
+// NEW: Registration function
+export const register = (opts?: KeycloakLoginOptions) => 
+    keycloak.login({ 
+        ...opts, 
+        action: 'register' // This tells Keycloak to show registration form
+    });
+
 export const logout = (redirectUri?: string) =>
     keycloak.logout({ redirectUri: redirectUri ?? window.location.origin });
 
