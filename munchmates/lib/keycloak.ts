@@ -48,6 +48,13 @@ export const register = (opts?: KeycloakLoginOptions) =>
         action: 'register' // This tells Keycloak to show registration form
     });
 
+// Forgot password function (uses direct Keycloak URL because it's not an OAuth2 action) ** Can get rid of if needed
+export const forgotPassword = () => {
+    const redirectUri = encodeURIComponent(`${window.location.origin}/dashboard`);
+    const forgotPasswordUrl = `${url}/realms/${realm}/login-actions/reset-credentials?client_id=${clientId}&redirect_uri=${redirectUri}`;
+    window.location.href = forgotPasswordUrl;
+};
+
 export const logout = (redirectUri?: string) =>
     keycloak.logout({ redirectUri: redirectUri ?? window.location.origin });
 
