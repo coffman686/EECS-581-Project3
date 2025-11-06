@@ -1,5 +1,6 @@
 'use client';
 import RequireAuth from '@/components/RequireAuth';
+import Autosuggest from '@/components/Autosuggest';
 import { ensureToken, getParsedIdToken, getAccessTokenClaims, logout, keycloak } from '@/lib/keycloak';
 import { useEffect, useState } from 'react';
 import { authedFetch } from '@/lib/authedFetch';
@@ -78,7 +79,8 @@ export default function Dashboard() {
         const data = await res.json();
         setMe(data);
     }
-
+    //sample data for autosuggest (REMOVE LATER THIS IS JUST PROOF IT WORKS)
+    const data = ['Apple', 'Banana', 'Cherry', 'Date', 'Elderberry', 'Fig', 'Grape', 'Honeydew'];
     return (
         <RequireAuth>
             <main style={{ padding: 24 }}>
@@ -95,6 +97,8 @@ export default function Dashboard() {
                     <button onClick={() => window.open(adminUrl, '_blank')}>Keycloak Admin</button>
                     <button onClick={() => window.open(mailpitUrl, '_blank')}>Mailpit</button>
                 </div>
+                <h2>Autosuggest Example (REMOVE LATER THIS IS JUST PROOF IT WORKS)</h2>
+                <Autosuggest data={data} />
 
                 <pre>{me ? JSON.stringify(me, null, 2) : ''}</pre>
             </main>

@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 
-export default function Autocomplete({ data }: { data: string[] }) {
+export default function Autosuggest({ data }: { data: string[] }) {
     const [query, setQuery] = useState('');
     const [filteredData, setFilteredData] = useState<string[]>([]);
 
@@ -30,13 +30,13 @@ export default function Autocomplete({ data }: { data: string[] }) {
                         left: 0,
                         right: 0,
                         border: '1px solid #ccc',
-                        backgroundColor: '#fff',
                         listStyle: 'none',
                         margin: 0,
                         padding: 0,
                         maxHeight: '150px',
                         overflowY: 'auto',
                         zIndex: 1000,
+                        backgroundColor: 'black',
                     }}
                 >
                     {filteredData.map((item, index) => (
