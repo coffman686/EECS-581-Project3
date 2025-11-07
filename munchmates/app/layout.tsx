@@ -1,16 +1,8 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { notoSans } from "../lib/fonts";
 import "./globals.css";
-
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
+import { SidebarProvider } from "@/components/ui/sidebar";
+import AppSidebar from "@/components/layout/app-sidebar";
 
 export const metadata: Metadata = {
   title: "MunchMates",
@@ -24,9 +16,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      >
+      <body className={`${notoSans.variable} antialiased`}>
         <main style={{ minHeight: '80vh', padding: '1rem' }}>{children}</main>
       </body>
     </html>
