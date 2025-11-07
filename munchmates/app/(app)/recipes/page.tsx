@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import DynamicList from '@/components/ingredients/DynamicList';
 import AppHeader from '@/components/layout/app-header';
 import RequireAuth from '@/components/RequireAuth';
 import { SidebarProvider } from '@/components/ui/sidebar';
@@ -126,7 +127,6 @@ const Recipes = () => {
         // Logic to view recipe details would go here
         console.log('View recipe:', recipeId);
     };
-
     return (
         <RequireAuth>
             <SidebarProvider>
@@ -139,16 +139,7 @@ const Recipes = () => {
                                 {/* Header with Search and Create */}
                                 <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
                                     <div className="flex-1 max-w-2xl">
-                                        <form onSubmit={handleSearch} className="relative">
-                                            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
-                                            <Input
-                                                type="text"
-                                                placeholder="Search recipes by name or ingredients..."
-                                                value={searchTerm}
-                                                onChange={(e) => setSearchTerm(e.target.value)}
-                                                className="pl-10 pr-4 py-2 w-full"
-                                            />
-                                        </form>
+                                        <DynamicList/>
                                     </div>
                                     <Button onClick={createNewRecipe} className="flex items-center gap-2">
                                         <Plus className="h-4 w-4" />

@@ -1,5 +1,6 @@
 import { useState } from "react";
 import Autosuggest from "./Autosuggest";
+import { Button } from "../ui/button";
 
 const data = [
   "Apple",
@@ -47,31 +48,31 @@ export default function IngredientList({ initialIngredients = [] }: { initialIng
         {ingredients.map((ingredient, index) => (
           <li key={ingredient}>
             {ingredient}
-            <button
+            <Button
               type="button"
               style={{ marginLeft: "1em" }}
               onClick={() => handleDeleteIngredient(index)}
             >
               ⓧ
-            </button>
+            </Button>
           </li>
         ))}
       </ul>
 
-      <form onSubmit={handleAddIngredient}>
+      <form className="relative" onSubmit={handleAddIngredient}>
         <Autosuggest
           data={[...data, ...ingredients]}
           query={query}
           setQuery={setQuery}
         />
-        <button type="submit">Add ingredient</button>
+        <Button type="submit">Add ingredient</Button>
       </form>
-      <button
+      <Button
         type="button"
         onClick={() => clearIngredients()}
       >
       Clear List
-      </button>
+      </Button>
     </div>
   );
 }

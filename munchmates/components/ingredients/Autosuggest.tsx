@@ -1,4 +1,6 @@
 import { useState, useEffect } from 'react';
+import { Input } from '../ui/input';
+import { Search } from 'lucide-react';
 
 export default function Autosuggest({ data, query, setQuery }: { data: string[], query: string, setQuery: (query: string) => void }) {
     const [filteredData, setFilteredData] = useState<string[]>([]);
@@ -11,17 +13,20 @@ export default function Autosuggest({ data, query, setQuery }: { data: string[],
             setFilteredData(data.filter(item => item.toLowerCase().includes(lowerQuery)));
         }
     }, [query, data]);
+    const background = getComputedStyle(document.body).backgroundColor;
 
     return (
-        <div style={{ position: 'relative', width: '200px' }}>
-            <input
+        <div>
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
+            <Input
                 type="text"
+                id="ingredient-autosuggest"
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
                 onFocus={() => setIsFocused(true)}
                 onBlur={() => setTimeout(() => setIsFocused(false), 100)}
                 placeholder="Enter ingredient..."
-                style={{ width: '100%', padding: '8px', boxSizing: 'border-box', border: '1px solid #ccc' }}
+                className= "pl-10 pr-4 py-2 w-full"
             />
             {filteredData.length > 0 && isFocused && (
                 <ul
@@ -37,8 +42,7 @@ export default function Autosuggest({ data, query, setQuery }: { data: string[],
                         maxHeight: '150px',
                         overflowY: 'auto',
                         zIndex: 1000,
-                        backgroundColor: 'black',
-                    }}
+                        backgroundColor: background,}}
                 >
                     {filteredData.map((item, index) => (
                         <li
