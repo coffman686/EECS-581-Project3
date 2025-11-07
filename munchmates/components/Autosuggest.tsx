@@ -19,7 +19,7 @@ export default function Autosuggest({ data, query, setQuery }: { data: string[],
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
                 onFocus={() => setIsFocused(true)}
-                onBlur={() => setIsFocused(false)}
+                onBlur={() => setTimeout(() => setIsFocused(false), 100)}
                 placeholder="Enter ingredient..."
                 style={{ width: '100%', padding: '8px', boxSizing: 'border-box', border: '1px solid #ccc' }}
             />

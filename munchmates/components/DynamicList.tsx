@@ -38,6 +38,9 @@ export default function IngredientList({ initialIngredients = [] }: { initialIng
     );
   };
 
+  const clearIngredients = () => {
+    setIngredients([]);
+  }
   return (
     <div>
       <ul>
@@ -63,6 +66,12 @@ export default function IngredientList({ initialIngredients = [] }: { initialIng
         />
         <button type="submit">Add ingredient</button>
       </form>
+      <button
+        type="button"
+        onClick={() => clearIngredients()}
+      >
+      Clear List
+      </button>
     </div>
   );
 }
