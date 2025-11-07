@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
 
-export default function Autosuggest({ data }: { data: string[] }) {
-    const [query, setQuery] = useState('');
+export default function Autosuggest({ data, query, setQuery }: { data: string[], query: string, setQuery: (query: string) => void }) {
     const [filteredData, setFilteredData] = useState<string[]>([]);
 
     useEffect(() => {

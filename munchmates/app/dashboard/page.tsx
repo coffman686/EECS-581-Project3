@@ -1,9 +1,9 @@
 'use client';
 import RequireAuth from '@/components/RequireAuth';
-import Autosuggest from '@/components/Autosuggest';
 import { ensureToken, getParsedIdToken, getAccessTokenClaims, logout, keycloak } from '@/lib/keycloak';
 import { useEffect, useState } from 'react';
 import { authedFetch } from '@/lib/authedFetch';
+import IngredientList from '@/components/DynamicList';
 
 type IdClaims = { name?: string; preferred_username?: string; email?: string };
 type AccessClaims = { preferred_username?: string; email?: string; realm_access?: { roles?: string[] } };
@@ -79,8 +79,10 @@ export default function Dashboard() {
         const data = await res.json();
         setMe(data);
     }
-    //sample data for autosuggest (REMOVE LATER THIS IS JUST PROOF IT WORKS)
-    const data = ['Apple', 'Banana', 'Cherry', 'Date', 'Elderberry', 'Fig', 'Grape', 'Honeydew'];
+
+    // temporary initial ingredients list
+    const ingredients: string[] = ["Fish", "Chips", "Active Uranium"];
+
     return (
         <RequireAuth>
             <main style={{ padding: 24 }}>
@@ -97,8 +99,8 @@ export default function Dashboard() {
                     <button onClick={() => window.open(adminUrl, '_blank')}>Keycloak Admin</button>
                     <button onClick={() => window.open(mailpitUrl, '_blank')}>Mailpit</button>
                 </div>
-                <h2>Autosuggest Example (REMOVE LATER THIS IS JUST PROOF IT WORKS)</h2>
-                <Autosuggest data={data} />
+                <h2>Dynamic list example (REMOVE LATER THIS IS JUST PROOF IT WORKS)</h2>
+                <IngredientList initialIngredients={ingredients}/>
 
                 <pre>{me ? JSON.stringify(me, null, 2) : ''}</pre>
             </main>
