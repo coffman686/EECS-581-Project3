@@ -12,7 +12,7 @@ const data = [
   "Honeydew",
 ];
 
-export default function IngredientList({ initialIngredients = [] }) {
+export default function IngredientList({ initialIngredients = [] }: { initialIngredients?: string[] }) {
   const [ingredients, setIngredients] = useState<string[]>(initialIngredients);
   const [query, setQuery] = useState("");
 

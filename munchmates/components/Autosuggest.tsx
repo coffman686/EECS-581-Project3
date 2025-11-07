@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 
 export default function Autosuggest({ data, query, setQuery }: { data: string[], query: string, setQuery: (query: string) => void }) {
     const [filteredData, setFilteredData] = useState<string[]>([]);
-
+    const [isFocused, setIsFocused] = useState(false);
     useEffect(() => {
         if (query === '') {
             setFilteredData([]);
@@ -18,10 +18,12 @@ export default function Autosuggest({ data, query, setQuery }: { data: string[],
                 type="text"
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
-                placeholder="Type to search..."
-                style={{ width: '100%', padding: '8px', boxSizing: 'border-box' }}
+                onFocus={() => setIsFocused(true)}
+                onBlur={() => setIsFocused(false)}
+                placeholder="Enter ingredient..."
+                style={{ width: '100%', padding: '8px', boxSizing: 'border-box', border: '1px solid #ccc' }}
             />
-            {filteredData.length > 0 && (
+            {filteredData.length > 0 && isFocused && (
                 <ul
                     style={{
                         position: 'absolute',
