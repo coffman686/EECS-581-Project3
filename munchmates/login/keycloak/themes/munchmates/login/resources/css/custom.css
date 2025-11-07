@@ -1,7 +1,7 @@
 /* login/keycloak/themes/munchmates/login/resources/css/custom.css */
 
 /* ============================================
-   MODERN MUNCHMATES KEYCLOAK THEME - FIXED
+   MODERN MUNCHMATES KEYCLOAK THEME
    ============================================ */
 
 /* ===== GLOBAL STYLES ===== */
@@ -11,15 +11,20 @@
 
 body {
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    background-attachment: fixed;
-    background-size: cover;
+    background: white !important; /* Force white background */
     min-height: 100vh;
     margin: 0;
     padding: 20px;
     display: flex;
     align-items: center;
     justify-content: center;
+}
+
+/* Also add this to override Keycloak's default backgrounds */
+.login-pf-page,
+.login-pf,
+html {
+    background: white !important;
 }
 
 /* ===== MAIN CONTAINER ===== */
@@ -383,6 +388,29 @@ input[type="checkbox"] {
 /* ===== REQUIRED FIELD INDICATOR ===== */
 .required {
     color: #dc2626;
+    margin-left: 2px;
+    display: inline; /* Keep it on the same line */
+}
+
+.pf-c-form__label,
+label {
+    display: block;
+    color: #374151;
+    font-size: 14px;
+    font-weight: 600;
+    margin-bottom: 8px;
+}
+
+.pf-c-form__label-text,
+label > * {
+    display: inline; /* Keep all label content inline */
+}
+
+/* Target the required indicator specifically */
+.pf-c-form__label-required,
+label .required,
+label > .required {
+    display: inline !important;
     margin-left: 2px;
 }
 
