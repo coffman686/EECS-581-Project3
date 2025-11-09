@@ -71,10 +71,10 @@ export default function LandingPage() {
                     </Link>
                     <div className="flex items-center gap-2">
                         <Button variant="ghost" asChild>
-                            <Link href="#">Log In</Link>
+                            <Link href="/login">Log In</Link>
                         </Button>
                         <Button asChild className="bg-accent text-accent-foreground hover:bg-accent/90">
-                            <Link href="/dashboard">Get Started</Link>
+                            <Link href="/register">Get Started</Link>
                         </Button>
                     </div>
                 </nav>

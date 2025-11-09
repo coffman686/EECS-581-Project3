@@ -41,19 +41,13 @@ export async function ensureToken() {
 
 export const login = (opts?: KeycloakLoginOptions) => keycloak.login(opts);
 
-// NEW: Registration function
+// registration function
 export const register = (opts?: KeycloakLoginOptions) => 
     keycloak.login({ 
         ...opts, 
-        action: 'register' // This tells Keycloak to show registration form
+        action: 'register' // this tells Keycloak to show registration form
     });
 
-// Forgot password function (uses direct Keycloak URL because it's not an OAuth2 action) ** Can get rid of if needed
-export const forgotPassword = () => {
-    const redirectUri = encodeURIComponent(`${window.location.origin}/dashboard`);
-    const forgotPasswordUrl = `${url}/realms/${realm}/login-actions/reset-credentials?client_id=${clientId}&redirect_uri=${redirectUri}`;
-    window.location.href = forgotPasswordUrl;
-};
 
 export const logout = (redirectUri?: string) =>
     keycloak.logout({ redirectUri: redirectUri ?? window.location.origin });
