@@ -6,9 +6,11 @@
 ---
 
 ## 📌 Project Overview
+
 The **Munch Mates** meal application is a program designed to help users plan meals efficiently by integrating **ingredient recognition**, **recipe recommendations**, **dietary filtering**, and **grocery list generation** into a single cohesive platform.
 
 The app leverages:
+
 - 🔐 User authentication
 - 🥘 Ingredient-based recipe suggestions (via [Spoonacular API](https://spoonacular.com/food-api))
 - 🧠 Image recognition for ingredient detection
@@ -28,28 +30,31 @@ The app leverages:
 ---
 
 ## 🧑‍💻 Team Members
-| Name               | Role  |
-|--------------------|-------|
-| Aidan Ingram       | Scrum Master  / Developer   |
-| Hale Coffman       | Product Owner / Developer   |
-| Aryan Kevat        | Developer / Head Logic Designer|
-| Olivia Blankenship | Developer / Tester   |
-| Sam Suggs          | Developer / Tester  | 
-| Landon Bever       | Developer / Tester   | 
+
+| Name               | Role                            |
+| ------------------ | ------------------------------- |
+| Aidan Ingram       | Scrum Master / Developer        |
+| Hale Coffman       | Product Owner / Developer       |
+| Aryan Kevat        | Developer / Head Logic Designer |
+| Olivia Blankenship | Developer / Tester              |
+| Sam Suggs          | Developer / Tester              |
+| Landon Bever       | Developer / Tester              |
 
 ---
 
 ## 🧭 Development Timeline (Planned)
-| Iteration | Focus Area |
-|-----------|------------|
-| Iteration 1 | Authentication, UI framework |
-| Iteration 2 | API integration, dietary filters |
-| Iteration 3 | Image upload and recipe saving |
+
+| Iteration   | Focus Area                          |
+| ----------- | ----------------------------------- |
+| Iteration 1 | Authentication, UI framework        |
+| Iteration 2 | API integration, dietary filters    |
+| Iteration 3 | Image upload and recipe saving      |
 | Iteration 4 | Grocery planner and final UI polish |
 
 ---
 
 ## 📋 Requirements
+
 - **Docker** with Compose
 - **Node.js 20+** and **npm 10+**
 - Open ports: **3000** (Next.js), **8080** (Keycloak), **8025** (Mailpit)
@@ -60,25 +65,27 @@ The app leverages:
 ## 🚀 Run the Application (Local Dev)
 
 ### 1) Clone & enter
+
 **macOS/Linux**
-    
+
     git clone <YOUR-REMOTE-URL> munchmates
     cd munchmates
 
 **Windows (PowerShell)**
-    
+
     git clone <YOUR-REMOTE-URL> munchmates
     Set-Location .\munchmates
 
 ### 2) Environment
+
 Copy and review the example env file:
 
 **macOS/Linux**
-    
+
     cp .env.local.example .env.local
 
 **Windows (PowerShell)**
-    
+
     Copy-Item .env.local.example .env.local
 
 Key variables (already set in the example):
@@ -91,7 +98,7 @@ Key variables (already set in the example):
     JWT_ISSUER=http://localhost:8080/realms/dev
 
 ### 3) Install dependencies
-    
+
     npm ci
     # If ci fails:
     npm install
@@ -99,21 +106,21 @@ Key variables (already set in the example):
 ### 4) Start services + app
 
 **Option A — One terminal (foreground)**
-    
+
     npm run dev:all
     # Brings up Keycloak & Mailpit in the foreground, waits for :8080, then starts Next.js on :3000
 
 **Option B — Two terminals**
-- Terminal 1: start Keycloak stack
-    
-      npm run kc:up
-- Terminal 2: start Next.js
-    
-      npm run dev
 
-Open the app:  
-- App: http://localhost:3000  
-- Mailpit: http://localhost:8025  
+- Terminal 1: start Keycloak stack
+  npm run kc:up
+- Terminal 2: start Next.js
+  npm run dev
+
+Open the app:
+
+- App: http://localhost:3000
+- Mailpit: http://localhost:8025
 - Keycloak Admin: http://localhost:8080/admin/dev/console
 
 ---
@@ -121,14 +128,11 @@ Open the app:
 ## 🧰 Useful Commands
 
 - Stop Keycloak stack:
-    
-      npm run kc:down
+  npm run kc:down
 - Wipe Keycloak volumes (fresh DB; re-imports realm on next up):
-    
-      npm run kc:nuke
+  npm run kc:nuke
 - Tail Keycloak logs:
-    
-      npm run kc:logs
+  npm run kc:logs
 
 ---
 
@@ -139,3 +143,24 @@ Open the app:
 - **Module not found: `keycloak-js`** → run `npm ci` (or `npm install`) in the project root.
 - **Port conflicts** → free ports **3000/8080/8025** or adjust the compose/Next.js port bindings.
 
+## Keycloak Theme Setup
+
+---
+
+### For New Team Members (First Time Setup):
+
+The Keycloak theme is automatically configured when you first run the app. No action needed!
+
+### For Existing Team Members (One-Time Update):
+
+If you started working on this project before 11/5, you'll need to manually enable the custom theme:
+
+1. Go to http://localhost:8080/admin/dev/console
+2. Login to dev realm
+3. Make sure you're in the **dev** realm (dropdown in top-left)
+4. Go to **Realm Settings** → **Themes** tab
+5. Under **Login theme**, select **munchmates**
+6. Click **Save**
+7. Test by visiting http://localhost:3000/login - you should see the custom styled login page
+
+This is a one-time change and will persist in your local Keycloak instance.
