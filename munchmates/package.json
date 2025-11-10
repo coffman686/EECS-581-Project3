@@ -6,11 +6,11 @@
     "dev": "next dev -p 3000",
     "build": "next build",
     "start": "next start",
-    "kc:up": "docker compose -f login/keycloak/docker-compose.yml up -d --wait",
+    "kc:up+logs": "docker compose -f login/keycloak/docker-compose.yml up -d --wait && docker compose -f login/keycloak/docker-compose.yml logs -f",
+    "dev:all": "npx concurrently --kill-others-on-fail -n kc,next -c blue,green \"npm run kc:up+logs\" \"npx wait-on tcp:8080 && npm run dev\"",
     "kc:down": "docker compose -f login/keycloak/docker-compose.yml down",
     "kc:nuke": "docker compose -f login/keycloak/docker-compose.yml down -v",
     "kc:logs": "docker compose -f login/keycloak/docker-compose.yml logs -f",
-    "dev:all": "npx concurrently -k -n kc,next -c blue,green \"docker compose -f login/keycloak/docker-compose.yml up\" \"npx wait-on http://localhost:8080 && next dev -p 3000\"",
     "dev:all:detached": "npm run kc:up && npx wait-on http://localhost:8080 && next dev -p 3000"
   },
   "dependencies": {
