@@ -138,9 +138,7 @@ const Recipes = () => {
                             <div className="max-w-7xl mx-auto space-y-6">
                                 {/* Header with Search and Create */}
                                 <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
-                                    <div className="flex-1 max-w-2xl">
-                                        <DynamicList/>
-                                    </div>
+                                    <DynamicList/>
                                     <Button onClick={createNewRecipe} className="flex items-center gap-2">
                                         <Plus className="h-4 w-4" />
                                         Create New Recipe

@@ -17,7 +17,6 @@ export default function Autosuggest({ data, query, setQuery }: { data: string[],
 
     return (
         <div>
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
             <Input
                 type="text"
                 id="ingredient-autosuggest"
@@ -26,7 +25,6 @@ export default function Autosuggest({ data, query, setQuery }: { data: string[],
                 onFocus={() => setIsFocused(true)}
                 onBlur={() => setTimeout(() => setIsFocused(false), 100)}
                 placeholder="Enter ingredient..."
-                className= "pl-10 pr-4 py-2 w-full"
             />
             {filteredData.length > 0 && isFocused && (
                 <ul

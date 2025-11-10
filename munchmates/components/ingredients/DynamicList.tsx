@@ -43,7 +43,7 @@ export default function IngredientList({ initialIngredients = [] }: { initialIng
     setIngredients([]);
   }
   return (
-    <div>
+    <div className="flex-1 max-w-2xl">
       <ul>
         {ingredients.map((ingredient, index) => (
           <li key={ingredient}>
@@ -66,13 +66,13 @@ export default function IngredientList({ initialIngredients = [] }: { initialIng
           setQuery={setQuery}
         />
         <Button type="submit">Add ingredient</Button>
-      </form>
-      <Button
-        type="button"
-        onClick={() => clearIngredients()}
-      >
-      Clear List
+        <Button
+          type="button"
+          onClick={() => clearIngredients()}
+        >
+        Clear List
       </Button>
+      </form>
     </div>
   );
 }
