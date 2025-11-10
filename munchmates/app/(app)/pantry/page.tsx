@@ -9,7 +9,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Plus, Trash2, Search, Filter, ShoppingBag, Calendar } from 'lucide-react';
+import { Plus, Trash2, Search, Filter, ShoppingBag, Calendar, PencilLine, Save, X } from 'lucide-react';
 
 interface PantryItem {
     id: number;
@@ -54,6 +54,50 @@ const Pantry = () => {
     const [searchTerm, setSearchTerm] = useState('');
     const [selectedCategory, setSelectedCategory] = useState('All');
 
+    const [editingId, setEditingId] = useState<number | null>(null);
+    const [editName, setEditName] = useState('');
+    const [editQuantity, setEditQuantity] = useState('');
+    const [editCategory, setEditCategory] = useState(categories[0]);
+    const [editExpiry, setEditExpiry] = useState('');
+
+    const beginEdit = (item: PantryItem) => {
+        setEditingId(item.id);
+        setEditName(item.name);
+        setEditQuantity(item.quantity);
+        setEditCategory(item.category);
+        setEditExpiry(item.expiryDate ?? '');
+    };
+
+    const cancelEdit = () => {
+        setEditingId(null);
+        setEditName('');
+        setEditQuantity('');
+        setEditCategory(categories[0]);
+        setEditExpiry('');
+    };
+
+    const saveEdit = (id: number) => {
+        setItems(prev =>
+        prev.map(it =>
+            it.id === id
+            ? {
+                ...it,
+                name: editName.trim() || it.name,
+                quantity: editQuantity.trim() || it.quantity,
+                category: editCategory || it.category,
+                expiryDate: editExpiry.trim() ? editExpiry : undefined
+                }
+            : it
+        )
+        );
+        cancelEdit();
+    };
+
+    const handleEditKey = (e: React.KeyboardEvent, id: number) => {
+        if (e.key === 'Enter') saveEdit(id);
+        if (e.key === 'Escape') cancelEdit();
+    };
+
     const addItem = () => {
         if (itemName.trim() !== '' && itemQuantity.trim() !== '') {
             const newItem: PantryItem = {
@@ -74,6 +118,11 @@ const Pantry = () => {
 
     const removeItem = (id: number) => {
         setItems(items.filter(item => item.id !== id));
+    };
+
+    const clearAll = () => {
+        setItems([]);
+        cancelEdit();
     };
 
     const getDaysUntilExpiry = (expiryDate: string): number => {
@@ -128,7 +177,7 @@ const Pantry = () => {
                     <AppSidebar />
                     <div className="flex-1 flex flex-col">
                         <AppHeader title="Pantry" />
-                        <main className="flex-1 p-6 bg-muted/20">
+                        <main className="relative z-[1000] flex-1 p-6 bg-muted/20">
                             <div className="max-w-6xl mx-auto space-y-6">
                                 {/* Stats Overview */}
                                 <div className="grid gap-4 md:grid-cols-3">
@@ -205,6 +254,16 @@ const Pantry = () => {
                                             <Plus className="h-4 w-4" />
                                             Add to Pantry
                                         </Button>
+                                        {totalItems > 0 && (
+                                            <Button
+                                                variant="destructive"
+                                                onClick={clearAll}
+                                                className="mt-4 ml-2 flex items-center gap-2"
+                                            >
+                                                <Trash2 className="h-4 w-4" />
+                                                Clear All
+                                            </Button>
+                                        )}
                                     </CardContent>
                                 </Card>
 
@@ -250,42 +309,105 @@ const Pantry = () => {
                                                     <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-3">
                                                         {categoryItems.map((item) => {
                                                             const expiryStatus = getExpiryStatus(item.expiryDate);
+                                                            const isEditing = editingId === item.id;
                                                             return (
-                                                                <div 
-                                                                    key={item.id}
-                                                                    className="flex items-center justify-between p-3 border rounded-lg hover:bg-muted/50 transition-colors"
+                                                                <div
+                                                                key={item.id}
+                                                                className="flex items-start justify-between p-3 border rounded-lg hover:bg-muted/50 transition-colors"
                                                                 >
+                                                                {!isEditing ? (
+                                                                    <>
                                                                     <div className="flex-1 min-w-0">
                                                                         <div className="flex items-center gap-2 mb-1">
-                                                                            <h4 className="font-medium text-sm truncate">
-                                                                                {item.name}
-                                                                            </h4>
-                                                                            {expiryStatus && (
-                                                                                <Badge variant={expiryStatus.variant} className="text-xs">
-                                                                                    {expiryStatus.label}
-                                                                                </Badge>
-                                                                            )}
+                                                                        <h4 className="font-medium text-sm truncate">
+                                                                            {item.name}
+                                                                        </h4>
+                                                                        {expiryStatus && (
+                                                                            <Badge variant={expiryStatus.variant} className="text-xs">
+                                                                            {expiryStatus.label}
+                                                                            </Badge>
+                                                                        )}
                                                                         </div>
                                                                         <p className="text-sm text-muted-foreground">
-                                                                            {item.quantity}
+                                                                        {item.quantity}
                                                                         </p>
                                                                         {item.expiryDate && (
-                                                                            <p className="text-xs text-muted-foreground mt-1">
-                                                                                Expires: {new Date(item.expiryDate).toLocaleDateString()}
-                                                                            </p>
+                                                                        <p className="text-xs text-muted-foreground mt-1">
+                                                                            Expires: {new Date(item.expiryDate).toLocaleDateString()}
+                                                                        </p>
                                                                         )}
                                                                         <p className="text-xs text-muted-foreground">
-                                                                            Added: {new Date(item.addedDate).toLocaleDateString()}
+                                                                        Added: {new Date(item.addedDate).toLocaleDateString()}
                                                                         </p>
                                                                     </div>
-                                                                    <Button
+                                                                    <div className="flex gap-1">
+                                                                        <Button
+                                                                        variant="ghost"
+                                                                        size="icon"
+                                                                        onClick={() => beginEdit(item)}
+                                                                        className="h-8 w-8"
+                                                                        title="Edit"
+                                                                        >
+                                                                        <PencilLine className="h-4 w-4" />
+                                                                        </Button>
+                                                                        <Button
                                                                         variant="ghost"
                                                                         size="icon"
                                                                         onClick={() => removeItem(item.id)}
-                                                                        className="flex-shrink-0 h-8 w-8 hover:bg-red-100 hover:text-red-600"
-                                                                    >
+                                                                        className="h-8 w-8 hover:bg-red-100 hover:text-red-600"
+                                                                        title="Delete"
+                                                                        >
                                                                         <Trash2 className="h-3 w-3" />
-                                                                    </Button>
+                                                                        </Button>
+                                                                    </div>
+                                                                    </>
+                                                                ) : (
+                                                                    <div className="flex-1 min-w-0 space-y-2">
+                                                                    <div className="grid grid-cols-1 sm:grid-cols-4 gap-2">
+                                                                        <Input
+                                                                        autoFocus
+                                                                        placeholder="Name"
+                                                                        value={editName}
+                                                                        onChange={(e) => setEditName(e.target.value)}
+                                                                        onKeyDown={(e) => handleEditKey(e, item.id)}
+                                                                        />
+                                                                        <Input
+                                                                        placeholder="Quantity"
+                                                                        value={editQuantity}
+                                                                        onChange={(e) => setEditQuantity(e.target.value)}
+                                                                        onKeyDown={(e) => handleEditKey(e, item.id)}
+                                                                        />
+                                                                        <select
+                                                                        className="w-full p-2 border rounded-md text-sm bg-background"
+                                                                        value={editCategory}
+                                                                        onChange={(e) => setEditCategory(e.target.value)}
+                                                                        onKeyDown={(e) => handleEditKey(e, item.id)}
+                                                                        >
+                                                                        {[...new Set([item.category, ...categories])].map((cat) => (
+                                                                            <option key={cat} value={cat}>
+                                                                            {cat}
+                                                                            </option>
+                                                                        ))}
+                                                                        </select>
+                                                                        <Input
+                                                                        type="date"
+                                                                        value={editExpiry}
+                                                                        onChange={(e) => setEditExpiry(e.target.value)}
+                                                                        onKeyDown={(e) => handleEditKey(e, item.id)}
+                                                                        />
+                                                                    </div>
+                                                                    <div className="flex gap-2">
+                                                                        <Button size="sm" onClick={() => saveEdit(item.id)}>
+                                                                        <Save className="h-4 w-4 mr-1" />
+                                                                        Save
+                                                                        </Button>
+                                                                        <Button variant="ghost" size="sm" onClick={cancelEdit}>
+                                                                        <X className="h-4 w-4 mr-1" />
+                                                                        Cancel
+                                                                        </Button>
+                                                                    </div>
+                                                                    </div>
+                                                                )}
                                                                 </div>
                                                             );
                                                         })}
