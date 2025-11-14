@@ -53,7 +53,7 @@ npm run dev:all
 follow these steps to test Spoonacular API integration
 
 1. start your development server
-2. navigate to: **http://localhost:3000/spoonacular-test**
+2. navigate to: **http://localhost:3000/spoonacular_test**
 3. click the test buttons to verify everything works
 4. check the results displayed on the page
 
