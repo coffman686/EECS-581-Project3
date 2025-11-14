@@ -114,6 +114,7 @@ const Recipes = () => {
     };
 
     const handleSearch = (e: React.FormEvent) => {
+        const ingredientListString = ingredientList.join(',').toLowerCase();        
         e.preventDefault();
         // Search logic is handled by the filteredRecipes
     };
@@ -127,6 +128,7 @@ const Recipes = () => {
         // Logic to view recipe details would go here
         console.log('View recipe:', recipeId);
     };
+    const [ingredientList, setIngredientList] = useState<string[]>([]);
     return (
         <RequireAuth>
             <SidebarProvider>
@@ -138,7 +140,11 @@ const Recipes = () => {
                             <div className="max-w-7xl mx-auto space-y-6">
                                 {/* Header with Search and Create */}
                                 <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
-                                    <DynamicList/>
+                                    <DynamicList ingredients={ingredientList} setIngredients={setIngredientList}/>
+                                    <Button onClick={handleSearch} className="flex items-center gap-2">
+                                        <Search className="h-4 w-4" />
+                                        Search Recipes
+                                    </Button>
                                     <Button onClick={createNewRecipe} className="flex items-center gap-2">
                                         <Plus className="h-4 w-4" />
                                         Create New Recipe

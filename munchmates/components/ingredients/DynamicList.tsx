@@ -1,6 +1,7 @@
 import { useState } from "react";
 import Autosuggest from "./Autosuggest";
 import { Button } from "../ui/button";
+import { Dispatch, SetStateAction } from "react";
 
 const data = [
   "Apple",
@@ -13,8 +14,12 @@ const data = [
   "Honeydew",
 ];
 
-export default function IngredientList({ initialIngredients = [] }: { initialIngredients?: string[] }) {
-  const [ingredients, setIngredients] = useState<string[]>(initialIngredients);
+type IngredientListProps = {
+  ingredients: string[];
+  setIngredients: Dispatch<SetStateAction<string[]>>;
+}
+
+export default function IngredientList({ ingredients, setIngredients  }: IngredientListProps) {
   const [query, setQuery] = useState("");
 
   // TODO: replace, needed for testing
