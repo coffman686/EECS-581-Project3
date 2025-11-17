@@ -52,6 +52,7 @@ export interface Recipe {
   servings?: number;
   sourceUrl?: string;
   spoonacularSourceUrl?: string;
+  spoonacularScore?: number;
 }
 
 export interface RecipeInformation extends Recipe {
@@ -149,6 +150,7 @@ export async function searchRecipes(
     number?: number; // Number of results (default: 10, max: 100)
     offset?: number; // Offset for pagination
     addRecipeInformation?: boolean;
+    includeIngredients?: string; // Comma-separated list of ingredients to include
   } = {}
 ): Promise<SearchRecipesResult> {
   return spoonacularFetch<SearchRecipesResult>('/recipes/complexSearch', {

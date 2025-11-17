@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { searchRecipesByIngredients } from '@/lib/spoonacular';
+import { searchRecipes } from '@/lib/spoonacular';
   
 export async function GET(request: NextRequest) {
     const searchParams = request.nextUrl.searchParams;
@@ -8,10 +8,21 @@ export async function GET(request: NextRequest) {
         return NextResponse.json({ error: 'Missing ingredients parameter' }, { status: 400 });
     }
     try {
-        const recipes = await searchRecipesByIngredients((ingredients), {
-            number: 10,
+        const recipes = await searchRecipes('', {
+            includeIngredients: ingredients,
+            addRecipeInformation: true,
+            number: 10, //temp parameter
         });
-        return NextResponse.json({ recipes });
+        console.log('Fetched recipes by ingredients:', recipes);
+        const results = recipes.results.map((recipe) => ({
+            id: recipe.id,
+            title: recipe.title,
+            image: recipe.image,
+            score: recipe.spoonacularScore ? Math.round(recipe.spoonacularScore) : 0,
+            servings: recipe.servings,
+            readyInMinutes: recipe.readyInMinutes,
+        }))
+        return NextResponse.json({ results });
     } catch (error) {
         return NextResponse.json({ error: 'Failed to fetch recipes' }, { status: 500 });
     }

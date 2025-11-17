@@ -12,9 +12,18 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Badge } from '@/components/ui/badge';
 import { Search, Plus, Clock, Users, ChefHat, Filter, Star } from 'lucide-react';
 
+type Recipe = {
+    id: number;
+    title: string;
+    image: string;
+    score: number;
+    servings: number;
+    readyInMinutes: number;
+}
+/*
 interface Recipe {
     id: number;
-    name: string;
+    title: string;
     description: string;
     cookTime: number;
     servings: number;
@@ -23,70 +32,9 @@ interface Recipe {
     rating: number;
     image?: string;
 }
-
+*/
 const Recipes = () => {
-    const [recipes, setRecipes] = useState<Recipe[]>([
-        { 
-            id: 1, 
-            name: 'Spaghetti Carbonara', 
-            description: 'A classic Italian pasta dish with eggs, cheese, pancetta, and pepper.', 
-            cookTime: 30,
-            servings: 4,
-            difficulty: 'Medium',
-            category: 'Pasta',
-            rating: 4.8
-        },
-        { 
-            id: 2, 
-            name: 'Chicken Tikka Masala', 
-            description: 'Creamy and flavorful Indian curry with tender chicken pieces.', 
-            cookTime: 45,
-            servings: 6,
-            difficulty: 'Medium',
-            category: 'Curry',
-            rating: 4.6
-        },
-        { 
-            id: 3, 
-            name: 'Chocolate Chip Cookies', 
-            description: 'Classic soft and chewy cookies loaded with chocolate chips.', 
-            cookTime: 25,
-            servings: 24,
-            difficulty: 'Easy',
-            category: 'Dessert',
-            rating: 4.9
-        },
-        { 
-            id: 4, 
-            name: 'Caesar Salad', 
-            description: 'Fresh romaine lettuce with Caesar dressing, croutons, and parmesan.', 
-            cookTime: 15,
-            servings: 2,
-            difficulty: 'Easy',
-            category: 'Salad',
-            rating: 4.3
-        },
-        { 
-            id: 5, 
-            name: 'Beef Bourguignon', 
-            description: 'French beef stew braised in red wine with mushrooms and onions.', 
-            cookTime: 180,
-            servings: 6,
-            difficulty: 'Hard',
-            category: 'Stew',
-            rating: 4.7
-        },
-        { 
-            id: 6, 
-            name: 'Vegetable Stir Fry', 
-            description: 'Quick and healthy stir-fried vegetables with tofu in a savory sauce.', 
-            cookTime: 20,
-            servings: 4,
-            difficulty: 'Easy',
-            category: 'Vegetarian',
-            rating: 4.4
-        },
-    ]);
+    const [recipes, setRecipes] = useState<Recipe[]>([]);
 
     const [searchTerm, setSearchTerm] = useState('');
     const [selectedCategory, setSelectedCategory] = useState('All');
@@ -94,7 +42,7 @@ const Recipes = () => {
 
     const categories = ['All', 'Pasta', 'Curry', 'Dessert', 'Salad', 'Stew', 'Vegetarian', 'Breakfast', 'Seafood'];
     const difficulties = ['All', 'Easy', 'Medium', 'Hard'];
-
+    /*
     const filteredRecipes = recipes.filter(recipe => {
         const matchesSearch = recipe.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
                             recipe.description.toLowerCase().includes(searchTerm.toLowerCase());
@@ -103,7 +51,7 @@ const Recipes = () => {
         
         return matchesSearch && matchesCategory && matchesDifficulty;
     });
-
+    */
     const getDifficultyColor = (difficulty: string) => {
         switch (difficulty) {
             case 'Easy': return 'bg-green-100 text-green-800';
@@ -113,10 +61,14 @@ const Recipes = () => {
         }
     };
 
-    const handleSearch = (e: React.FormEvent) => {
-        const ingredientListString = ingredientList.join(',').toLowerCase();        
-        e.preventDefault();
-        // Search logic is handled by the filteredRecipes
+    const handleSearch = async (e: React.FormEvent) => {
+        const ingredientListString = ingredientList.join(',').toLowerCase();  
+        setSearchTerm(ingredientListString);
+        const response = await fetch(`/api/spoonacular/recipes/searchByIngredient?ingredients=${ingredientListString}`);
+        const data = await response.json();
+        console.log(data.results);
+        setRecipes(data.results);
+        console.log(recipes);
     };
 
     const createNewRecipe = () => {
@@ -182,28 +134,35 @@ const Recipes = () => {
                                 </div>
 
                                 {/* Recipe Grid */}
-                                {filteredRecipes.length > 0 ? (
+                                {recipes ? (
                                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                                        {filteredRecipes.map(recipe => (
+                                        {recipes.map(recipe => (
                                             <Card key={recipe.id} className="flex flex-col overflow-hidden hover:shadow-lg transition-shadow duration-300">
                                                 <div className="h-48 bg-gradient-to-br from-primary/20 to-muted flex items-center justify-center">
-                                                    <ChefHat className="h-16 w-16 text-primary/50" />
+                                                    <img
+                                                        src={recipe.image || '/placeholder-recipe.png'}
+                                                        alt={recipe.title}
+                                                        className="h-full w-full object-cover"
+                                                    />
                                                 </div>
                                                 <CardHeader className="pb-3 flex-1">
                                                     <div className="flex items-start justify-between mb-2">
                                                         <CardTitle className="text-lg leading-tight">
-                                                            {recipe.name}
+                                                            {recipe.title}
                                                         </CardTitle>
                                                         <div className="flex items-center gap-1 text-sm text-muted-foreground">
                                                             <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
-                                                            <span>{recipe.rating}</span>
+                                                            <span>{recipe.score}</span>
                                                         </div>
                                                     </div>
+                                                    {/*
                                                     <CardDescription className="line-clamp-2">
                                                         {recipe.description}
                                                     </CardDescription>
+                                                        */}
                                                 </CardHeader>
                                                 <CardContent className="pb-3">
+                                                    {/*
                                                     <div className="flex flex-wrap gap-2 mb-3">
                                                         <Badge variant="secondary" className={getDifficultyColor(recipe.difficulty)}>
                                                             {recipe.difficulty}
@@ -212,10 +171,11 @@ const Recipes = () => {
                                                             {recipe.category}
                                                         </Badge>
                                                     </div>
+                                                    */}
                                                     <div className="flex items-center justify-between text-sm text-muted-foreground">
                                                         <div className="flex items-center gap-1">
                                                             <Clock className="h-4 w-4" />
-                                                            <span>{recipe.cookTime} min</span>
+                                                            <span>{recipe.readyInMinutes} min</span>
                                                         </div>
                                                         <div className="flex items-center gap-1">
                                                             <Users className="h-4 w-4" />
@@ -271,11 +231,12 @@ const Recipes = () => {
                                                 <p className="text-2xl font-bold text-primary">{recipes.length}</p>
                                                 <p className="text-sm text-muted-foreground">Total Recipes</p>
                                             </div>
-                                            <div>
+                                            {/*
+                                            <div>  
                                                 <p className="text-2xl font-bold text-green-600">
                                                     {recipes.filter(r => r.difficulty === 'Easy').length}
                                                 </p>
-                                                <p className="text-sm text-muted-foreground">Easy Recipes</p>
+                                                <p className="text-sm text-muted-foreground">Easy Recipes</p>  
                                             </div>
                                             <div>
                                                 <p className="text-2xl font-bold text-blue-600">
@@ -283,9 +244,10 @@ const Recipes = () => {
                                                 </p>
                                                 <p className="text-sm text-muted-foreground">Categories</p>
                                             </div>
+                                            */}
                                             <div>
                                                 <p className="text-2xl font-bold text-purple-600">
-                                                    {Math.max(...recipes.map(r => r.rating))}
+                                                    {Math.max(...recipes.map(r => r.score))}
                                                 </p>
                                                 <p className="text-sm text-muted-foreground">Highest Rated</p>
                                             </div>
