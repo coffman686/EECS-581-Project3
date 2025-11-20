@@ -3,7 +3,9 @@ import { searchRecipes } from '@/lib/spoonacular';
   
 export async function GET(request: NextRequest) {
     const searchParams = request.nextUrl.searchParams;
-    const ingredients = searchParams.get('ingredients');
+    const ingredients = searchParams.get('ingredients') ?? undefined;
+    const cuisine = searchParams.get('cuisine') ?? undefined
+    const dishType = searchParams.get('dishType') ?? undefined
     if (!ingredients) {
         return NextResponse.json({ error: 'Missing ingredients parameter' }, { status: 400 });
     }
@@ -11,9 +13,10 @@ export async function GET(request: NextRequest) {
         const recipes = await searchRecipes('', {
             includeIngredients: ingredients,
             addRecipeInformation: true,
-            number: 10, //temp parameter
+            cuisine: cuisine,
+            type: dishType,
+            number: 48, //idk what to set this to yet
         });
-        console.log('Fetched recipes by ingredients:', recipes);
         const results = recipes.results.map((recipe) => ({
             id: recipe.id,
             title: recipe.title,
@@ -21,6 +24,8 @@ export async function GET(request: NextRequest) {
             score: recipe.spoonacularScore ? Math.round(recipe.spoonacularScore) : 0,
             servings: recipe.servings,
             readyInMinutes: recipe.readyInMinutes,
+            cuisines: recipe.cuisines,
+            dishTypes: recipe.dishTypes,
         }))
         return NextResponse.json({ results });
     } catch (error) {
