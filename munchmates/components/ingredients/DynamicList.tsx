@@ -1,7 +1,9 @@
 import { useState } from "react";
 import Autosuggest from "./Autosuggest";
 import { Button } from "../ui/button";
+import { Badge } from "../ui/badge";
 import { Dispatch, SetStateAction } from "react";
+import { XIcon } from "lucide-react";
 
 const data = [
   "Apple",
@@ -52,14 +54,20 @@ export default function IngredientList({ ingredients, setIngredients  }: Ingredi
       <ul>
         {ingredients.map((ingredient, index) => (
           <li key={ingredient}>
-            {ingredient}
-            <Button
-              type="button"
-              style={{ marginLeft: "1em" }}
-              onClick={() => handleDeleteIngredient(index)}
+            <Badge
+              className="justify-between"
             >
-              ⓧ
-            </Button>
+              {ingredient}
+              <Button
+              type="button"
+              variant="ghost"
+              //make it small and circular
+              className="size-6 p-0 rounded-full"
+              onClick={() => handleDeleteIngredient(index)}
+                >
+                <XIcon className="inline justify-center"/>
+              </Button>
+            </Badge>
           </li>
         ))}
       </ul>

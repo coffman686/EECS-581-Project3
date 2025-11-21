@@ -11,6 +11,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Badge } from '@/components/ui/badge';
 import { Search, Plus, Clock, Users, ChefHat, Filter, Star } from 'lucide-react';
 import { useRouter } from 'next/navigation';
+import { set } from '@vueuse/core';
 
 type Recipe = {
     id: number;
@@ -25,7 +26,7 @@ type Recipe = {
 const Recipes = () => {
     const router = useRouter();
     const [recipes, setRecipes] = useState<Recipe[]>([]);
-
+    const [isLoading, setIsLoading] = useState(false);
     const [searchTerm, setSearchTerm] = useState('');
     const [selectedDishType, setSelectedDishType] = useState('All');
     const [selectedCuisine, setSelectedCuisine] = useState('All');
@@ -34,9 +35,11 @@ const Recipes = () => {
     const cuisines = ['All', 'African', 'Asian', 'American', 'British', 'Cajun', 'Caribbean', 'Chinese', 'Eastern European', 'European', 'French', 'German', 'Greek', 'Indian', 'Irish', 'Italian', 'Japanese', 'Jewish', 'Korean', 'Latin American', 'Mediterranean', 'Mexican', 'Middle Eastern', 'Nordic', 'Southern', 'Spanish', 'Thai', 'Vietnamese'];
     
     const fetchRecipes = async () => {
+        setIsLoading(true);
         const response = await fetch(`/api/spoonacular/recipes/searchByIngredient?ingredients=${searchTerm}&cuisine=${selectedCuisine !== 'All' ? selectedCuisine : undefined}&dishType=${selectedDishType !== 'All' ? selectedDishType : undefined}`);
         const data = await response.json();
         setRecipes(data.results);
+        setIsLoading(false);
     }
 
     useEffect(() => {
@@ -172,27 +175,42 @@ const Recipes = () => {
                                 ) : (
                                     <Card className="text-center py-12">
                                         <CardContent>
-                                            <ChefHat className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                                            <h3 className="text-lg font-semibold mb-2">
-                                                {searchTerm || selectedDishType !== 'All' || selectedCuisine !== 'All'
-                                                    ? 'No recipes found'
-                                                    : 'No recipes yet'
-                                                }
-                                            </h3>
-                                            <p className="text-muted-foreground mb-4">
-                                                {searchTerm || selectedDishType !== 'All' || selectedCuisine !== 'All'
-                                                    ? 'Try adjusting your search or filters'
-                                                    : 'Start by creating your first recipe'
-                                                }
-                                            </p>
-                                            {(!searchTerm && selectedDishType === 'All' && selectedCuisine === 'All') && (
-                                                <Button 
-                                                    onClick={createNewRecipe}
-                                                    className="flex items-center gap-2 mx-auto"
-                                                >
+                                            { isLoading && (
+                                                <div>
+                                                    <ChefHat className="h-12 w-12 text-muted-foreground mx-auto mb-4 animate-spin" />
+                                                    <h3 className="text-lg font-semibold mb-2">
+                                                        Loading recipes...
+                                                    </h3>
+                                                </div>
+                                            )}
+                                            { searchTerm && (selectedDishType !== 'All' || selectedCuisine !== 'All') && !isLoading && (
+                                                <div>
+                                                    <ChefHat className="h-12 w-12 text-muted-foreground mx-auto mb-4 animate-pulse" />
+                                                        <h3 className="text-lg font-semibold mb-2">
+                                                            No recipes found
+                                                        </h3>
+                                                        <p className="text-muted-foreground mb-4">
+                                                            Try adjusting your search or filters
+                                                        </p>
+                                                </div>
+                                            )}
+                                            { !searchTerm && !isLoading && (
+                                                <div>
+                                                    <Search className="h-12 w-12 text-muted-foreground mx-auto mb-4 animate-pulse" />
+                                                        <h3 className="text-lg font-semibold mb-2">
+                                                            Search for a recipe to get started
+                                                        </h3>
+                                                        <p className="text-muted-foreground mb-4">
+                                                            Enter in ingredients above to find recipe suggestions or create your own recipe
+                                                        </p>
+                                                    <Button 
+                                                        onClick={createNewRecipe}
+                                                        className="flex items-center gap-2 mx-auto"
+                                                    >
                                                     <Plus className="h-4 w-4" />
-                                                    Create Your First Recipe
-                                                </Button>
+                                                        Create Your First Recipe
+                                                    </Button>
+                                                </div>
                                             )}
                                         </CardContent>
                                     </Card>
