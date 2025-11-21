@@ -61,7 +61,6 @@ export default function IngredientList({ ingredients, setIngredients  }: Ingredi
               <Button
               type="button"
               variant="ghost"
-              //make it small and circular
               className="size-6 p-0 rounded-full"
               onClick={() => handleDeleteIngredient(index)}
                 >

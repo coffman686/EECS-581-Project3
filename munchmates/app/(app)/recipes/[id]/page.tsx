@@ -1,17 +1,18 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
+import { useRouter } from "next/navigation";
 import { usePathname } from "next/navigation";
+import RecipeDetails from "@/components/RecipeDetails";
 
-const Recipe = () => {
-    const pathname = usePathname();
-    const id = pathname.split('/').pop();
+const RecipeInfo = () => {
+  const pathname = usePathname();
+  const id = pathname.split('/').pop();
 
-    return (
-        <div>
-            {`Recipe Detail Page for id: ${id}`}
-        </div>
-    )
+  return (
+    <div>
+      <RecipeDetails recipeId={id!} />
+    </div>
+
+  );
 }
-
-export default Recipe;
+export default RecipeInfo

@@ -1,13 +1,18 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { getRecipeInstructions } from '@/lib/spoonacular';
 
-/*
-This file will handle searching for recipe instructions based on a recipe ID.
-    This will be called in recipes/[id]/page.tsx to get the instructions for the recipe.
-    To do before implementhing this endpoint:
-        - Include instruction search function in lib/spoonacular.ts
-        Endpoint: https://api.spoonacular.com/recipes/{id}/analyzedInstructions
-    This endpoint will return:
-        - An array of instruction steps for the given recipe ID
-        - Not entirely sure how to do everything yet, the output is kinda weird
-        - I can probably make a good interface with some list comprehension
-*/
+export async function GET(request: NextRequest) {
+    const searchParams = request.nextUrl.searchParams;
+    const idParam = searchParams.get('id');
+    if (!idParam) {
+        return NextResponse.json({ error: 'Missing id parameter' }, { status: 400 });
+    }
+    try {
+        const id = parseInt(idParam, 10);
+        const instructions = await getRecipeInstructions(id);
+        return NextResponse.json({ instructions });
+    }
+    catch (error) {
+        return NextResponse.json({ error: 'Failed to fetch recipe instructions' }, { status: 500 });
+    }
+}

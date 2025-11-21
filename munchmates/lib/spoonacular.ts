@@ -161,7 +161,16 @@ export async function searchRecipes(
     ...options,
   });
 }
-
+// get recipe instructions
+// @param recipeId - the Spoonacular recipe ID
+export async function getRecipeInstructions(
+  recipeId: number
+): Promise<any> {
+  return spoonacularFetch<any>(
+    `/recipes/${recipeId}/analyzedInstructions`,
+    {}
+  );
+}
 
 // get detailed information about a specific recipe
 // @param recipeId - the Spoonacular recipe ID
