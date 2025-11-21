@@ -15,6 +15,21 @@ import { Loader2 } from 'lucide-react';
 
 type TestType = 'all' | 'recipes' | 'ingredients' | 'random' | 'byIngredients' | 'recipeInfo';
 
+
+export function getDiets() {
+  const localDiets = localStorage.getItem("diets");
+  if (localDiets) {
+    return JSON.parse(localDiets).join(",");
+  }
+}
+
+export function getIntolerances() {
+  const localIntolerances = localStorage.getItem("intolerances");
+  if (localIntolerances) {
+    return JSON.parse(localIntolerances).join(",");
+  }
+}
+
 export default function SpoonacularTestPage() {
   const [loading, setLoading] = useState(false);
   const [results, setResults] = useState<any>(null);
@@ -26,7 +41,7 @@ export default function SpoonacularTestPage() {
     setResults(null);
 
     try {
-      const response = await fetch(`/api/spoonacular/test?test=${testType}`);
+      const response = await fetch(`/api/spoonacular/test?test=${testType}&diets=${getDiets()}&intolerances=${getIntolerances()}`);
       const data = await response.json();
 
       if (!response.ok) {

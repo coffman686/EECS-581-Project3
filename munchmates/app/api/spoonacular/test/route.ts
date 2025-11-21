@@ -1,4 +1,4 @@
-// test route.ts file to showcase how to utilize spoonacular API 
+// test route.ts file to showcase how to utilize spoonacular API
 import { NextRequest, NextResponse } from 'next/server';
 import {
   searchRecipes,
@@ -14,6 +14,10 @@ export async function GET(request: NextRequest) {
   const searchParams = request.nextUrl.searchParams;
   const testType = searchParams.get('test') || 'all';
 
+  // WARN: testing
+  const diets = searchParams.get("diets") || undefined;
+  const intolerances = searchParams.get("intolerances") || undefined;
+
   try {
     const results: Record<string, any> = {
       timestamp: new Date().toISOString(),
@@ -24,12 +28,18 @@ export async function GET(request: NextRequest) {
     // Test 1: Search Recipes
     if (testType === 'recipes' || testType === 'all') {
       console.log('Testing: Search Recipes for "pasta"...');
+      console.log(diets);
+      console.log(intolerances);
       const recipesResult = await searchRecipes('pasta', {
         number: 5,
         addRecipeInformation: true,
+        diet: diets,
+        intolerances: intolerances,
       });
       results.searchRecipes = {
         query: 'pasta',
+        diet: diets,
+        intolerances: intolerances,
         totalResults: recipesResult.totalResults,
         resultsReturned: recipesResult.results.length,
         recipes: recipesResult.results.map((r) => ({
@@ -46,9 +56,11 @@ export async function GET(request: NextRequest) {
       console.log('Testing: Search Ingredients for "chicken"...');
       const ingredientsResult = await searchIngredients('chicken', {
         number: 5,
+        intolerances: intolerances,
       });
       results.searchIngredients = {
         query: 'chicken',
+        intolerances: intolerances,
         totalResults: ingredientsResult.totalResults,
         resultsReturned: ingredientsResult.results.length,
         ingredients: ingredientsResult.results.map((i) => ({
@@ -88,7 +100,9 @@ export async function GET(request: NextRequest) {
       console.log('Testing: Search Recipes by Ingredients...');
       const byIngredientsResult = await searchRecipesByIngredients(
         'chicken,rice,tomato',
-        { number: 5 }
+        {
+          number: 5,
+        }
       );
       results.searchByIngredients = {
         ingredients: 'chicken,rice,tomato',
@@ -104,7 +118,11 @@ export async function GET(request: NextRequest) {
     // Test 5: Get Recipe Information (detailed)
     if (testType === 'recipeInfo' || testType === 'all') {
       // First, get a recipe ID from search
-      const searchResult = await searchRecipes('lasagna', { number: 1 });
+      const searchResult = await searchRecipes('lasagna', {
+        number: 1,
+        diet: diets,
+        intolerances: intolerances,
+      });
       if (searchResult.results.length > 0) {
         const recipeId = searchResult.results[0].id;
         console.log(`Testing: Get Recipe Information for ID ${recipeId}...`);
