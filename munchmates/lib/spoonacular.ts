@@ -52,6 +52,9 @@ export interface Recipe {
   servings?: number;
   sourceUrl?: string;
   spoonacularSourceUrl?: string;
+  spoonacularScore?: number;
+  cuisines?: string[];
+  dishTypes?: string[];
 }
 
 export interface RecipeInformation extends Recipe {
@@ -149,6 +152,8 @@ export async function searchRecipes(
     number?: number; // Number of results (default: 10, max: 100)
     offset?: number; // Offset for pagination
     addRecipeInformation?: boolean;
+    type?: string;
+    includeIngredients?: string; // Comma-separated list of ingredients to include
   } = {}
 ): Promise<SearchRecipesResult> {
   return spoonacularFetch<SearchRecipesResult>('/recipes/complexSearch', {
@@ -156,7 +161,16 @@ export async function searchRecipes(
     ...options,
   });
 }
-
+// get recipe instructions
+// @param recipeId - the Spoonacular recipe ID
+export async function getRecipeInstructions(
+  recipeId: number
+): Promise<any> {
+  return spoonacularFetch<any>(
+    `/recipes/${recipeId}/analyzedInstructions`,
+    {}
+  );
+}
 
 // get detailed information about a specific recipe
 // @param recipeId - the Spoonacular recipe ID

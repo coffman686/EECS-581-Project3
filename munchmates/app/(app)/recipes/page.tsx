@@ -1,121 +1,54 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import DynamicList from '@/components/ingredients/DynamicList';
 import AppHeader from '@/components/layout/app-header';
 import RequireAuth from '@/components/RequireAuth';
 import { SidebarProvider } from '@/components/ui/sidebar';
 import AppSidebar from '@/components/layout/app-sidebar';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Search, Plus, Clock, Users, ChefHat, Filter, Star } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import { set } from '@vueuse/core';
 
-interface Recipe {
+type Recipe = {
     id: number;
-    name: string;
-    description: string;
-    cookTime: number;
+    title: string;
+    image: string;
+    score: number;
     servings: number;
-    difficulty: 'Easy' | 'Medium' | 'Hard';
-    category: string;
-    rating: number;
-    image?: string;
+    readyInMinutes: number;
+    cuisines: string[];
+    dishTypes: string[];
 }
-
 const Recipes = () => {
-    const [recipes, setRecipes] = useState<Recipe[]>([
-        { 
-            id: 1, 
-            name: 'Spaghetti Carbonara', 
-            description: 'A classic Italian pasta dish with eggs, cheese, pancetta, and pepper.', 
-            cookTime: 30,
-            servings: 4,
-            difficulty: 'Medium',
-            category: 'Pasta',
-            rating: 4.8
-        },
-        { 
-            id: 2, 
-            name: 'Chicken Tikka Masala', 
-            description: 'Creamy and flavorful Indian curry with tender chicken pieces.', 
-            cookTime: 45,
-            servings: 6,
-            difficulty: 'Medium',
-            category: 'Curry',
-            rating: 4.6
-        },
-        { 
-            id: 3, 
-            name: 'Chocolate Chip Cookies', 
-            description: 'Classic soft and chewy cookies loaded with chocolate chips.', 
-            cookTime: 25,
-            servings: 24,
-            difficulty: 'Easy',
-            category: 'Dessert',
-            rating: 4.9
-        },
-        { 
-            id: 4, 
-            name: 'Caesar Salad', 
-            description: 'Fresh romaine lettuce with Caesar dressing, croutons, and parmesan.', 
-            cookTime: 15,
-            servings: 2,
-            difficulty: 'Easy',
-            category: 'Salad',
-            rating: 4.3
-        },
-        { 
-            id: 5, 
-            name: 'Beef Bourguignon', 
-            description: 'French beef stew braised in red wine with mushrooms and onions.', 
-            cookTime: 180,
-            servings: 6,
-            difficulty: 'Hard',
-            category: 'Stew',
-            rating: 4.7
-        },
-        { 
-            id: 6, 
-            name: 'Vegetable Stir Fry', 
-            description: 'Quick and healthy stir-fried vegetables with tofu in a savory sauce.', 
-            cookTime: 20,
-            servings: 4,
-            difficulty: 'Easy',
-            category: 'Vegetarian',
-            rating: 4.4
-        },
-    ]);
-
+    const router = useRouter();
+    const [recipes, setRecipes] = useState<Recipe[]>([]);
+    const [isLoading, setIsLoading] = useState(false);
     const [searchTerm, setSearchTerm] = useState('');
-    const [selectedCategory, setSelectedCategory] = useState('All');
-    const [selectedDifficulty, setSelectedDifficulty] = useState('All');
+    const [selectedDishType, setSelectedDishType] = useState('All');
+    const [selectedCuisine, setSelectedCuisine] = useState('All');
 
-    const categories = ['All', 'Pasta', 'Curry', 'Dessert', 'Salad', 'Stew', 'Vegetarian', 'Breakfast', 'Seafood'];
-    const difficulties = ['All', 'Easy', 'Medium', 'Hard'];
+    const dishTypes = ['All', 'main course', 'side dish', 'dessert', 'appetizer', 'salad', 'bread', 'breakfast', 'soup', 'beverage', 'sauce', 'marinade', 'fingerfood', 'snack', 'drink'];
+    const cuisines = ['All', 'African', 'Asian', 'American', 'British', 'Cajun', 'Caribbean', 'Chinese', 'Eastern European', 'European', 'French', 'German', 'Greek', 'Indian', 'Irish', 'Italian', 'Japanese', 'Jewish', 'Korean', 'Latin American', 'Mediterranean', 'Mexican', 'Middle Eastern', 'Nordic', 'Southern', 'Spanish', 'Thai', 'Vietnamese'];
+    
+    const fetchRecipes = async () => {
+        setIsLoading(true);
+        const response = await fetch(`/api/spoonacular/recipes/searchByIngredient?ingredients=${searchTerm}&cuisine=${selectedCuisine !== 'All' ? selectedCuisine : undefined}&dishType=${selectedDishType !== 'All' ? selectedDishType : undefined}`);
+        const data = await response.json();
+        setRecipes(data.results);
+        setIsLoading(false);
+    }
 
-    const filteredRecipes = recipes.filter(recipe => {
-        const matchesSearch = recipe.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                            recipe.description.toLowerCase().includes(searchTerm.toLowerCase());
-        const matchesCategory = selectedCategory === 'All' || recipe.category === selectedCategory;
-        const matchesDifficulty = selectedDifficulty === 'All' || recipe.difficulty === selectedDifficulty;
-        
-        return matchesSearch && matchesCategory && matchesDifficulty;
-    });
+    useEffect(() => {
+        fetchRecipes()
+    }, [searchTerm, selectedCuisine, selectedDishType])
 
-    const getDifficultyColor = (difficulty: string) => {
-        switch (difficulty) {
-            case 'Easy': return 'bg-green-100 text-green-800';
-            case 'Medium': return 'bg-yellow-100 text-yellow-800';
-            case 'Hard': return 'bg-red-100 text-red-800';
-            default: return 'bg-gray-100 text-gray-800';
-        }
-    };
-
-    const handleSearch = (e: React.FormEvent) => {
-        e.preventDefault();
-        // Search logic is handled by the filteredRecipes
+    const handleSearch = async () => {
+        const ingredientListString = ingredientList.join(',').toLowerCase();  
+        setSearchTerm(ingredientListString);
     };
 
     const createNewRecipe = () => {
@@ -123,14 +56,11 @@ const Recipes = () => {
         console.log('Create new recipe');
     };
 
-    const viewRecipe = (recipeId: number) => {
-        // Logic to view recipe details would go here
-        console.log('View recipe:', recipeId);
-    };
+    const [ingredientList, setIngredientList] = useState<string[]>([]);
     return (
         <RequireAuth>
             <SidebarProvider>
-                <div className="min-h-screen flex">
+                <div className="min-h-screen flex w-full">
                     <AppSidebar />
                     <div className="flex-1 flex flex-col">
                         <AppHeader title="Recipes" />
@@ -138,7 +68,11 @@ const Recipes = () => {
                             <div className="max-w-7xl mx-auto space-y-6">
                                 {/* Header with Search and Create */}
                                 <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
-                                    <DynamicList/>
+                                    <DynamicList ingredients={ingredientList} setIngredients={setIngredientList}/>
+                                    <Button onClick={handleSearch} className="flex items-center gap-2">
+                                        <Search className="h-4 w-4" />
+                                        Search Recipes
+                                    </Button>
                                     <Button onClick={createNewRecipe} className="flex items-center gap-2">
                                         <Plus className="h-4 w-4" />
                                         Create New Recipe
@@ -152,64 +86,74 @@ const Recipes = () => {
                                         <span className="text-sm font-medium">Filter by:</span>
                                     </div>
                                     <select
-                                        value={selectedCategory}
-                                        onChange={(e) => setSelectedCategory(e.target.value)}
+                                        value={selectedDishType}
+                                        onChange={(e) => setSelectedDishType(e.target.value)}
                                         className="flex h-10 rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
                                     >
-                                        {categories.map(category => (
-                                            <option key={category} value={category}>
-                                                {category}
+                                        {dishTypes.map(dishType => (
+                                            <option key={dishType} value={dishType}>
+                                                {dishType.charAt(0).toUpperCase() + dishType.slice(1)}
                                             </option>
                                         ))}
                                     </select>
                                     <select
-                                        value={selectedDifficulty}
-                                        onChange={(e) => setSelectedDifficulty(e.target.value)}
+                                        value={selectedCuisine}
+                                        onChange={(e) => setSelectedCuisine(e.target.value)}
                                         className="flex h-10 rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
                                     >
-                                        {difficulties.map(difficulty => (
-                                            <option key={difficulty} value={difficulty}>
-                                                {difficulty}
+                                        {cuisines.map(cuisine => (
+                                            <option key={cuisine} value={cuisine}>
+                                                {cuisine.charAt(0).toUpperCase() + cuisine.slice(1)}
                                             </option>
                                         ))}
                                     </select>
                                 </div>
-
                                 {/* Recipe Grid */}
-                                {filteredRecipes.length > 0 ? (
+                                {recipes && recipes.length > 0 ? (
                                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                                        {filteredRecipes.map(recipe => (
+                                        {recipes.map(recipe => (
                                             <Card key={recipe.id} className="flex flex-col overflow-hidden hover:shadow-lg transition-shadow duration-300">
                                                 <div className="h-48 bg-gradient-to-br from-primary/20 to-muted flex items-center justify-center">
-                                                    <ChefHat className="h-16 w-16 text-primary/50" />
+                                                    <img
+                                                        src={recipe.image || '/placeholder-recipe.png'}
+                                                        alt={recipe.title}
+                                                        className="h-full w-full object-cover"
+                                                    />
                                                 </div>
                                                 <CardHeader className="pb-3 flex-1">
                                                     <div className="flex items-start justify-between mb-2">
                                                         <CardTitle className="text-lg leading-tight">
-                                                            {recipe.name}
+                                                            {recipe.title}
                                                         </CardTitle>
                                                         <div className="flex items-center gap-1 text-sm text-muted-foreground">
                                                             <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
-                                                            <span>{recipe.rating}</span>
+                                                            <span>{recipe.score}</span>
                                                         </div>
                                                     </div>
                                                     <CardDescription className="line-clamp-2">
-                                                        {recipe.description}
+                                                        {recipe.dishTypes.map(dishType => (
+                                                            dishTypes.includes(dishType) &&
+                                                            <Badge key={dishType} className="mr-1">
+                                                                {dishType.charAt(0).toUpperCase() + dishType.slice(1)}
+                                                            </Badge>
+                                                        ))}
                                                     </CardDescription>
                                                 </CardHeader>
                                                 <CardContent className="pb-3">
                                                     <div className="flex flex-wrap gap-2 mb-3">
-                                                        <Badge variant="secondary" className={getDifficultyColor(recipe.difficulty)}>
-                                                            {recipe.difficulty}
-                                                        </Badge>
-                                                        <Badge variant="outline" className="text-xs">
-                                                            {recipe.category}
-                                                        </Badge>
+                                                        {recipe.cuisines.length > 0 ? recipe.cuisines.map(cuisine => (
+                                                            cuisines.includes(cuisine) &&
+                                                                <Badge key={cuisine} variant="secondary">
+                                                                    {cuisine.charAt(0).toUpperCase() + cuisine.slice(1)}
+                                                                </Badge>
+                                                            )) : (
+                                                            null)
+                                                        }
                                                     </div>
                                                     <div className="flex items-center justify-between text-sm text-muted-foreground">
                                                         <div className="flex items-center gap-1">
                                                             <Clock className="h-4 w-4" />
-                                                            <span>{recipe.cookTime} min</span>
+                                                            <span>{recipe.readyInMinutes} min</span>
                                                         </div>
                                                         <div className="flex items-center gap-1">
                                                             <Users className="h-4 w-4" />
@@ -219,7 +163,7 @@ const Recipes = () => {
                                                 </CardContent>
                                                 <CardFooter>
                                                     <Button 
-                                                        onClick={() => viewRecipe(recipe.id)}
+                                                        onClick={() => router.push(`/recipes/${recipe.id}`)}
                                                         className="w-full"
                                                     >
                                                         View Recipe
@@ -231,33 +175,48 @@ const Recipes = () => {
                                 ) : (
                                     <Card className="text-center py-12">
                                         <CardContent>
-                                            <ChefHat className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                                            <h3 className="text-lg font-semibold mb-2">
-                                                {searchTerm || selectedCategory !== 'All' || selectedDifficulty !== 'All'
-                                                    ? 'No recipes found'
-                                                    : 'No recipes yet'
-                                                }
-                                            </h3>
-                                            <p className="text-muted-foreground mb-4">
-                                                {searchTerm || selectedCategory !== 'All' || selectedDifficulty !== 'All'
-                                                    ? 'Try adjusting your search or filters'
-                                                    : 'Start by creating your first recipe'
-                                                }
-                                            </p>
-                                            {(!searchTerm && selectedCategory === 'All' && selectedDifficulty === 'All') && (
-                                                <Button 
-                                                    onClick={createNewRecipe}
-                                                    className="flex items-center gap-2 mx-auto"
-                                                >
+                                            { isLoading && (
+                                                <div>
+                                                    <ChefHat className="h-12 w-12 text-muted-foreground mx-auto mb-4 animate-spin" />
+                                                    <h3 className="text-lg font-semibold mb-2">
+                                                        Loading recipes...
+                                                    </h3>
+                                                </div>
+                                            )}
+                                            { searchTerm && (selectedDishType !== 'All' || selectedCuisine !== 'All') && !isLoading && (
+                                                <div>
+                                                    <ChefHat className="h-12 w-12 text-muted-foreground mx-auto mb-4 animate-pulse" />
+                                                        <h3 className="text-lg font-semibold mb-2">
+                                                            No recipes found
+                                                        </h3>
+                                                        <p className="text-muted-foreground mb-4">
+                                                            Try adjusting your search or filters
+                                                        </p>
+                                                </div>
+                                            )}
+                                            { !searchTerm && !isLoading && (
+                                                <div>
+                                                    <Search className="h-12 w-12 text-muted-foreground mx-auto mb-4 animate-pulse" />
+                                                        <h3 className="text-lg font-semibold mb-2">
+                                                            Search for a recipe to get started
+                                                        </h3>
+                                                        <p className="text-muted-foreground mb-4">
+                                                            Enter in ingredients above to find recipe suggestions or create your own recipe
+                                                        </p>
+                                                    <Button 
+                                                        onClick={createNewRecipe}
+                                                        className="flex items-center gap-2 mx-auto"
+                                                    >
                                                     <Plus className="h-4 w-4" />
-                                                    Create Your First Recipe
-                                                </Button>
+                                                        Create Your First Recipe
+                                                    </Button>
+                                                </div>
                                             )}
                                         </CardContent>
                                     </Card>
                                 )}
-
                                 {/* Stats */}
+                                { recipes && recipes.length > 0 ? (
                                 <Card>
                                     <CardContent className="p-6">
                                         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
@@ -265,27 +224,28 @@ const Recipes = () => {
                                                 <p className="text-2xl font-bold text-primary">{recipes.length}</p>
                                                 <p className="text-sm text-muted-foreground">Total Recipes</p>
                                             </div>
-                                            <div>
+                                            <div>  
                                                 <p className="text-2xl font-bold text-green-600">
-                                                    {recipes.filter(r => r.difficulty === 'Easy').length}
+                                                    {[ ...new Set(recipes.flatMap(recipe => recipe.cuisines))].length}
                                                 </p>
-                                                <p className="text-sm text-muted-foreground">Easy Recipes</p>
+                                                <p className="text-sm text-muted-foreground">Cuisines</p>  
                                             </div>
                                             <div>
                                                 <p className="text-2xl font-bold text-blue-600">
-                                                    {categories.length - 1}
+                                                    {[ ...new Set(recipes.flatMap(recipe => recipe.dishTypes.filter((dishType) => dishTypes.includes(dishType))))].length}
                                                 </p>
-                                                <p className="text-sm text-muted-foreground">Categories</p>
+                                                <p className="text-sm text-muted-foreground">Dish Types</p>
                                             </div>
                                             <div>
                                                 <p className="text-2xl font-bold text-purple-600">
-                                                    {Math.max(...recipes.map(r => r.rating))}
+                                                    {Math.max(...recipes.map(r => r.score))}
                                                 </p>
                                                 <p className="text-sm text-muted-foreground">Highest Rated</p>
                                             </div>
                                         </div>
                                     </CardContent>
                                 </Card>
+                                ) : null}
                             </div>
                         </main>
                     </div>
