@@ -11,6 +11,13 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Plus, Trash2, Search, Filter, ShoppingBag, Calendar, PencilLine, Save, X } from 'lucide-react';
 import ImageClassificationDialog from '@/components/image-classification-dialog';
+import {
+    Select,
+    SelectTrigger,
+    SelectValue,
+    SelectContent,
+    SelectItem,
+} from "@/components/ui/select";
 
 interface PantryItem {
     id: number;
@@ -180,7 +187,7 @@ const Pantry = () => {
                     <AppSidebar />
                     <div className="flex-1 flex flex-col">
                         <AppHeader title="Pantry" />
-                        <main className="relative z-[1000] flex-1 p-6 bg-muted/20">
+                        <main className="relative flex-1 p-6 bg-muted/20">
                             <div className="max-w-6xl mx-auto space-y-6">
                                 {/* Stats Overview */}
                                 <div className="grid gap-4 md:grid-cols-3">
@@ -235,17 +242,22 @@ const Pantry = () => {
                                                 onChange={(e) => setItemQuantity(e.target.value)}
                                                 onKeyPress={handleKeyPress}
                                             />
-                                            <select
+                                            <Select
                                                 value={itemCategory}
-                                                onChange={(e) => setItemCategory(e.target.value)}
-                                                className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background"
+                                                onValueChange={(value) => setItemCategory(value)}
                                             >
-                                                {categories.map(category => (
-                                                    <option key={category} value={category}>
-                                                        {category}
-                                                    </option>
-                                                ))}
-                                            </select>
+                                                <SelectTrigger className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background">
+                                                    <SelectValue placeholder="Category" />
+                                                </SelectTrigger>
+                                                <SelectContent>
+                                                    {categories.map((category) => (
+                                                        <SelectItem key={category} value={category}>
+                                                            {category}
+                                                        </SelectItem>
+                                                    ))}
+                                                </SelectContent>
+                                            </Select>
+
                                             <Input
                                                 type="date"
                                                 value={expiryDate}
@@ -292,18 +304,23 @@ const Pantry = () => {
                                             className="pl-10"
                                         />
                                     </div>
-                                    <select
+                                    <Select
                                         value={selectedCategory}
-                                        onChange={(e) => setSelectedCategory(e.target.value)}
-                                        className="flex h-10 w-full sm:w-48 rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background"
+                                        onValueChange={(value) => setSelectedCategory(value)}
                                     >
-                                        <option value="All">All Categories</option>
-                                        {categories.map(category => (
-                                            <option key={category} value={category}>
-                                                {category}
-                                            </option>
-                                        ))}
-                                    </select>
+                                        <SelectTrigger className="flex h-10 w-full sm:w-48 rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background">
+                                            <SelectValue />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            <SelectItem value="All">All Categories</SelectItem>
+                                            {categories.map((category) => (
+                                                <SelectItem key={category} value={category}>
+                                                    {category}
+                                                </SelectItem>
+                                            ))}
+                                        </SelectContent>
+                                    </Select>
+
                                 </div>
 
                                 {/* Pantry Items by Category */}
@@ -396,20 +413,25 @@ const Pantry = () => {
                                                                                     onChange={(e) => setEditQuantity(e.target.value)}
                                                                                     onKeyDown={(e) => handleEditKey(e, item.id)}
                                                                                 />
-                                                                                <select
-                                                                                    className="w-full p-2 border rounded-md text-sm bg-background"
+                                                                                <Select
                                                                                     value={editCategory}
-                                                                                    onChange={(e) => setEditCategory(e.target.value)}
-                                                                                    onKeyDown={(e) => handleEditKey(e, item.id)}
+                                                                                    onValueChange={(value) => setEditCategory(value)}
                                                                                 >
-                                                                                    {[...new Set([item.category, ...categories])].map(
-                                                                                        (cat) => (
-                                                                                            <option key={cat} value={cat}>
+                                                                                    <SelectTrigger
+                                                                                        className="w-full border rounded-md text-sm bg-background px-3 py-2"
+                                                                                        onKeyDown={(e) => handleEditKey(e, item.id)}
+                                                                                    >
+                                                                                        <SelectValue />
+                                                                                    </SelectTrigger>
+                                                                                    <SelectContent>
+                                                                                        {[...new Set([item.category, ...categories])].map((cat) => (
+                                                                                            <SelectItem key={cat} value={cat}>
                                                                                                 {cat}
-                                                                                            </option>
-                                                                                        ),
-                                                                                    )}
-                                                                                </select>
+                                                                                            </SelectItem>
+                                                                                        ))}
+                                                                                    </SelectContent>
+                                                                                </Select>
+
                                                                                 <Input
                                                                                     type="date"
                                                                                     value={editExpiry}

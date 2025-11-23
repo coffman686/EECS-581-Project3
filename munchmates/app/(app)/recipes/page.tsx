@@ -1,16 +1,24 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, SetStateAction} from 'react';
 import DynamicList from '@/components/ingredients/DynamicList';
 import AppHeader from '@/components/layout/app-header';
 import RequireAuth from '@/components/RequireAuth';
-import { SidebarProvider } from '@/components/ui/sidebar';
+import {SidebarProvider} from '@/components/ui/sidebar';
 import AppSidebar from '@/components/layout/app-sidebar';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Search, Plus, Clock, Users, ChefHat, Filter, Star } from 'lucide-react';
-import { useRouter } from 'next/navigation';
+import {Button} from '@/components/ui/button';
+import {Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle} from '@/components/ui/card';
+import {Badge} from '@/components/ui/badge';
+import {Search, Plus, Clock, Users, ChefHat, Filter, Star} from 'lucide-react';
+import {useRouter} from 'next/navigation';
+import {
+    Select,
+    SelectTrigger,
+    SelectValue,
+    SelectContent,
+    SelectItem,
+} from '@/components/ui/select';
+
 
 type Recipe = {
     id: number;
@@ -32,7 +40,7 @@ const Recipes = () => {
 
     const dishTypes = ['All', 'main course', 'side dish', 'dessert', 'appetizer', 'salad', 'bread', 'breakfast', 'soup', 'beverage', 'sauce', 'marinade', 'fingerfood', 'snack', 'drink'];
     const cuisines = ['All', 'African', 'Asian', 'American', 'British', 'Cajun', 'Caribbean', 'Chinese', 'Eastern European', 'European', 'French', 'German', 'Greek', 'Indian', 'Irish', 'Italian', 'Japanese', 'Jewish', 'Korean', 'Latin American', 'Mediterranean', 'Mexican', 'Middle Eastern', 'Nordic', 'Southern', 'Spanish', 'Thai', 'Vietnamese'];
-    
+
     const fetchRecipes = async () => {
         setIsLoading(true);
         const response = await fetch(`/api/spoonacular/recipes/searchByIngredient?ingredients=${searchTerm}&cuisine=${selectedCuisine !== 'All' ? selectedCuisine : undefined}&dishType=${selectedDishType !== 'All' ? selectedDishType : undefined}`);
@@ -46,7 +54,7 @@ const Recipes = () => {
     }, [searchTerm, selectedCuisine, selectedDishType])
 
     const handleSearch = async () => {
-        const ingredientListString = ingredientList.join(',').toLowerCase();  
+        const ingredientListString = ingredientList.join(',').toLowerCase();
         setSearchTerm(ingredientListString);
     };
 
@@ -60,9 +68,9 @@ const Recipes = () => {
         <RequireAuth>
             <SidebarProvider>
                 <div className="min-h-screen flex w-full">
-                    <AppSidebar />
+                    <AppSidebar/>
                     <div className="flex-1 flex flex-col">
-                        <AppHeader title="Recipes" />
+                        <AppHeader title="Recipes"/>
                         <main className="flex-1 p-6 bg-muted/20">
                             <div className="max-w-7xl mx-auto space-y-6">
                                 {/* Header with Search and Create */}
@@ -75,7 +83,7 @@ const Recipes = () => {
                                         onClick={handleSearch}
                                         className="inline-flex items-center gap-2"
                                     >
-                                        <Search className="h-4 w-4" />
+                                        <Search className="h-4 w-4"/>
                                         Search Recipes
                                     </Button>
 
@@ -83,7 +91,7 @@ const Recipes = () => {
                                         onClick={createNewRecipe}
                                         className="inline-flex items-center gap-2"
                                     >
-                                        <Plus className="h-4 w-4" />
+                                        <Plus className="h-4 w-4"/>
                                         Create New Recipe
                                     </Button>
                                 </DynamicList>
@@ -92,31 +100,41 @@ const Recipes = () => {
                                 {/* Filters */}
                                 <div className="flex flex-col sm:flex-row gap-4">
                                     <div className="flex items-center gap-2">
-                                        <Filter className="h-4 w-4 text-muted-foreground" />
+                                        <Filter className="h-4 w-4 text-muted-foreground"/>
                                         <span className="text-sm font-medium">Filter by:</span>
                                     </div>
-                                    <select
+                                    <Select
                                         value={selectedDishType}
-                                        onChange={(e) => setSelectedDishType(e.target.value)}
-                                        className="flex h-10 rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
+                                        onValueChange={(value: SetStateAction<string>) => setSelectedDishType(value)}
                                     >
-                                        {dishTypes.map(dishType => (
-                                            <option key={dishType} value={dishType}>
-                                                {dishType.charAt(0).toUpperCase() + dishType.slice(1)}
-                                            </option>
-                                        ))}
-                                    </select>
-                                    <select
+                                        <SelectTrigger className="w-full max-w-xs rounded-full">
+                                            <SelectValue placeholder="Dish type"/>
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            {dishTypes.map((dishType) => (
+                                                <SelectItem key={dishType} value={dishType}>
+                                                    {dishType.charAt(0).toUpperCase() + dishType.slice(1)}
+                                                </SelectItem>
+                                            ))}
+                                        </SelectContent>
+                                    </Select>
+
+                                    <Select
                                         value={selectedCuisine}
-                                        onChange={(e) => setSelectedCuisine(e.target.value)}
-                                        className="flex h-10 rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
+                                        onValueChange={(value: SetStateAction<string>) => setSelectedCuisine(value)}
                                     >
-                                        {cuisines.map(cuisine => (
-                                            <option key={cuisine} value={cuisine}>
-                                                {cuisine.charAt(0).toUpperCase() + cuisine.slice(1)}
-                                            </option>
-                                        ))}
-                                    </select>
+                                        <SelectTrigger className="w-full max-w-xs rounded-full">
+                                            <SelectValue placeholder="Cuisine" />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            {cuisines.map((cuisine) => (
+                                                <SelectItem key={cuisine} value={cuisine}>
+                                                    {cuisine.charAt(0).toUpperCase() + cuisine.slice(1)}
+                                                </SelectItem>
+                                            ))}
+                                        </SelectContent>
+                                    </Select>
+
                                 </div>
                                 {/* Recipe Grid */}
                                 {recipes && recipes.length > 0 ? (
