@@ -10,6 +10,14 @@ import { Trash2, Plus, ShoppingCart, CheckCircle2, Circle, Filter, PencilLine, X
 import { SidebarProvider } from '@/components/ui/sidebar';
 import AppSidebar from '@/components/layout/app-sidebar';
 import ImageClassificationDialog from '@/components/image-classification-dialog';
+import {
+    Select,
+    SelectTrigger,
+    SelectValue,
+    SelectContent,
+    SelectItem,
+} from "@/components/ui/select";
+
 
 interface GroceryItem {
     id: string;
@@ -154,7 +162,7 @@ export default function GroceryListPage() {
                 <div className="flex-1 flex flex-col">
                     <AppHeader title="Grocery List" />
 
-                    <main className="relative z-[1000] flex-1 p-6 bg-muted/20">
+                    <main className="relative flex-1 p-6 bg-muted/20">
                         <div className="max-w-6xl mx-auto space-y-6">
                             {/* Stats and Filters */}
                             <div className="grid gap-4 md:grid-cols-4">
@@ -189,29 +197,37 @@ export default function GroceryListPage() {
                                     <CardContent className="p-4">
                                         <div className="space-y-2">
                                             <label className="text-sm font-medium flex items-center gap-2">
-                                                <Filter className="h-4 w-4" />
+                                                <Filter className="h-4 w-4"/>
                                                 Filter
                                             </label>
-                                            <select
+
+                                            <Select
                                                 value={filter}
-                                                onChange={(e) => setFilter(e.target.value as any)}
-                                                className="w-full p-2 border rounded-md text-sm"
+                                                onValueChange={(value) =>
+                                                    setFilter(value as "all" | "active" | "completed")
+                                                }
                                             >
-                                                <option value="all">All Items</option>
-                                                <option value="active">To Buy</option>
-                                                <option value="completed">Completed</option>
-                                            </select>
+                                                <SelectTrigger className="w-full rounded-md text-sm">
+                                                    <SelectValue/>
+                                                </SelectTrigger>
+                                                <SelectContent>
+                                                    <SelectItem value="all">All Items</SelectItem>
+                                                    <SelectItem value="active">To Buy</SelectItem>
+                                                    <SelectItem value="completed">Completed</SelectItem>
+                                                </SelectContent>
+                                            </Select>
+
                                         </div>
                                     </CardContent>
                                 </Card>
                             </div>
 
                             {/* Add Item and Category */}
-                            <div className="grid md:grid-cols-2 gap-6 relative z-[1100]">
+                            <div className="grid md:grid-cols-2 gap-6">
                                 <Card className="relative z-10">
                                     <CardHeader className="pb-4">
                                         <CardTitle className="flex items-center gap-2">
-                                            <Plus className="h-5 w-5" />
+                                        <Plus className="h-5 w-5" />
                                             Add New Item
                                         </CardTitle>
                                     </CardHeader>
@@ -277,7 +293,7 @@ export default function GroceryListPage() {
                             </div>
 
                             {/* Grocery List by Category */}
-                            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 relative z-0 pointer-events-auto">
+                            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 pointer-events-auto">
                                 {categories.map(category => {
                                     const categoryItems = getItemsByCategory(category);
                                     if (categoryItems.length === 0) return null;
@@ -347,20 +363,25 @@ export default function GroceryListPage() {
                                                                                 onChange={(e) => setEditQuantity(e.target.value)}
                                                                                 onKeyDown={(e) => handleEditKey(e, item.id)}
                                                                             />
-                                                                            <select
-                                                                                className="w-full p-2 border rounded-md text-sm bg-background"
+                                                                            <Select
                                                                                 value={editCategory}
-                                                                                onChange={(e) => setEditCategory(e.target.value)}
-                                                                                onKeyDown={(e) => handleEditKey(e, item.id)}
+                                                                                onValueChange={(value) => setEditCategory(value)}
                                                                             >
-                                                                                {[...new Set([item.category, ...categories])].map(
-                                                                                    (cat) => (
-                                                                                        <option key={cat} value={cat}>
+                                                                                <SelectTrigger
+                                                                                    className="w-full rounded-md text-sm bg-background"
+                                                                                    onKeyDown={(e) => handleEditKey(e, item.id)}
+                                                                                >
+                                                                                    <SelectValue />
+                                                                                </SelectTrigger>
+                                                                                <SelectContent>
+                                                                                    {[...new Set([item.category, ...categories])].map((cat) => (
+                                                                                        <SelectItem key={cat} value={cat}>
                                                                                             {cat}
-                                                                                        </option>
-                                                                                    ),
-                                                                                )}
-                                                                            </select>
+                                                                                        </SelectItem>
+                                                                                    ))}
+                                                                                </SelectContent>
+                                                                            </Select>
+
                                                                         </div>
                                                                         <div className="flex gap-2">
                                                                             <Button size="sm" onClick={() => saveEdit(item.id)}>
