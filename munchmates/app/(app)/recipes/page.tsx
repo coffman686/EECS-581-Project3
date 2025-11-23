@@ -11,7 +11,6 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Badge } from '@/components/ui/badge';
 import { Search, Plus, Clock, Users, ChefHat, Filter, Star } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-import { set } from '@vueuse/core';
 
 type Recipe = {
     id: number;
@@ -67,17 +66,28 @@ const Recipes = () => {
                         <main className="flex-1 p-6 bg-muted/20">
                             <div className="max-w-7xl mx-auto space-y-6">
                                 {/* Header with Search and Create */}
-                                <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
-                                    <DynamicList ingredients={ingredientList} setIngredients={setIngredientList}/>
-                                    <Button onClick={handleSearch} className="flex items-center gap-2">
+                                {/* Header with Search and Create */}
+                                <DynamicList
+                                    ingredients={ingredientList}
+                                    setIngredients={setIngredientList}
+                                >
+                                    <Button
+                                        onClick={handleSearch}
+                                        className="inline-flex items-center gap-2"
+                                    >
                                         <Search className="h-4 w-4" />
                                         Search Recipes
                                     </Button>
-                                    <Button onClick={createNewRecipe} className="flex items-center gap-2">
+
+                                    <Button
+                                        onClick={createNewRecipe}
+                                        className="inline-flex items-center gap-2"
+                                    >
                                         <Plus className="h-4 w-4" />
                                         Create New Recipe
                                     </Button>
-                                </div>
+                                </DynamicList>
+
 
                                 {/* Filters */}
                                 <div className="flex flex-col sm:flex-row gap-4">
@@ -162,7 +172,7 @@ const Recipes = () => {
                                                     </div>
                                                 </CardContent>
                                                 <CardFooter>
-                                                    <Button 
+                                                    <Button
                                                         onClick={() => router.push(`/recipes/${recipe.id}`)}
                                                         className="w-full"
                                                     >
@@ -203,7 +213,7 @@ const Recipes = () => {
                                                         <p className="text-muted-foreground mb-4">
                                                             Enter in ingredients above to find recipe suggestions or create your own recipe
                                                         </p>
-                                                    <Button 
+                                                    <Button
                                                         onClick={createNewRecipe}
                                                         className="flex items-center gap-2 mx-auto"
                                                     >
@@ -224,11 +234,11 @@ const Recipes = () => {
                                                 <p className="text-2xl font-bold text-primary">{recipes.length}</p>
                                                 <p className="text-sm text-muted-foreground">Total Recipes</p>
                                             </div>
-                                            <div>  
+                                            <div>
                                                 <p className="text-2xl font-bold text-green-600">
                                                     {[ ...new Set(recipes.flatMap(recipe => recipe.cuisines))].length}
                                                 </p>
-                                                <p className="text-sm text-muted-foreground">Cuisines</p>  
+                                                <p className="text-sm text-muted-foreground">Cuisines</p>
                                             </div>
                                             <div>
                                                 <p className="text-2xl font-bold text-blue-600">
