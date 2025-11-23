@@ -10,6 +10,7 @@ import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Plus, Trash2, Search, Filter, ShoppingBag, Calendar, PencilLine, Save, X } from 'lucide-react';
+import ImageClassificationDialog from '@/components/image-classification-dialog';
 
 interface PantryItem {
     id: number;
@@ -60,6 +61,8 @@ const Pantry = () => {
     const [editCategory, setEditCategory] = useState(categories[0]);
     const [editExpiry, setEditExpiry] = useState('');
 
+    const [imageDialogOpen, setImageDialogOpen] = useState(false);
+
     const beginEdit = (item: PantryItem) => {
         setEditingId(item.id);
         setEditName(item.name);
@@ -102,8 +105,8 @@ const Pantry = () => {
         if (itemName.trim() !== '' && itemQuantity.trim() !== '') {
             const newItem: PantryItem = {
                 id: Date.now(),
-                name: itemName,
-                quantity: itemQuantity,
+                name: itemName.trim(),
+                quantity: itemQuantity.trim(),
                 category: itemCategory,
                 expiryDate: expiryDate || undefined,
                 addedDate: new Date().toISOString().split('T')[0],
@@ -158,7 +161,7 @@ const Pantry = () => {
     }, {} as Record<string, PantryItem[]>);
 
     const totalItems = items.length;
-    const expiringSoon = items.filter(item => {
+    const expiringSoon = items.filter((item) => {
         if (!item.expiryDate) return false;
         const days = getDaysUntilExpiry(item.expiryDate);
         return days <= 7 && days >= 0;
@@ -250,20 +253,31 @@ const Pantry = () => {
                                                 onKeyPress={handleKeyPress}
                                             />
                                         </div>
-                                        <Button onClick={addItem} className="mt-4 flex items-center gap-2">
-                                            <Plus className="h-4 w-4" />
-                                            Add to Pantry
-                                        </Button>
-                                        {totalItems > 0 && (
-                                            <Button
-                                                variant="destructive"
-                                                onClick={clearAll}
-                                                className="mt-4 ml-2 flex items-center gap-2"
-                                            >
-                                                <Trash2 className="h-4 w-4" />
-                                                Clear All
+
+                                        <div className="mt-4 flex flex-wrap gap-2">
+                                            <Button onClick={addItem} className="flex items-center gap-2">
+                                                <Plus className="h-4 w-4" />
+                                                Add to Pantry
                                             </Button>
-                                        )}
+                                            <Button
+                                                type="button"
+                                                variant="outline"
+                                                className="flex items-center gap-2"
+                                                onClick={() => setImageDialogOpen(true)}
+                                            >
+                                                Add via image
+                                            </Button>
+                                            {totalItems > 0 && (
+                                                <Button
+                                                    variant="destructive"
+                                                    onClick={clearAll}
+                                                    className="flex items-center gap-2"
+                                                >
+                                                    <Trash2 className="h-4 w-4" />
+                                                    Clear All
+                                                </Button>
+                                            )}
+                                        </div>
                                     </CardContent>
                                 </Card>
 
@@ -312,102 +326,113 @@ const Pantry = () => {
                                                             const isEditing = editingId === item.id;
                                                             return (
                                                                 <div
-                                                                key={item.id}
-                                                                className="flex items-start justify-between p-3 border rounded-lg hover:bg-muted/50 transition-colors"
+                                                                    key={item.id}
+                                                                    className="flex items-start justify-between p-3 border rounded-lg hover:bg-muted/50 transition-colors"
                                                                 >
-                                                                {!isEditing ? (
-                                                                    <>
-                                                                    <div className="flex-1 min-w-0">
-                                                                        <div className="flex items-center gap-2 mb-1">
-                                                                        <h4 className="font-medium text-sm truncate">
-                                                                            {item.name}
-                                                                        </h4>
-                                                                        {expiryStatus && (
-                                                                            <Badge variant={expiryStatus.variant} className="text-xs">
-                                                                            {expiryStatus.label}
-                                                                            </Badge>
-                                                                        )}
+                                                                    {!isEditing ? (
+                                                                        <>
+                                                                            <div className="flex-1 min-w-0">
+                                                                                <div className="flex items-center gap-2 mb-1">
+                                                                                    <h4 className="font-medium text-sm truncate">
+                                                                                        {item.name}
+                                                                                    </h4>
+                                                                                    {expiryStatus && (
+                                                                                        <Badge
+                                                                                            variant={expiryStatus.variant}
+                                                                                            className="text-xs"
+                                                                                        >
+                                                                                            {expiryStatus.label}
+                                                                                        </Badge>
+                                                                                    )}
+                                                                                </div>
+                                                                                <p className="text-sm text-muted-foreground">
+                                                                                    {item.quantity}
+                                                                                </p>
+                                                                                {item.expiryDate && (
+                                                                                    <p className="text-xs text-muted-foreground mt-1">
+                                                                                        Expires:{' '}
+                                                                                        {new Date(item.expiryDate).toLocaleDateString()}
+                                                                                    </p>
+                                                                                )}
+                                                                                <p className="text-xs text-muted-foreground">
+                                                                                    Added:{' '}
+                                                                                    {new Date(item.addedDate).toLocaleDateString()}
+                                                                                </p>
+                                                                            </div>
+                                                                            <div className="flex gap-1">
+                                                                                <Button
+                                                                                    variant="ghost"
+                                                                                    size="icon"
+                                                                                    onClick={() => beginEdit(item)}
+                                                                                    className="h-8 w-8"
+                                                                                    title="Edit"
+                                                                                >
+                                                                                    <PencilLine className="h-4 w-4" />
+                                                                                </Button>
+                                                                                <Button
+                                                                                    variant="ghost"
+                                                                                    size="icon"
+                                                                                    onClick={() => removeItem(item.id)}
+                                                                                    className="h-8 w-8 hover:bg-red-100 hover:text-red-600"
+                                                                                    title="Delete"
+                                                                                >
+                                                                                    <Trash2 className="h-3 w-3" />
+                                                                                </Button>
+                                                                            </div>
+                                                                        </>
+                                                                    ) : (
+                                                                        <div className="flex-1 min-w-0 space-y-2">
+                                                                            <div className="grid grid-cols-1 sm:grid-cols-4 gap-2">
+                                                                                <Input
+                                                                                    autoFocus
+                                                                                    placeholder="Name"
+                                                                                    value={editName}
+                                                                                    onChange={(e) => setEditName(e.target.value)}
+                                                                                    onKeyDown={(e) => handleEditKey(e, item.id)}
+                                                                                />
+                                                                                <Input
+                                                                                    placeholder="Quantity"
+                                                                                    value={editQuantity}
+                                                                                    onChange={(e) => setEditQuantity(e.target.value)}
+                                                                                    onKeyDown={(e) => handleEditKey(e, item.id)}
+                                                                                />
+                                                                                <select
+                                                                                    className="w-full p-2 border rounded-md text-sm bg-background"
+                                                                                    value={editCategory}
+                                                                                    onChange={(e) => setEditCategory(e.target.value)}
+                                                                                    onKeyDown={(e) => handleEditKey(e, item.id)}
+                                                                                >
+                                                                                    {[...new Set([item.category, ...categories])].map(
+                                                                                        (cat) => (
+                                                                                            <option key={cat} value={cat}>
+                                                                                                {cat}
+                                                                                            </option>
+                                                                                        ),
+                                                                                    )}
+                                                                                </select>
+                                                                                <Input
+                                                                                    type="date"
+                                                                                    value={editExpiry}
+                                                                                    onChange={(e) => setEditExpiry(e.target.value)}
+                                                                                    onKeyDown={(e) => handleEditKey(e, item.id)}
+                                                                                />
+                                                                            </div>
+                                                                            <div className="flex gap-2">
+                                                                                <Button size="sm" onClick={() => saveEdit(item.id)}>
+                                                                                    <Save className="h-4 w-4 mr-1" />
+                                                                                    Save
+                                                                                </Button>
+                                                                                <Button
+                                                                                    variant="ghost"
+                                                                                    size="sm"
+                                                                                    onClick={cancelEdit}
+                                                                                >
+                                                                                    <X className="h-4 w-4 mr-1" />
+                                                                                    Cancel
+                                                                                </Button>
+                                                                            </div>
                                                                         </div>
-                                                                        <p className="text-sm text-muted-foreground">
-                                                                        {item.quantity}
-                                                                        </p>
-                                                                        {item.expiryDate && (
-                                                                        <p className="text-xs text-muted-foreground mt-1">
-                                                                            Expires: {new Date(item.expiryDate).toLocaleDateString()}
-                                                                        </p>
-                                                                        )}
-                                                                        <p className="text-xs text-muted-foreground">
-                                                                        Added: {new Date(item.addedDate).toLocaleDateString()}
-                                                                        </p>
-                                                                    </div>
-                                                                    <div className="flex gap-1">
-                                                                        <Button
-                                                                        variant="ghost"
-                                                                        size="icon"
-                                                                        onClick={() => beginEdit(item)}
-                                                                        className="h-8 w-8"
-                                                                        title="Edit"
-                                                                        >
-                                                                        <PencilLine className="h-4 w-4" />
-                                                                        </Button>
-                                                                        <Button
-                                                                        variant="ghost"
-                                                                        size="icon"
-                                                                        onClick={() => removeItem(item.id)}
-                                                                        className="h-8 w-8 hover:bg-red-100 hover:text-red-600"
-                                                                        title="Delete"
-                                                                        >
-                                                                        <Trash2 className="h-3 w-3" />
-                                                                        </Button>
-                                                                    </div>
-                                                                    </>
-                                                                ) : (
-                                                                    <div className="flex-1 min-w-0 space-y-2">
-                                                                    <div className="grid grid-cols-1 sm:grid-cols-4 gap-2">
-                                                                        <Input
-                                                                        autoFocus
-                                                                        placeholder="Name"
-                                                                        value={editName}
-                                                                        onChange={(e) => setEditName(e.target.value)}
-                                                                        onKeyDown={(e) => handleEditKey(e, item.id)}
-                                                                        />
-                                                                        <Input
-                                                                        placeholder="Quantity"
-                                                                        value={editQuantity}
-                                                                        onChange={(e) => setEditQuantity(e.target.value)}
-                                                                        onKeyDown={(e) => handleEditKey(e, item.id)}
-                                                                        />
-                                                                        <select
-                                                                        className="w-full p-2 border rounded-md text-sm bg-background"
-                                                                        value={editCategory}
-                                                                        onChange={(e) => setEditCategory(e.target.value)}
-                                                                        onKeyDown={(e) => handleEditKey(e, item.id)}
-                                                                        >
-                                                                        {[...new Set([item.category, ...categories])].map((cat) => (
-                                                                            <option key={cat} value={cat}>
-                                                                            {cat}
-                                                                            </option>
-                                                                        ))}
-                                                                        </select>
-                                                                        <Input
-                                                                        type="date"
-                                                                        value={editExpiry}
-                                                                        onChange={(e) => setEditExpiry(e.target.value)}
-                                                                        onKeyDown={(e) => handleEditKey(e, item.id)}
-                                                                        />
-                                                                    </div>
-                                                                    <div className="flex gap-2">
-                                                                        <Button size="sm" onClick={() => saveEdit(item.id)}>
-                                                                        <Save className="h-4 w-4 mr-1" />
-                                                                        Save
-                                                                        </Button>
-                                                                        <Button variant="ghost" size="sm" onClick={cancelEdit}>
-                                                                        <X className="h-4 w-4 mr-1" />
-                                                                        Cancel
-                                                                        </Button>
-                                                                    </div>
-                                                                    </div>
-                                                                )}
+                                                                    )}
                                                                 </div>
                                                             );
                                                         })}
@@ -445,6 +470,11 @@ const Pantry = () => {
                                     )}
                                 </div>
                             </div>
+                            <ImageClassificationDialog
+                                open={imageDialogOpen}
+                                onOpenChange={setImageDialogOpen}
+                                onResult={(label) => setItemName(label)}
+                            />
                         </main>
                     </div>
                 </div>

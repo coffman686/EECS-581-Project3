@@ -1,5 +1,3 @@
-// app/grocery-list/page.tsx
-
 'use client';
 
 import { useState } from 'react';
@@ -11,6 +9,7 @@ import { Badge } from '@/components/ui/badge';
 import { Trash2, Plus, ShoppingCart, CheckCircle2, Circle, Filter, PencilLine, X, Save } from 'lucide-react';
 import { SidebarProvider } from '@/components/ui/sidebar';
 import AppSidebar from '@/components/layout/app-sidebar';
+import ImageClassificationDialog from '@/components/image-classification-dialog';
 
 interface GroceryItem {
     id: string;
@@ -37,6 +36,7 @@ export default function GroceryListPage() {
     const [editName, setEditName] = useState('');
     const [editQuantity, setEditQuantity] = useState('');
     const [editCategory, setEditCategory] = useState('');
+    const [imageDialogOpen, setImageDialogOpen] = useState(false);
 
     const beginEdit = (item: GroceryItem) => {
         setEditingId(item.id);
@@ -79,7 +79,7 @@ export default function GroceryListPage() {
         const defaultCategory = categories[0] || 'Uncategorized';
         const newGroceryItem: GroceryItem = {
             id: Date.now().toString(),
-            name: newItem,
+            name: newItem.trim(),
             category: defaultCategory,
             completed: false,
         };
@@ -102,7 +102,7 @@ export default function GroceryListPage() {
     };
 
     const deleteItem = (id: string) => {
-        setItems(items.filter(item => item.id !== id));
+        setItems(items.filter((item) => item.id !== id));
     };
 
     const deleteCategory = (category: string) => {
@@ -110,9 +110,11 @@ export default function GroceryListPage() {
         const newCategories = categories.filter(cat => cat !== category);
         const fallbackCategory = newCategories[0] || 'Uncategorized';
 
-        setItems(items.map(item =>
-            item.category === category ? { ...item, category: fallbackCategory } : item
-        ));
+        setItems(
+            items.map((item) =>
+                item.category === category ? { ...item, category: fallbackCategory } : item,
+            ),
+        );
         setCategories(newCategories);
     };
 
@@ -214,14 +216,22 @@ export default function GroceryListPage() {
                                         </CardTitle>
                                     </CardHeader>
                                     <CardContent className="space-y-4">
-                                        <div className="flex gap-2">
+                                        <div className="flex flex-wrap gap-2">
                                             <Input
                                                 placeholder="E.g. Apples"
                                                 value={newItem}
                                                 onChange={(e) => setNewItem(e.target.value)}
                                                 onKeyDown={(e) => handleKeyPress(e, addItem)}
+                                                className="flex-1 min-w-[140px]"
                                             />
                                             <Button onClick={addItem}>Add</Button>
+                                            <Button
+                                                type="button"
+                                                variant="outline"
+                                                onClick={() => setImageDialogOpen(true)}
+                                            >
+                                                Add via image
+                                            </Button>
                                         </div>
                                         {categories.length > 0 && (
                                             <div className="flex flex-wrap gap-2">
@@ -277,9 +287,7 @@ export default function GroceryListPage() {
                                             <CardHeader className="pb-3">
                                                 <CardTitle className="flex items-center justify-between">
                                                     <span>{category}</span>
-                                                    <Badge variant="secondary">
-                                                        {categoryItems.length}
-                                                    </Badge>
+                                                    <Badge variant="secondary">{categoryItems.length}</Badge>
                                                 </CardTitle>
                                             </CardHeader>
                                             <CardContent>
@@ -288,110 +296,114 @@ export default function GroceryListPage() {
                                                         const isEditing = editingId === item.id;
 
                                                         return (
-                                                        <li
-                                                            key={item.id}
-                                                            className={`flex items-center gap-3 p-2 rounded-lg transition-colors ${
-                                                            item.completed ? 'bg-muted/50' : 'hover:bg-muted/30'
-                                                            }`}
-                                                        >
-                                                            <button
-                                                            onClick={() => toggleItem(item.id)}
-                                                            className={`flex-shrink-0 rounded-full border-2 p-1 ${
-                                                                item.completed
-                                                                ? 'border-green-50 bg-green-500 text-white'
-                                                                : 'border-gray-300 hover:border-green-500'
-                                                            }`}
-                                                            >
-                                                            <CheckCircle2 className="h-3 w-3" />
-                                                            </button>
-
-                                                            {!isEditing ? (
-                                                            <div className="flex-1 min-w-0">
-                                                                <label
-                                                                className={`font-medium block ${
-                                                                    item.completed ? 'line-through text-muted-foreground' : ''
+                                                            <li
+                                                                key={item.id}
+                                                                className={`flex items-center gap-3 p-2 rounded-lg transition-colors ${
+                                                                    item.completed ? 'bg-muted/50' : 'hover:bg-muted/30'
                                                                 }`}
-                                                                >
-                                                                {item.name}
-                                                                </label>
-                                                                <div className="text-xs text-muted-foreground mt-1 flex flex-wrap gap-2">
-                                                                {item.quantity && <span>{item.quantity}</span>}
-                                                                <Badge variant="outline" className="text-[10px]">
-                                                                    {item.category}
-                                                                </Badge>
-                                                                </div>
-                                                            </div>
-                                                            ) : (
-                                                            <div className="flex-1 min-w-0 space-y-2">
-                                                                <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
-                                                                <Input
-                                                                    autoFocus
-                                                                    placeholder="Name"
-                                                                    value={editName}
-                                                                    onChange={(e) => setEditName(e.target.value)}
-                                                                    onKeyDown={(e) => handleEditKey(e, item.id)}
-                                                                />
-                                                                <Input
-                                                                    placeholder="Quantity (optional)"
-                                                                    value={editQuantity}
-                                                                    onChange={(e) => setEditQuantity(e.target.value)}
-                                                                    onKeyDown={(e) => handleEditKey(e, item.id)}
-                                                                />
-                                                                <select
-                                                                    className="w-full p-2 border rounded-md text-sm bg-background"
-                                                                    value={editCategory}
-                                                                    onChange={(e) => setEditCategory(e.target.value)}
-                                                                    onKeyDown={(e) => handleEditKey(e, item.id)}
-                                                                >
-                                                                    {[...new Set([item.category, ...categories])].map((cat) => (
-                                                                    <option key={cat} value={cat}>
-                                                                        {cat}
-                                                                    </option>
-                                                                    ))}
-                                                                </select>
-                                                                </div>
-                                                                <div className="flex gap-2">
-                                                                <Button size="sm" onClick={() => saveEdit(item.id)}>
-                                                                    <Save className="h-4 w-4 mr-1" />
-                                                                    Save
-                                                                </Button>
-                                                                <Button variant="ghost" size="sm" onClick={cancelEdit}>
-                                                                    <X className="h-4 w-4 mr-1" />
-                                                                    Cancel
-                                                                </Button>
-                                                                </div>
-                                                            </div>
-                                                            )}
-
-                                                            <div className="flex gap-1">
-                                                            {!isEditing && (
-                                                                <Button
-                                                                variant="ghost"
-                                                                size="icon"
-                                                                onClick={() => beginEdit(item)}
-                                                                className="flex-shrink-0 h-8 w-8"
-                                                                title="Edit"
-                                                                >
-                                                                <PencilLine className="h-4 w-4" />
-                                                                </Button>
-                                                            )}
-                                                            <Button
-                                                                variant="ghost"
-                                                                size="icon"
-                                                                onClick={() => deleteItem(item.id)}
-                                                                className="flex-shrink-0 h-8 w-8 hover:bg-red-100 hover:text-red-600"
-                                                                title="Delete"
                                                             >
-                                                                <Trash2 className="h-3 w-3" />
-                                                            </Button>
-                                                            </div>
-                                                        </li>
+                                                                <button
+                                                                    onClick={() => toggleItem(item.id)}
+                                                                    className={`flex-shrink-0 rounded-full border-2 p-1 ${
+                                                                        item.completed
+                                                                            ? 'border-green-50 bg-green-500 text-white'
+                                                                            : 'border-gray-300 hover:border-green-500'
+                                                                    }`}
+                                                                >
+                                                                    <CheckCircle2 className="h-3 w-3" />
+                                                                </button>
+
+                                                                {!isEditing ? (
+                                                                    <div className="flex-1 min-w-0">
+                                                                        <label
+                                                                            className={`font-medium block ${
+                                                                                item.completed
+                                                                                    ? 'line-through text-muted-foreground'
+                                                                                    : ''
+                                                                            }`}
+                                                                        >
+                                                                            {item.name}
+                                                                        </label>
+                                                                        <div className="text-xs text-muted-foreground mt-1 flex flex-wrap gap-2">
+                                                                            {item.quantity && <span>{item.quantity}</span>}
+                                                                            <Badge variant="outline" className="text-[10px]">
+                                                                                {item.category}
+                                                                            </Badge>
+                                                                        </div>
+                                                                    </div>
+                                                                ) : (
+                                                                    <div className="flex-1 min-w-0 space-y-2">
+                                                                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                                                                            <Input
+                                                                                autoFocus
+                                                                                placeholder="Name"
+                                                                                value={editName}
+                                                                                onChange={(e) => setEditName(e.target.value)}
+                                                                                onKeyDown={(e) => handleEditKey(e, item.id)}
+                                                                            />
+                                                                            <Input
+                                                                                placeholder="Quantity (optional)"
+                                                                                value={editQuantity}
+                                                                                onChange={(e) => setEditQuantity(e.target.value)}
+                                                                                onKeyDown={(e) => handleEditKey(e, item.id)}
+                                                                            />
+                                                                            <select
+                                                                                className="w-full p-2 border rounded-md text-sm bg-background"
+                                                                                value={editCategory}
+                                                                                onChange={(e) => setEditCategory(e.target.value)}
+                                                                                onKeyDown={(e) => handleEditKey(e, item.id)}
+                                                                            >
+                                                                                {[...new Set([item.category, ...categories])].map(
+                                                                                    (cat) => (
+                                                                                        <option key={cat} value={cat}>
+                                                                                            {cat}
+                                                                                        </option>
+                                                                                    ),
+                                                                                )}
+                                                                            </select>
+                                                                        </div>
+                                                                        <div className="flex gap-2">
+                                                                            <Button size="sm" onClick={() => saveEdit(item.id)}>
+                                                                                <Save className="h-4 w-4 mr-1" />
+                                                                                Save
+                                                                            </Button>
+                                                                            <Button variant="ghost" size="sm" onClick={cancelEdit}>
+                                                                                <X className="h-4 w-4 mr-1" />
+                                                                                Cancel
+                                                                            </Button>
+                                                                        </div>
+                                                                    </div>
+                                                                )}
+
+                                                                <div className="flex gap-1">
+                                                                    {!isEditing && (
+                                                                        <Button
+                                                                            variant="ghost"
+                                                                            size="icon"
+                                                                            onClick={() => beginEdit(item)}
+                                                                            className="flex-shrink-0 h-8 w-8"
+                                                                            title="Edit"
+                                                                        >
+                                                                            <PencilLine className="h-4 w-4" />
+                                                                        </Button>
+                                                                    )}
+                                                                    <Button
+                                                                        variant="ghost"
+                                                                        size="icon"
+                                                                        onClick={() => deleteItem(item.id)}
+                                                                        className="flex-shrink-0 h-8 w-8 hover:bg-red-100 hover:text-red-600"
+                                                                        title="Delete"
+                                                                    >
+                                                                        <Trash2 className="h-3 w-3" />
+                                                                    </Button>
+                                                                </div>
+                                                            </li>
                                                         );
                                                     })}
-                                                    </ul>
+                                                </ul>
                                             </CardContent>
                                         </Card>
-                                    )
+                                    );
                                 })}
                             </div>
 
@@ -406,8 +418,8 @@ export default function GroceryListPage() {
                                     {totalItems > 0 && (
                                         <>
                                             <Button variant="destructive" onClick={clearAll}>
-                                            <Trash2 className="h-4 w-4 mr-2" />
-                                            Clear All Items
+                                                <Trash2 className="h-4 w-4 mr-2" />
+                                                Clear All Items
                                             </Button>
                                             <Button>
                                                 <ShoppingCart className="h-4 w-4 mr-2" />
@@ -435,6 +447,11 @@ export default function GroceryListPage() {
                                 </Card>
                             )}
                         </div>
+                        <ImageClassificationDialog
+                            open={imageDialogOpen}
+                            onOpenChange={setImageDialogOpen}
+                            onResult={(label) => setNewItem(label)}
+                        />
                     </main>
                 </div>
             </div>
