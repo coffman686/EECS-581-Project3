@@ -8,12 +8,13 @@ type ProfileData = {
     intolerances: string[];
 };
 
-// simple in-memory store keyed by user sub
+// Simple in-memory store keyed by user sub
 const profiles = new Map<string, ProfileData>();
 
 export async function GET(req: NextRequest) {
     try {
         const p = await verifyBearer(req.headers.get("authorization") || undefined);
+
         const existing =
             profiles.get(p.sub) ?? {
                 favoriteCuisines: "",
