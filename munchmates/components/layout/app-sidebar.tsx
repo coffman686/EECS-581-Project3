@@ -90,7 +90,7 @@ const AppSidebar = () => {
                 <SidebarMenu>
                     <SidebarMenuItem>
                         <SidebarMenuButton asChild tooltip={{ children: "Settings", side: "right" }}>
-                            <Link href="#">
+                            <Link href="/profile">
                                 <span className="flex items-center gap-3">
                                     <Settings />
                                     <span className={textVisibility}>Settings</span>
@@ -100,7 +100,7 @@ const AppSidebar = () => {
                     </SidebarMenuItem>
                     <SidebarMenuItem>
                         <SidebarMenuButton asChild tooltip={{ children: "User Profile", side: "right" }}>
-                            <Link href="#">
+                            <Link href="/profile">
                                 <span className="flex items-center gap-3">
                                     <Avatar className="size-6">
                                         <AvatarImage src="https://picsum.photos/seed/user-avatar/40/40" />
