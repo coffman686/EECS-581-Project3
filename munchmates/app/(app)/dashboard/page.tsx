@@ -6,29 +6,30 @@ import { authedFetch } from '@/lib/authedFetch';
 import AppHeader from '@/components/layout/app-header';
 import { SidebarProvider } from '@/components/ui/sidebar';
 import AppSidebar from '@/components/layout/app-sidebar';
-import { 
-    Card, 
-    CardContent, 
-    CardDescription, 
-    CardHeader, 
-    CardTitle 
+import {
+    Card,
+    CardContent,
+    CardDescription,
+    CardHeader,
+    CardTitle
 } from '@/components/ui/card';
-import { 
-    Button 
+import {
+    Button
 } from '@/components/ui/button';
 import {
     Badge
 } from '@/components/ui/badge';
-import { 
-    Users, 
-    Mail, 
-    Shield, 
-    LogOut, 
-    Key, 
+import {
+    Users,
+    Mail,
+    Shield,
+    LogOut,
+    Key,
     Settings,
     ExternalLink,
     RefreshCw
 } from 'lucide-react';
+import { DietaryDialog } from '@/components/ingredients/Dietary';
 
 type IdClaims = { name?: string; preferred_username?: string; email?: string };
 type AccessClaims = { preferred_username?: string; email?: string; realm_access?: { roles?: string[] } };
@@ -40,6 +41,24 @@ export default function Dashboard() {
     const [roles, setRoles] = useState<string[]>([]);
     const [me, setMe] = useState<any>(null);
     const [loading, setLoading] = useState(false);
+
+    // dietary prefernces launcher
+    const [dietModal, setDietModal] = useState(false);
+    const [diets, setDiets] = useState<string[]>([]);
+    const [intolerances, setIntolerances] = useState<string[]>([]);
+
+    useEffect(() => {
+      const localDietsInit = localStorage.getItem("hasDietsInit");
+      if (localDietsInit !== "true") {
+        setDietModal(true);
+      }
+    }, []);
+
+    function closeDiet(e: React.SyntheticEvent) {
+      e.preventDefault();
+      localStorage.setItem("hasDietsInit", "true");
+      setDietModal(false);
+    }
 
     const realm = process.env.NEXT_PUBLIC_KEYCLOAK_REALM ?? '';
     const keycloakBase = process.env.NEXT_PUBLIC_KEYCLOAK_URL!;
@@ -117,7 +136,7 @@ export default function Dashboard() {
                     <AppSidebar />
                     <div className="flex-1 flex flex-col">
                         <AppHeader title="Dashboard" />
-                        
+
                         <main className="flex-1 p-6 bg-muted/20">
                             <div className="max-w-6xl mx-auto space-y-6">
                                 {/* Welcome Section */}
@@ -189,9 +208,9 @@ export default function Dashboard() {
                                             </div>
                                         </CardHeader>
                                         <CardContent className="space-y-2">
-                                            <Button 
-                                                variant="outline" 
-                                                size="sm" 
+                                            <Button
+                                                variant="outline"
+                                                size="sm"
                                                 className="w-full justify-start"
                                                 onClick={() => window.open(accountUrl, '_blank')}
                                             >
@@ -199,9 +218,9 @@ export default function Dashboard() {
                                                 Keycloak Account
                                                 <ExternalLink className="h-3 w-3 ml-auto" />
                                             </Button>
-                                            <Button 
-                                                variant="outline" 
-                                                size="sm" 
+                                            <Button
+                                                variant="outline"
+                                                size="sm"
                                                 className="w-full justify-start"
                                                 onClick={() => window.open(adminUrl, '_blank')}
                                             >
@@ -209,9 +228,9 @@ export default function Dashboard() {
                                                 Keycloak Admin
                                                 <ExternalLink className="h-3 w-3 ml-auto" />
                                             </Button>
-                                            <Button 
-                                                variant="outline" 
-                                                size="sm" 
+                                            <Button
+                                                variant="outline"
+                                                size="sm"
                                                 className="w-full justify-start"
                                                 onClick={() => window.open(mailpitUrl, '_blank')}
                                             >
@@ -233,8 +252,8 @@ export default function Dashboard() {
                                     </CardHeader>
                                     <CardContent className="space-y-4">
                                         <div className="flex flex-wrap gap-2">
-                                            <Button 
-                                                onClick={callMe} 
+                                            <Button
+                                                onClick={callMe}
                                                 disabled={loading}
                                                 className="flex items-center gap-2"
                                             >
@@ -245,8 +264,8 @@ export default function Dashboard() {
                                                 )}
                                                 Call /api/me
                                             </Button>
-                                            <Button 
-                                                variant="outline" 
+                                            <Button
+                                                variant="outline"
                                                 onClick={() => logout()}
                                                 className="flex items-center gap-2"
                                             >
@@ -254,7 +273,7 @@ export default function Dashboard() {
                                                 Sign Out
                                             </Button>
                                         </div>
-                                        
+
                                         {me && (
                                             <div className="mt-4">
                                                 <h4 className="text-sm font-medium mb-2">API Response:</h4>
@@ -292,6 +311,14 @@ export default function Dashboard() {
                                     </CardContent>
                                 </Card>
                             </div>
+                          <DietaryDialog
+                            isOpen={dietModal}
+                            closePopup={closeDiet}
+                            diets={diets}
+                            setDiets={setDiets}
+                            intolerances={intolerances}
+                            setIntolerances={setIntolerances}
+                          />
                         </main>
                     </div>
                 </div>
