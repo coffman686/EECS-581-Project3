@@ -6,6 +6,8 @@ export async function GET(request: NextRequest) {
     const ingredients = searchParams.get('ingredients') ?? undefined;
     const cuisine = searchParams.get('cuisine') ?? undefined
     const dishType = searchParams.get('dishType') ?? undefined
+    const diet = searchParams.get("diet") ?? undefined;
+    const intolerances = searchParams.get("intolerances") ?? undefined;
     if (!ingredients) {
         return NextResponse.json({ error: 'Missing ingredients parameter' }, { status: 400 });
     }
@@ -15,6 +17,8 @@ export async function GET(request: NextRequest) {
             addRecipeInformation: true,
             cuisine: cuisine,
             type: dishType,
+            diet: diet,
+            intolerances: intolerances,
             number: 48, //idk what to set this to yet
         });
         const results = recipes.results.map((recipe) => ({

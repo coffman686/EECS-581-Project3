@@ -18,6 +18,7 @@ import {
     SelectContent,
     SelectItem,
 } from '@/components/ui/select';
+import { getDiets, getIntolerances } from '@/components/ingredients/Dietary';
 
 
 type Recipe = {
@@ -37,24 +38,33 @@ const Recipes = () => {
     const [searchTerm, setSearchTerm] = useState('');
     const [selectedDishType, setSelectedDishType] = useState('All');
     const [selectedCuisine, setSelectedCuisine] = useState('All');
+    const [diet, setDiet] = useState("");
+    const [intolerances, setIntolerances] = useState("");
 
     const dishTypes = ['All', 'main course', 'side dish', 'dessert', 'appetizer', 'salad', 'bread', 'breakfast', 'soup', 'beverage', 'sauce', 'marinade', 'fingerfood', 'snack', 'drink'];
     const cuisines = ['All', 'African', 'Asian', 'American', 'British', 'Cajun', 'Caribbean', 'Chinese', 'Eastern European', 'European', 'French', 'German', 'Greek', 'Indian', 'Irish', 'Italian', 'Japanese', 'Jewish', 'Korean', 'Latin American', 'Mediterranean', 'Mexican', 'Middle Eastern', 'Nordic', 'Southern', 'Spanish', 'Thai', 'Vietnamese'];
 
     const fetchRecipes = async () => {
         setIsLoading(true);
-        const response = await fetch(`/api/spoonacular/recipes/searchByIngredient?ingredients=${searchTerm}&cuisine=${selectedCuisine !== 'All' ? selectedCuisine : undefined}&dishType=${selectedDishType !== 'All' ? selectedDishType : undefined}`);
+        const response = await fetch(`/api/spoonacular/recipes/searchByIngredient?ingredients=${searchTerm}&cuisine=${selectedCuisine !== 'All' ? selectedCuisine : undefined}&dishType=${selectedDishType !== 'All' ? selectedDishType : undefined}&diet=${diet}&intolerances=${intolerances}`);
         const data = await response.json();
         setRecipes(data.results);
         setIsLoading(false);
     }
 
     useEffect(() => {
+      setDiet(getDiets())
+      setIntolerances(getIntolerances())
+    }, []);
+
+    useEffect(() => {
         fetchRecipes()
-    }, [searchTerm, selectedCuisine, selectedDishType])
+    }, [searchTerm, selectedCuisine, selectedDishType, diet, intolerances])
 
     const handleSearch = async () => {
         const ingredientListString = ingredientList.join(',').toLowerCase();
+        setDiet(getDiets());
+        setIntolerances(getIntolerances());
         setSearchTerm(ingredientListString);
     };
 
