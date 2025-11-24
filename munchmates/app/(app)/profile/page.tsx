@@ -113,7 +113,7 @@ const ProfilePage = () => {
             cursor: "pointer",
           }}
         >
-          Save Settings
+          <Link href="/dashboard">Save Settings</Link>
         </button>
       </form>
     </div>
