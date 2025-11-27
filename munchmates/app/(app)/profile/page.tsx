@@ -5,6 +5,9 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { DietaryDialog } from "@/components/ingredients/Dietary";
+import { SidebarProvider } from "@/components/ui/sidebar";
+import AppSidebar from "@/components/layout/app-sidebar";
+import AppHeader from "@/components/layout/app-header";
 import {
     initKeycloak,
     ensureToken,
@@ -151,17 +154,22 @@ const ProfilePage = () => {
             : "No allergies listed";
 
     return (
-        <div className="min-h-screen bg-background flex items-start justify-center px-4 py-16">
-            <DietaryDialog
-                isOpen={dietModal}
-                closePopup={closeDiet}
-                diets={diets}
-                setDiets={setDiets}
-                intolerances={intolerances}
-                setIntolerances={setIntolerances}
-            />
+        <SidebarProvider>
+            <div className="min-h-screen flex w-full">
+                <AppSidebar />
+                <div className="flex-1 flex flex-col">
+                    <AppHeader title="Profile" />
+                    <main className="flex-1 flex items-start justify-center px-4 py-16 bg-muted/20">
+                        <DietaryDialog
+                            isOpen={dietModal}
+                            closePopup={closeDiet}
+                            diets={diets}
+                            setDiets={setDiets}
+                            intolerances={intolerances}
+                            setIntolerances={setIntolerances}
+                        />
 
-            <div className="w-full max-w-xl rounded-2xl bg-card border border-border shadow-sm px-8 py-10">
+                        <div className="w-full max-w-xl rounded-2xl bg-card border border-border shadow-sm px-8 py-10">
                 <h2 className="text-3xl font-semibold text-center mb-8 text-foreground">
                     My Profile
                 </h2>
@@ -268,8 +276,11 @@ const ProfilePage = () => {
                         </Button>
                     </div>
                 </form>
+                        </div>
+                    </main>
+                </div>
             </div>
-        </div>
+        </SidebarProvider>
     );
 };
 
