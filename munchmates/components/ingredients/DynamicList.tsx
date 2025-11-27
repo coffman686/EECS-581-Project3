@@ -1,9 +1,38 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Autosuggest from "./Autosuggest";
 import { Button } from "../ui/button";
 import { Badge } from "../ui/badge";
 import { Dispatch, SetStateAction, ReactNode } from "react";
-import { XIcon } from "lucide-react";
+import { XIcon, ShoppingCart, Package } from "lucide-react";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "../ui/select";
+
+// Storage key must match grocery-list page
+const GROCERY_LIST_STORAGE_KEY = 'munchmates_grocery_list';
+// Storage key must match pantry page
+const PANTRY_STORAGE_KEY = 'munchmates_pantry';
+
+interface GroceryItem {
+  id: string;
+  name: string;
+  category: string;
+  completed: boolean;
+  quantity?: string;
+}
+
+interface PantryItem {
+  id: number;
+  name: string;
+  quantity: string;
+  category: string;
+  expiryDate?: string;
+  addedDate: string;
+}
 
 const data = [
   // Produce - Fruits
@@ -393,11 +422,77 @@ export default function IngredientList({
                                          children,
                                        }: IngredientListProps) {
   const [query, setQuery] = useState("");
+  const [groceryItems, setGroceryItems] = useState<GroceryItem[]>([]);
+  const [pantryItems, setPantryItems] = useState<PantryItem[]>([]);
+
+  // Load grocery list and pantry from localStorage
+  useEffect(() => {
+    const loadGroceryList = () => {
+      const stored = localStorage.getItem(GROCERY_LIST_STORAGE_KEY);
+      if (stored) {
+        try {
+          setGroceryItems(JSON.parse(stored));
+        } catch {
+          setGroceryItems([]);
+        }
+      }
+    };
+
+    const loadPantryItems = () => {
+      const stored = localStorage.getItem(PANTRY_STORAGE_KEY);
+      if (stored) {
+        try {
+          setPantryItems(JSON.parse(stored));
+        } catch {
+          setPantryItems([]);
+        }
+      }
+    };
+
+    // Load initially
+    loadGroceryList();
+    loadPantryItems();
+
+    // Listen for storage changes (when grocery list or pantry is updated in another tab/component)
+    const handleStorageChange = (e: StorageEvent) => {
+      if (e.key === GROCERY_LIST_STORAGE_KEY) {
+        loadGroceryList();
+      }
+      if (e.key === PANTRY_STORAGE_KEY) {
+        loadPantryItems();
+      }
+    };
+
+    window.addEventListener('storage', handleStorageChange);
+    return () => window.removeEventListener('storage', handleStorageChange);
+  }, []);
+
+  // Get unique, non-completed grocery items that aren't already in the ingredients list
+  const availableGroceryItems = groceryItems
+    .filter(item => !item.completed && !ingredients.includes(item.name))
+    .map(item => item.name);
+
+  // Get pantry items that aren't already in the ingredients list
+  const availablePantryItems = pantryItems
+    .filter(item => !ingredients.includes(item.name))
+    .map(item => item.name);
 
   // TODO: replace, needed for testing
   const addIngredient = (item: string) => {
     if (item.trim() !== "" && !ingredients.includes(item)) {
       setIngredients((prevIngredients) => [...prevIngredients, item]);
+    }
+  };
+
+  const handleAddFromGroceryList = (itemName: string) => {
+    if (itemName && itemName !== "placeholder") {
+      addIngredient(itemName);
+    }
+  };
+
+  const handleAddFromPantry = (itemName: string) => {
+    if (itemName && itemName !== "placeholder") {
+      addIngredient(itemName);
     }
   };
 
@@ -442,11 +537,53 @@ export default function IngredientList({
         </ul>
 
         <form className="relative mt-4 space-y-3" onSubmit={handleAddIngredient}>
-          <Autosuggest
-              data={[...data, ...ingredients]}
-              query={query}
-              setQuery={setQuery}
-          />
+          <div className="flex flex-col sm:flex-row gap-3">
+            <div className="flex-1">
+              <Autosuggest
+                  data={[...data, ...ingredients]}
+                  query={query}
+                  setQuery={setQuery}
+              />
+            </div>
+            
+            {/* Pantry Dropdown */}
+            {availablePantryItems.length > 0 && (
+              <Select onValueChange={handleAddFromPantry}>
+                <SelectTrigger className="w-full sm:w-[200px]">
+                  <div className="flex items-center gap-2">
+                    <Package className="h-4 w-4" />
+                    <SelectValue placeholder="From pantry" />
+                  </div>
+                </SelectTrigger>
+                <SelectContent>
+                  {availablePantryItems.map((item) => (
+                    <SelectItem key={item} value={item}>
+                      {item}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            )}
+
+            {/* Grocery List Dropdown */}
+            {availableGroceryItems.length > 0 && (
+              <Select onValueChange={handleAddFromGroceryList}>
+                <SelectTrigger className="w-full sm:w-[200px]">
+                  <div className="flex items-center gap-2">
+                    <ShoppingCart className="h-4 w-4" />
+                    <SelectValue placeholder="From grocery list" />
+                  </div>
+                </SelectTrigger>
+                <SelectContent>
+                  {availableGroceryItems.map((item) => (
+                    <SelectItem key={item} value={item}>
+                      {item}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            )}
+          </div>
 
           <div className="flex flex-wrap gap-3">
             <Button type="submit">
