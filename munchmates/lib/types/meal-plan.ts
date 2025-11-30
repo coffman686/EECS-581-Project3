@@ -48,11 +48,20 @@ export function createEmptyWeekPlan(weekStart: Date): WeeklyMealPlan {
 }
 
 // Helper to get Monday of the week for a given date
+// If today is Sunday, show the upcoming week (next Monday)
 export function getWeekMonday(date: Date): Date {
   const d = new Date(date);
   const day = d.getDay();
-  const diff = d.getDate() - day + (day === 0 ? -6 : 1);
-  d.setDate(diff);
+
+  // If Sunday (day === 0), get next Monday (add 1 day)
+  // Otherwise, get the Monday of the current week
+  if (day === 0) {
+    d.setDate(d.getDate() + 1);
+  } else {
+    const diff = d.getDate() - day + 1;
+    d.setDate(diff);
+  }
+
   d.setHours(0, 0, 0, 0);
   return d;
 }

@@ -13,8 +13,11 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
-import { Search, Clock, Users, ChefHat, Loader2, ArrowLeft, Check } from 'lucide-react';
+import { Search, Clock, Users, ChefHat, Loader2, ArrowLeft, Check, Heart } from 'lucide-react';
 import { getDiets, getIntolerances } from '@/components/ingredients/Dietary';
+
+// Same localStorage key as recipes page
+const SAVED_RECIPES_STORAGE_KEY = 'saved-recipes';
 
 interface Recipe {
   id: number;
@@ -26,6 +29,15 @@ interface Recipe {
   cuisines: string[];
   dishTypes: string[];
 }
+
+interface SavedRecipe {
+  recipeId: number;
+  recipeName: string;
+  recipeImage?: string;
+  savedAt: string;
+}
+
+type TabType = 'search' | 'saved';
 
 interface RecipePickerDialogProps {
   open: boolean;
@@ -58,11 +70,19 @@ export default function RecipePickerDialog({
   currentDayDate,
   availableDays,
 }: RecipePickerDialogProps) {
+  // Tab state
+  const [activeTab, setActiveTab] = useState<TabType>('search');
+
+  // Search state
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedDishType, setSelectedDishType] = useState('All');
   const [recipes, setRecipes] = useState<Recipe[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [hasSearched, setHasSearched] = useState(false);
+
+  // Saved recipes state
+  const [savedRecipes, setSavedRecipes] = useState<SavedRecipe[]>([]);
+  const [isLoadingSaved, setIsLoadingSaved] = useState(false);
 
   // Day selection state
   const [selectedRecipe, setSelectedRecipe] = useState<Recipe | null>(null);
@@ -137,6 +157,7 @@ export default function RecipePickerDialog({
   };
 
   const resetState = () => {
+    setActiveTab('search');
     setSearchTerm('');
     setSelectedDishType('All');
     setRecipes([]);
@@ -145,12 +166,68 @@ export default function RecipePickerDialog({
     setSelectedDays([]);
   };
 
+  // Load saved recipes from localStorage
+  const loadSavedRecipes = () => {
+    const savedData = localStorage.getItem(SAVED_RECIPES_STORAGE_KEY);
+    if (savedData) {
+      try {
+        const recipes: SavedRecipe[] = JSON.parse(savedData);
+        setSavedRecipes(recipes);
+      } catch (error) {
+        console.error('Error loading saved recipes:', error);
+        setSavedRecipes([]);
+      }
+    } else {
+      setSavedRecipes([]);
+    }
+  };
+
+  // Load saved recipes when dialog opens (for badge count) or tab changes to saved
+  useEffect(() => {
+    if (open) {
+      loadSavedRecipes();
+    }
+  }, [open]);
+
   // Reset state when dialog closes
   useEffect(() => {
     if (!open) {
       resetState();
     }
   }, [open]);
+
+  // Handle clicking on a saved recipe - need to fetch full info from API
+  const handleSavedRecipeClick = async (savedRecipe: SavedRecipe) => {
+    setIsLoadingSaved(true);
+    try {
+      // Fetch full recipe info from Spoonacular API
+      const response = await fetch(`/api/spoonacular/recipes/info?id=${savedRecipe.recipeId}`);
+      if (!response.ok) {
+        throw new Error('Failed to fetch recipe info');
+      }
+      const recipeInfo = await response.json();
+
+      // Convert to Recipe format for the day selection flow
+      const recipe: Recipe = {
+        id: recipeInfo.id,
+        title: recipeInfo.title,
+        image: recipeInfo.image || savedRecipe.recipeImage || '',
+        score: recipeInfo.spoonacularScore || 0,
+        servings: recipeInfo.servings || 1,
+        readyInMinutes: recipeInfo.readyInMinutes || 30,
+        cuisines: recipeInfo.cuisines || [],
+        dishTypes: recipeInfo.dishTypes || [],
+      };
+
+      setSelectedRecipe(recipe);
+      setSelectedDays([currentDayDate]);
+    } catch (error) {
+      console.error('Failed to fetch saved recipe info:', error);
+      alert('Failed to load recipe details. Please try again.');
+    } finally {
+      setIsLoadingSaved(false);
+    }
+  };
 
   // Day selection view
   if (selectedRecipe) {
@@ -260,111 +337,207 @@ export default function RecipePickerDialog({
     );
   }
 
-  // Search view
+  // Main view with tabs
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-4xl max-h-[85vh] overflow-hidden flex flex-col">
         <DialogHeader>
           <DialogTitle>Add Recipe to Meal Plan</DialogTitle>
           <DialogDescription>
-            Search for recipes by ingredients or name
+            Search for recipes or choose from your saved favorites
           </DialogDescription>
         </DialogHeader>
 
-        <div className="space-y-4">
-          <div className="flex gap-2">
-            <Input
-              placeholder="Search by ingredients (e.g., chicken, rice)"
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              onKeyDown={handleKeyPress}
-              className="flex-1"
-            />
-            <select
-              value={selectedDishType}
-              onChange={(e) => setSelectedDishType(e.target.value)}
-              className="h-9 rounded-md border border-input bg-background px-3 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
-            >
-              {dishTypes.map((type) => (
-                <option key={type} value={type}>
-                  {type.charAt(0).toUpperCase() + type.slice(1)}
-                </option>
-              ))}
-            </select>
-            <Button onClick={handleSearch} disabled={isLoading || !searchTerm.trim()}>
-              {isLoading ? (
-                <Loader2 className="h-4 w-4 animate-spin" />
-              ) : (
-                <Search className="h-4 w-4" />
-              )}
-            </Button>
-          </div>
+        {/* Tabs */}
+        <div className="flex border-b">
+          <button
+            type="button"
+            onClick={() => setActiveTab('search')}
+            className={`flex items-center gap-2 px-4 py-2 text-sm font-medium border-b-2 transition-colors ${
+              activeTab === 'search'
+                ? 'border-primary text-primary'
+                : 'border-transparent text-muted-foreground hover:text-foreground'
+            }`}
+          >
+            <Search className="h-4 w-4" />
+            Search Recipes
+          </button>
+          <button
+            type="button"
+            onClick={() => setActiveTab('saved')}
+            className={`flex items-center gap-2 px-4 py-2 text-sm font-medium border-b-2 transition-colors ${
+              activeTab === 'saved'
+                ? 'border-primary text-primary'
+                : 'border-transparent text-muted-foreground hover:text-foreground'
+            }`}
+          >
+            <Heart className="h-4 w-4" />
+            Saved Recipes
+            {savedRecipes.length > 0 && (
+              <Badge variant="secondary" className="ml-1 text-xs">
+                {savedRecipes.length}
+              </Badge>
+            )}
+          </button>
         </div>
 
-        <div className="flex-1 overflow-y-auto mt-4 -mx-6 px-6">
-          {isLoading ? (
-            <div className="flex flex-col items-center justify-center py-12">
-              <Loader2 className="h-12 w-12 text-muted-foreground animate-spin mb-4" />
-              <p className="text-muted-foreground">Searching recipes...</p>
-            </div>
-          ) : recipes.length > 0 ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 pb-4">
-              {recipes.map((recipe) => (
-                <Card
-                  key={recipe.id}
-                  className="cursor-pointer hover:shadow-md transition-shadow overflow-hidden"
-                  onClick={() => handleRecipeClick(recipe)}
+        {/* Search Tab Content */}
+        {activeTab === 'search' && (
+          <>
+            <div className="space-y-4 pt-4">
+              <div className="flex gap-2">
+                <Input
+                  placeholder="Search by ingredients (e.g., chicken, rice)"
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  onKeyDown={handleKeyPress}
+                  className="flex-1"
+                />
+                <select
+                  value={selectedDishType}
+                  onChange={(e) => setSelectedDishType(e.target.value)}
+                  className="h-9 rounded-md border border-input bg-background px-3 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
                 >
-                  <div className="h-32 bg-gradient-to-br from-primary/20 to-muted">
-                    <img
-                      src={recipe.image || '/placeholder-recipe.png'}
-                      alt={recipe.title}
-                      className="h-full w-full object-cover"
-                    />
-                  </div>
-                  <CardContent className="p-3">
-                    <h3 className="font-medium text-sm leading-tight line-clamp-2 mb-2">
-                      {recipe.title}
-                    </h3>
-                    <div className="flex flex-wrap gap-1 mb-2">
-                      {recipe.dishTypes?.slice(0, 2).map((type) => (
-                        <Badge key={type} variant="secondary" className="text-xs">
-                          {type}
-                        </Badge>
-                      ))}
-                    </div>
-                    <div className="flex items-center justify-between text-xs text-muted-foreground">
-                      <div className="flex items-center gap-1">
-                        <Clock className="h-3 w-3" />
-                        <span>{recipe.readyInMinutes} min</span>
+                  {dishTypes.map((type) => (
+                    <option key={type} value={type}>
+                      {type.charAt(0).toUpperCase() + type.slice(1)}
+                    </option>
+                  ))}
+                </select>
+                <Button onClick={handleSearch} disabled={isLoading || !searchTerm.trim()}>
+                  {isLoading ? (
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                  ) : (
+                    <Search className="h-4 w-4" />
+                  )}
+                </Button>
+              </div>
+            </div>
+
+            <div className="flex-1 overflow-y-auto mt-4 -mx-6 px-6">
+              {isLoading ? (
+                <div className="flex flex-col items-center justify-center py-12">
+                  <Loader2 className="h-12 w-12 text-muted-foreground animate-spin mb-4" />
+                  <p className="text-muted-foreground">Searching recipes...</p>
+                </div>
+              ) : recipes.length > 0 ? (
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 pb-4">
+                  {recipes.map((recipe) => (
+                    <Card
+                      key={recipe.id}
+                      className="cursor-pointer hover:shadow-md transition-shadow overflow-hidden"
+                      onClick={() => handleRecipeClick(recipe)}
+                    >
+                      <div className="h-32 bg-gradient-to-br from-primary/20 to-muted">
+                        <img
+                          src={recipe.image || '/placeholder-recipe.png'}
+                          alt={recipe.title}
+                          className="h-full w-full object-cover"
+                        />
                       </div>
-                      <div className="flex items-center gap-1">
-                        <Users className="h-3 w-3" />
-                        <span>{recipe.servings}</span>
-                      </div>
+                      <CardContent className="p-3">
+                        <h3 className="font-medium text-sm leading-tight line-clamp-2 mb-2">
+                          {recipe.title}
+                        </h3>
+                        <div className="flex flex-wrap gap-1 mb-2">
+                          {recipe.dishTypes?.slice(0, 2).map((type) => (
+                            <Badge key={type} variant="secondary" className="text-xs">
+                              {type}
+                            </Badge>
+                          ))}
+                        </div>
+                        <div className="flex items-center justify-between text-xs text-muted-foreground">
+                          <div className="flex items-center gap-1">
+                            <Clock className="h-3 w-3" />
+                            <span>{recipe.readyInMinutes} min</span>
+                          </div>
+                          <div className="flex items-center gap-1">
+                            <Users className="h-3 w-3" />
+                            <span>{recipe.servings}</span>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+              ) : hasSearched ? (
+                <div className="flex flex-col items-center justify-center py-12">
+                  <ChefHat className="h-12 w-12 text-muted-foreground mb-4" />
+                  <p className="text-muted-foreground">No recipes found</p>
+                  <p className="text-sm text-muted-foreground mt-1">
+                    Try different ingredients or filters
+                  </p>
+                </div>
+              ) : (
+                <div className="flex flex-col items-center justify-center py-12">
+                  <Search className="h-12 w-12 text-muted-foreground mb-4" />
+                  <p className="text-muted-foreground">Enter ingredients to search</p>
+                  <p className="text-sm text-muted-foreground mt-1">
+                    e.g., &quot;chicken, broccoli&quot; or &quot;pasta&quot;
+                  </p>
+                </div>
+              )}
+            </div>
+          </>
+        )}
+
+        {/* Saved Recipes Tab Content */}
+        {activeTab === 'saved' && (
+          <div className="flex-1 overflow-y-auto mt-4 -mx-6 px-6">
+            {isLoadingSaved ? (
+              <div className="flex flex-col items-center justify-center py-12">
+                <Loader2 className="h-12 w-12 text-muted-foreground animate-spin mb-4" />
+                <p className="text-muted-foreground">Loading recipe details...</p>
+              </div>
+            ) : savedRecipes.length > 0 ? (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 pb-4">
+                {savedRecipes.map((recipe) => (
+                  <Card
+                    key={recipe.recipeId}
+                    className="cursor-pointer hover:shadow-md transition-shadow overflow-hidden"
+                    onClick={() => handleSavedRecipeClick(recipe)}
+                  >
+                    <div className="h-32 bg-gradient-to-br from-primary/20 to-muted flex items-center justify-center">
+                      {recipe.recipeImage ? (
+                        <img
+                          src={recipe.recipeImage}
+                          alt={recipe.recipeName}
+                          className="h-full w-full object-cover"
+                        />
+                      ) : (
+                        <ChefHat className="h-12 w-12 text-muted-foreground" />
+                      )}
                     </div>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-          ) : hasSearched ? (
-            <div className="flex flex-col items-center justify-center py-12">
-              <ChefHat className="h-12 w-12 text-muted-foreground mb-4" />
-              <p className="text-muted-foreground">No recipes found</p>
-              <p className="text-sm text-muted-foreground mt-1">
-                Try different ingredients or filters
-              </p>
-            </div>
-          ) : (
-            <div className="flex flex-col items-center justify-center py-12">
-              <Search className="h-12 w-12 text-muted-foreground mb-4" />
-              <p className="text-muted-foreground">Enter ingredients to search</p>
-              <p className="text-sm text-muted-foreground mt-1">
-                e.g., &quot;chicken, broccoli&quot; or &quot;pasta&quot;
-              </p>
-            </div>
-          )}
-        </div>
+                    <CardContent className="p-3">
+                      <h3 className="font-medium text-sm leading-tight line-clamp-2 mb-2">
+                        {recipe.recipeName}
+                      </h3>
+                      <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                        <Heart className="h-3 w-3 fill-red-500 text-red-500" />
+                        <span>Saved {new Date(recipe.savedAt).toLocaleDateString()}</span>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            ) : (
+              <div className="flex flex-col items-center justify-center py-12">
+                <Heart className="h-12 w-12 text-muted-foreground mb-4" />
+                <p className="text-muted-foreground">No saved recipes yet</p>
+                <p className="text-sm text-muted-foreground mt-1">
+                  Save recipes from the Recipes page to quickly add them here
+                </p>
+                <Button
+                  variant="outline"
+                  className="mt-4"
+                  onClick={() => setActiveTab('search')}
+                >
+                  Search for Recipes
+                </Button>
+              </div>
+            )}
+          </div>
+        )}
       </DialogContent>
     </Dialog>
   );

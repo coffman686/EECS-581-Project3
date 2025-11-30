@@ -30,11 +30,17 @@ const MEALS: MealType[] = ['breakfast', 'lunch', 'dinner'];
 
 const MealPlanner = () => {
   const router = useRouter();
-  const [currentDate, setCurrentDate] = useState(new Date());
+  // Initialize with a function to ensure we get the current date at render time
+  const [currentDate, setCurrentDate] = useState(() => new Date());
   const [weekPlan, setWeekPlan] = useState<WeeklyMealPlan | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [isGenerating, setIsGenerating] = useState(false);
+
+  // Ensure we're using the current date on client mount
+  useEffect(() => {
+    setCurrentDate(new Date());
+  }, []);
 
   // Recipe picker state
   const [pickerOpen, setPickerOpen] = useState(false);
@@ -380,8 +386,11 @@ const MealPlanner = () => {
                         {/* Days as horizontal rows */}
                         <div className="space-y-4">
                           {weekPlan?.days.map((day, dayIndex) => {
-                            const dayDate = new Date(day.date);
-                            const isToday = new Date().toDateString() === dayDate.toDateString();
+                            // Parse the date string properly to avoid timezone issues
+                            const dayDate = new Date(day.date + 'T00:00:00');
+                            const today = new Date();
+                            const todayStr = today.toISOString().split('T')[0];
+                            const isToday = day.date === todayStr;
 
                             return (
                               <div
