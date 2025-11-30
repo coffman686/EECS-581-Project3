@@ -18,6 +18,16 @@ import { useRouter } from 'next/navigation';
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/ui/select';
 import { getDiets, getIntolerances } from '@/components/ingredients/Dietary';
 
+// localStorage key for saved recipes
+const SAVED_RECIPES_STORAGE_KEY = 'saved-recipes';
+
+type SavedRecipe = {
+    recipeId: number;
+    recipeName: string;
+    recipeImage?: string;
+    savedAt: string;
+};
+
 // Ingredient data for autosuggest (same as DynamicList)
 const ingredientData = [
     // Produce - Fruits
@@ -217,25 +227,32 @@ const Recipes = () => {
 
     const [isSubmitting, setIsSubmitting] = useState(false);
 
+    const [savedRecipes, setSavedRecipes] = useState<SavedRecipe[]>([]);
     const [savedRecipeIds, setSavedRecipeIds] = useState<Set<number>>(new Set());
+    const [isLoaded, setIsLoaded] = useState(false);
 
-
-
-    // Load saved recipes on mount
+    // Load saved recipes from localStorage on mount
     useEffect(() => {
-        const loadSavedRecipes = async () => {
+        const savedData = localStorage.getItem(SAVED_RECIPES_STORAGE_KEY);
+        if (savedData) {
             try {
-                const response = await authedFetch('/api/recipes/saved');
-                if (response.ok) {
-                    const data = await response.json();
-                    setSavedRecipeIds(new Set(data.recipes.map((r: any) => r.recipeId)));
-                }
+                const recipes: SavedRecipe[] = JSON.parse(savedData);
+                setSavedRecipes(recipes);
+                setSavedRecipeIds(new Set(recipes.map(r => r.recipeId)));
             } catch (error) {
                 console.error('Error loading saved recipes:', error);
             }
-        };
-        loadSavedRecipes();
+        }
+        setIsLoaded(true);
     }, []);
+
+    // Save to localStorage whenever savedRecipes changes
+    useEffect(() => {
+        if (isLoaded) {
+            localStorage.setItem(SAVED_RECIPES_STORAGE_KEY, JSON.stringify(savedRecipes));
+            setSavedRecipeIds(new Set(savedRecipes.map(r => r.recipeId)));
+        }
+    }, [savedRecipes, isLoaded]);
 
     const handleAddIngredient = () => {
         if (newIngredient.trim()) {
@@ -322,48 +339,24 @@ const Recipes = () => {
         setShowCreateDialog(true);
     };
 
-    const handleSaveRecipe = async (recipeId: number, recipeName: string) => {
-        try {
-            const response = await authedFetch('/api/recipes/saved', {
-                method: 'POST',
-                body: JSON.stringify({
-                    recipeId,
-                    recipeName,
-                }),
-            });
-
-            if (!response.ok) {
-                throw new Error('Failed to save recipe');
-            }
-
-            // Update saved recipes state
-            setSavedRecipeIds(prev => new Set([...prev, recipeId]));
-        } catch (error) {
-            console.error('Error saving recipe:', error);
-            alert('Failed to save recipe. Please try again.');
+    const handleSaveRecipe = (recipeId: number, recipeName: string, recipeImage?: string) => {
+        // Check if already saved
+        if (savedRecipeIds.has(recipeId)) {
+            return;
         }
+
+        const newSavedRecipe: SavedRecipe = {
+            recipeId,
+            recipeName,
+            recipeImage,
+            savedAt: new Date().toISOString(),
+        };
+
+        setSavedRecipes(prev => [...prev, newSavedRecipe]);
     };
 
-    const handleRemoveSavedRecipe = async (recipeId: number) => {
-        try {
-            const response = await authedFetch(`/api/recipes/saved?recipeId=${recipeId}`, {
-                method: 'DELETE',
-            });
-
-            if (!response.ok) {
-                throw new Error('Failed to remove recipe');
-            }
-
-            // Update saved recipes state
-            setSavedRecipeIds(prev => {
-                const newSet = new Set(prev);
-                newSet.delete(recipeId);
-                return newSet;
-            });
-        } catch (error) {
-            console.error('Error removing saved recipe:', error);
-            alert('Failed to remove recipe. Please try again.');
-        }
+    const handleRemoveSavedRecipe = (recipeId: number) => {
+        setSavedRecipes(prev => prev.filter(r => r.recipeId !== recipeId));
     };
 
     return (
@@ -513,7 +506,7 @@ const Recipes = () => {
                                                     <Button
                                                         onClick={() => savedRecipeIds.has(recipe.id)
                                                             ? handleRemoveSavedRecipe(recipe.id)
-                                                            : handleSaveRecipe(recipe.id, recipe.title)
+                                                            : handleSaveRecipe(recipe.id, recipe.title, recipe.image)
                                                         }
                                                         variant={savedRecipeIds.has(recipe.id) ? "default" : "outline"}
                                                         size="icon"
