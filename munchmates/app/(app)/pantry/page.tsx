@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import AppHeader from '@/components/layout/app-header';
 import RequireAuth from '@/components/RequireAuth';
 import { SidebarProvider } from '@/components/ui/sidebar';
@@ -46,14 +46,31 @@ const categories = [
     'Other'
 ];
 
+// Storage key for pantry persistence
+export const PANTRY_STORAGE_KEY = 'munchmates_pantry';
+
+const defaultItems: PantryItem[] = [
+    { id: 1, name: 'All-Purpose Flour', quantity: '2 lbs', category: 'Grains & Flour', addedDate: '2024-01-15' },
+    { id: 2, name: 'Granulated Sugar', quantity: '1 lb', category: 'Sweeteners', addedDate: '2024-01-10' },
+    { id: 3, name: 'Large Eggs', quantity: '12', category: 'Dairy & Eggs', expiryDate: '2024-02-01', addedDate: '2024-01-20' },
+    { id: 4, name: 'Olive Oil', quantity: '500 ml', category: 'Oils & Vinegars', addedDate: '2024-01-05' },
+    { id: 5, name: 'Canned Tomatoes', quantity: '2 cans', category: 'Canned Goods', expiryDate: '2025-01-01', addedDate: '2024-01-12' },
+];
+
 const Pantry = () => {
-    const [items, setItems] = useState<PantryItem[]>([
-        { id: 1, name: 'All-Purpose Flour', quantity: '2 lbs', category: 'Grains & Flour', addedDate: '2024-01-15' },
-        { id: 2, name: 'Granulated Sugar', quantity: '1 lb', category: 'Sweeteners', addedDate: '2024-01-10' },
-        { id: 3, name: 'Large Eggs', quantity: '12', category: 'Dairy & Eggs', expiryDate: '2024-02-01', addedDate: '2024-01-20' },
-        { id: 4, name: 'Olive Oil', quantity: '500 ml', category: 'Oils & Vinegars', addedDate: '2024-01-05' },
-        { id: 5, name: 'Canned Tomatoes', quantity: '2 cans', category: 'Canned Goods', expiryDate: '2025-01-01', addedDate: '2024-01-12' },
-    ]);
+    const [items, setItems] = useState<PantryItem[]>(() => {
+        if (typeof window !== 'undefined') {
+            const stored = localStorage.getItem(PANTRY_STORAGE_KEY);
+            if (stored) {
+                try {
+                    return JSON.parse(stored);
+                } catch {
+                    return defaultItems;
+                }
+            }
+        }
+        return defaultItems;
+    });
 
     const [itemName, setItemName] = useState('');
     const [itemQuantity, setItemQuantity] = useState('');
@@ -69,6 +86,11 @@ const Pantry = () => {
     const [editExpiry, setEditExpiry] = useState('');
 
     const [imageDialogOpen, setImageDialogOpen] = useState(false);
+
+    // Persist pantry items to localStorage
+    useEffect(() => {
+        localStorage.setItem(PANTRY_STORAGE_KEY, JSON.stringify(items));
+    }, [items]);
 
     const beginEdit = (item: PantryItem) => {
         setEditingId(item.id);

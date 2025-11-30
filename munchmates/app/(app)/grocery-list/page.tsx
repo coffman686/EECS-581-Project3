@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import AppHeader from '@/components/layout/app-header';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -27,16 +27,20 @@ interface GroceryItem {
     quantity?: string;
 }
 
+const GROCERY_LIST_STORAGE_KEY = 'munchmates_grocery_list';
+
+const defaultItems: GroceryItem[] = [
+    { id: '1', name: 'Apples', category: 'Produce', completed: false, quantity: '6' },
+    { id: '2', name: 'Bananas', category: 'Produce', completed: true, quantity: '1 bunch'},
+    { id: '3', name: 'Milk', category: 'Dairy', completed: false, quantity: '1 gallon' },
+    { id: '4', name: 'Eggs', category: 'Dairy', completed: false, quantity: '1 dozen' },
+    { id: '5', name: 'Chicken Breast', category: 'Meat', completed: false, quantity: '2 lbs' },
+];
+
 export default function GroceryListPage() {
     const [newItem, setNewItem] = useState('');
     const [newCategory, setNewCategory] = useState('');
-    const [items, setItems] = useState<GroceryItem[]>([
-        { id: '1', name: 'Apples', category: 'Produce', completed: false, quantity: '6' },
-        { id: '2', name: 'Bananas', category: 'Produce', completed: true, quantity: '1 bunch'},
-        { id: '3', name: 'Milk', category: 'Dairy', completed: false, quantity: '1 gallon' },
-        { id: '4', name: 'Eggs', category: 'Dairy', completed: false, quantity: '1 dozen' },
-        { id: '5', name: 'Chicken Breast', category: 'Meat', completed: false, quantity: '2 lbs' },
-    ]);
+    const [items, setItems] = useState<GroceryItem[]>([]);
     const [categories, setCategories] = useState(['Produce', 'Dairy', 'Meat', 'Pantry']);
     const [filter, setFilter] = useState<'all' | 'active' | 'completed'>('all');
 
@@ -45,6 +49,27 @@ export default function GroceryListPage() {
     const [editQuantity, setEditQuantity] = useState('');
     const [editCategory, setEditCategory] = useState('');
     const [imageDialogOpen, setImageDialogOpen] = useState(false);
+
+    // Load grocery list from localStorage on mount
+    useEffect(() => {
+        const stored = localStorage.getItem(GROCERY_LIST_STORAGE_KEY);
+        if (stored) {
+            try {
+                setItems(JSON.parse(stored));
+            } catch {
+                setItems(defaultItems);
+            }
+        } else {
+            setItems(defaultItems);
+        }
+    }, []);
+
+    // Save grocery list to localStorage whenever items change
+    useEffect(() => {
+        if (items.length > 0 || localStorage.getItem(GROCERY_LIST_STORAGE_KEY)) {
+            localStorage.setItem(GROCERY_LIST_STORAGE_KEY, JSON.stringify(items));
+        }
+    }, [items]);
 
     const beginEdit = (item: GroceryItem) => {
         setEditingId(item.id);
