@@ -145,6 +145,18 @@ const RecipeDetailPage = () => {
     return html.replace(/<[^>]*>/g, "");
   };
 
+  // Handle static routes that might be caught by this dynamic route
+  useEffect(() => {
+    if (recipeId === "saved") {
+      window.location.href = "/recipes/saved";
+    }
+  }, [recipeId]);
+
+  // Don't render if this is actually the saved route
+  if (!recipeId || recipeId === "saved") {
+    return null;
+  }
+
   return (
     <RequireAuth>
       <SidebarProvider>

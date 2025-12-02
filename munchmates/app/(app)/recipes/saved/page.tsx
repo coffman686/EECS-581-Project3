@@ -3,10 +3,10 @@
 import { useState, useEffect } from 'react';
 import AppHeader from '@/components/layout/app-header';
 import RequireAuth from '@/components/RequireAuth';
-import { authedFetch } from '@/lib/authedFetch';
 import { SidebarProvider } from '@/components/ui/sidebar';
 import AppSidebar from '@/components/layout/app-sidebar';
 import { Button } from '@/components/ui/button';
+import { useRouter } from 'next/navigation';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import {
     Dialog,
@@ -25,11 +25,14 @@ import {
 } from "@/components/ui/select";
 import { Clock, Users, ChefHat, Heart, ArrowLeft, Trash2, FolderHeart, Plus } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-import Link from 'next/link';
+
+// Same localStorage key as recipes page
+const SAVED_RECIPES_STORAGE_KEY = 'saved-recipes';
 
 type SavedRecipe = {
     recipeId: number;
     recipeName: string;
+    recipeImage?: string;
     savedAt: string;
 };
 
@@ -77,22 +80,15 @@ const SavedRecipesPage = () => {
         loadData();
     }, []);
 
-    const handleRemoveSavedRecipe = async (recipeId: number) => {
-        try {
-            const response = await authedFetch(`/api/recipes/saved?recipeId=${recipeId}`, {
-                method: 'DELETE',
-            });
-
-            if (!response.ok) {
-                throw new Error('Failed to remove recipe');
-            }
-
-            // Update saved recipes state
-            setSavedRecipes(prev => prev.filter(r => r.recipeId !== recipeId));
-        } catch (error) {
-            console.error('Error removing saved recipe:', error);
-            alert('Failed to remove recipe. Please try again.');
+    // Save to localStorage whenever savedRecipes changes
+    useEffect(() => {
+        if (isLoaded) {
+            localStorage.setItem(SAVED_RECIPES_STORAGE_KEY, JSON.stringify(savedRecipes));
         }
+    }, [savedRecipes, isLoaded]);
+
+    const handleRemoveSavedRecipe = (recipeId: number) => {
+        setSavedRecipes(prev => prev.filter(r => r.recipeId !== recipeId));
     };
 
     const openAddToCollectionDialog = (recipe: SavedRecipe) => {
@@ -186,15 +182,27 @@ const SavedRecipesPage = () => {
                                         </CardContent>
                                     </Card>
                                 ) : (
-                                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                                         {savedRecipes.map((recipe) => (
-                                            <Card key={recipe.recipeId} className="flex flex-col">
-                                                <CardHeader>
-                                                    <CardTitle className="line-clamp-2">
+                                            <Card key={recipe.recipeId} className="flex flex-col overflow-hidden hover:shadow-lg transition-shadow duration-300">
+                                                {/* Recipe Image */}
+                                                <div className="h-48 bg-gradient-to-br from-primary/20 to-muted flex items-center justify-center">
+                                                    {recipe.recipeImage ? (
+                                                        <img
+                                                            src={recipe.recipeImage}
+                                                            alt={recipe.recipeName}
+                                                            className="h-full w-full object-cover"
+                                                        />
+                                                    ) : (
+                                                        <ChefHat className="h-16 w-16 text-muted-foreground" />
+                                                    )}
+                                                </div>
+                                                <CardHeader className="pb-2">
+                                                    <CardTitle className="line-clamp-2 text-lg">
                                                         {recipe.recipeName}
                                                     </CardTitle>
                                                 </CardHeader>
-                                                <CardContent className="flex-1">
+                                                <CardContent className="flex-1 pt-0">
                                                     <p className="text-sm text-muted-foreground">
                                                         Saved on {formatDate(recipe.savedAt)}
                                                     </p>

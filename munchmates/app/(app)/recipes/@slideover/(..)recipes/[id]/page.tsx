@@ -11,12 +11,20 @@ export default function InterceptedRecipePage() {
   const router = useRouter();
   const [isOpen, setIsOpen] = useState(true);
 
+  // Handle static routes that might be caught by this dynamic route
+  useEffect(() => {
+    if (id === "saved") {
+      window.location.href = "/recipes/saved";
+    }
+  }, [id]);
+
   const handleClose = () => {
     setIsOpen(false);
-    router.back(); 
+    router.back();
   };
 
-  if (!isOpen) return null;
+  // Don't render if this is actually the saved route
+  if (!isOpen || id === "saved") return null;
 
   return (
     // Overlay/slideover structure

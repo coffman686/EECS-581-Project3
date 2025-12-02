@@ -16,7 +16,7 @@ export default function Autosuggest({ data, query, setQuery }: { data: string[],
     const background = getComputedStyle(document.body).backgroundColor;
 
     return (
-        <div>
+        <div className="relative">
             <Input
                 type="text"
                 id="ingredient-autosuggest"
@@ -46,9 +46,11 @@ export default function Autosuggest({ data, query, setQuery }: { data: string[],
                         <li
                             key={index}
                             style={{ padding: '8px', borderBottom: '1px solid #eee', cursor: 'pointer' }}
-                            onClick={() => {
+                            onMouseDown={(e) => {
+                                e.preventDefault(); // Prevent blur from firing
                                 setQuery(item);
                                 setFilteredData([]);
+                                setIsFocused(false);
                             }}
                         >
                             {item}

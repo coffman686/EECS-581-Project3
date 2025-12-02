@@ -1,12 +1,13 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
+import { useSearchParams } from 'next/navigation';
 import AppHeader from '@/components/layout/app-header';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
-import { Trash2, Plus, ShoppingCart, CheckCircle2, Circle, Filter, PencilLine, X, Save } from 'lucide-react';
+import { Trash2, Plus, ShoppingCart, CheckCircle2, Circle, Filter, PencilLine, X, Save, CalendarDays, Loader2 } from 'lucide-react';
 import { SidebarProvider } from '@/components/ui/sidebar';
 import AppSidebar from '@/components/layout/app-sidebar';
 import ImageClassificationDialog from '@/components/image-classification-dialog';
@@ -17,6 +18,7 @@ import {
     SelectContent,
     SelectItem,
 } from "@/components/ui/select";
+import { AggregatedIngredient } from '@/lib/types/meal-plan';
 
 
 interface GroceryItem {
@@ -25,24 +27,21 @@ interface GroceryItem {
     category: string;
     completed: boolean;
     quantity?: string;
+    fromMealPlan?: boolean;
 }
 
-const GROCERY_LIST_STORAGE_KEY = 'munchmates_grocery_list';
+const STORAGE_KEY = 'grocery-list-items';
+const CATEGORIES_STORAGE_KEY = 'grocery-list-categories';
 
-const defaultItems: GroceryItem[] = [
-    { id: '1', name: 'Apples', category: 'Produce', completed: false, quantity: '6' },
-    { id: '2', name: 'Bananas', category: 'Produce', completed: true, quantity: '1 bunch'},
-    { id: '3', name: 'Milk', category: 'Dairy', completed: false, quantity: '1 gallon' },
-    { id: '4', name: 'Eggs', category: 'Dairy', completed: false, quantity: '1 dozen' },
-    { id: '5', name: 'Chicken Breast', category: 'Meat', completed: false, quantity: '2 lbs' },
-];
-
-export default function GroceryListPage() {
+function GroceryListContent() {
+    const searchParams = useSearchParams();
     const [newItem, setNewItem] = useState('');
     const [newCategory, setNewCategory] = useState('');
     const [items, setItems] = useState<GroceryItem[]>([]);
-    const [categories, setCategories] = useState(['Produce', 'Dairy', 'Meat', 'Pantry']);
+    const [categories, setCategories] = useState(['Produce', 'Dairy', 'Meat & Seafood', 'Pantry', 'Bakery', 'Frozen', 'Spices & Seasonings', 'Canned Goods', 'Pasta & Grains', 'Condiments', 'Oils & Vinegars', 'Baking', 'Beverages']);
     const [filter, setFilter] = useState<'all' | 'active' | 'completed'>('all');
+    const [importedCount, setImportedCount] = useState(0);
+    const [isLoaded, setIsLoaded] = useState(false);
 
     const [editingId, setEditingId] = useState<string | null>(null);
     const [editName, setEditName] = useState('');
@@ -50,26 +49,141 @@ export default function GroceryListPage() {
     const [editCategory, setEditCategory] = useState('');
     const [imageDialogOpen, setImageDialogOpen] = useState(false);
 
-    // Load grocery list from localStorage on mount
+    // Load items and categories from localStorage on mount
     useEffect(() => {
-        const stored = localStorage.getItem(GROCERY_LIST_STORAGE_KEY);
-        if (stored) {
+        const savedItems = localStorage.getItem(STORAGE_KEY);
+        const savedCategories = localStorage.getItem(CATEGORIES_STORAGE_KEY);
+
+        if (savedItems) {
             try {
-                setItems(JSON.parse(stored));
-            } catch {
-                setItems(defaultItems);
+                setItems(JSON.parse(savedItems));
+            } catch (error) {
+                console.error('Failed to parse saved grocery items:', error);
             }
-        } else {
-            setItems(defaultItems);
         }
+
+        if (savedCategories) {
+            try {
+                setCategories(JSON.parse(savedCategories));
+            } catch (error) {
+                console.error('Failed to parse saved categories:', error);
+            }
+        }
+
+        setIsLoaded(true);
     }, []);
 
-    // Save grocery list to localStorage whenever items change
+    // Save items to localStorage whenever they change
     useEffect(() => {
-        if (items.length > 0 || localStorage.getItem(GROCERY_LIST_STORAGE_KEY)) {
-            localStorage.setItem(GROCERY_LIST_STORAGE_KEY, JSON.stringify(items));
+        if (isLoaded) {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(items));
         }
-    }, [items]);
+    }, [items, isLoaded]);
+
+    // Save categories to localStorage whenever they change
+    useEffect(() => {
+        if (isLoaded) {
+            localStorage.setItem(CATEGORIES_STORAGE_KEY, JSON.stringify(categories));
+        }
+    }, [categories, isLoaded]);
+
+    // Handle incoming items from meal planner
+    useEffect(() => {
+        if (!isLoaded) return;
+
+        const fromMealPlan = searchParams.get('fromMealPlan');
+        if (fromMealPlan === 'true') {
+            const pendingData = localStorage.getItem('pending-grocery-items');
+            if (pendingData) {
+                try {
+                    const aggregatedItems: AggregatedIngredient[] = JSON.parse(pendingData);
+                    mergeIngredients(aggregatedItems);
+                    localStorage.removeItem('pending-grocery-items');
+
+                    // Clear the URL parameter
+                    window.history.replaceState({}, '', '/grocery-list');
+                } catch (error) {
+                    console.error('Failed to parse pending grocery items:', error);
+                }
+            }
+        }
+    }, [searchParams, isLoaded]);
+
+    // Merge aggregated ingredients with existing items
+    const mergeIngredients = (aggregatedItems: AggregatedIngredient[]) => {
+        let addedCount = 0;
+
+        setItems((prevItems) => {
+            const newItems = [...prevItems];
+            const existingNames = new Set(prevItems.map((item) => item.name.toLowerCase()));
+
+            for (const ingredient of aggregatedItems) {
+                const nameLower = ingredient.name.toLowerCase();
+
+                // Check if item already exists (case-insensitive)
+                if (existingNames.has(nameLower)) {
+                    // Update quantity for existing item
+                    const existingIndex = newItems.findIndex(
+                        (item) => item.name.toLowerCase() === nameLower
+                    );
+                    if (existingIndex !== -1) {
+                        const existing = newItems[existingIndex];
+                        // Append quantity info
+                        const newQuantity = formatQuantity(ingredient.totalAmount, ingredient.unit);
+                        if (existing.quantity && newQuantity) {
+                            newItems[existingIndex] = {
+                                ...existing,
+                                quantity: `${existing.quantity} + ${newQuantity}`,
+                            };
+                        } else if (newQuantity) {
+                            newItems[existingIndex] = {
+                                ...existing,
+                                quantity: newQuantity,
+                            };
+                        }
+                    }
+                } else {
+                    // Add new item
+                    const newItem: GroceryItem = {
+                        id: `meal-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+                        name: ingredient.name,
+                        category: ingredient.category,
+                        completed: false,
+                        quantity: formatQuantity(ingredient.totalAmount, ingredient.unit),
+                        fromMealPlan: true,
+                    };
+                    newItems.push(newItem);
+                    existingNames.add(nameLower);
+                    addedCount++;
+                }
+            }
+
+            // Ensure all categories from ingredients are available
+            const newCategories = new Set(categories);
+            for (const ingredient of aggregatedItems) {
+                if (!newCategories.has(ingredient.category)) {
+                    newCategories.add(ingredient.category);
+                }
+            }
+            setCategories(Array.from(newCategories));
+
+            return newItems;
+        });
+
+        setImportedCount(addedCount);
+
+        // Clear the notification after 5 seconds
+        setTimeout(() => {
+            setImportedCount(0);
+        }, 5000);
+    };
+
+    // Format quantity for display
+    const formatQuantity = (amount: number, unit: string): string => {
+        if (!amount && !unit) return '';
+        if (!unit) return amount.toString();
+        return `${amount} ${unit}`;
+    };
 
     const beginEdit = (item: GroceryItem) => {
         setEditingId(item.id);
@@ -189,6 +303,18 @@ export default function GroceryListPage() {
 
                     <main className="relative flex-1 p-6 bg-muted/20">
                         <div className="max-w-6xl mx-auto space-y-6">
+                            {/* Import notification */}
+                            {importedCount > 0 && (
+                                <Card className="bg-green-50 border-green-200">
+                                    <CardContent className="p-4 flex items-center gap-3">
+                                        <CalendarDays className="h-5 w-5 text-green-600" />
+                                        <p className="text-green-800">
+                                            Added {importedCount} item{importedCount !== 1 ? 's' : ''} from your meal plan!
+                                        </p>
+                                    </CardContent>
+                                </Card>
+                            )}
+
                             {/* Stats and Filters */}
                             <div className="grid gap-4 md:grid-cols-4">
                                 <Card>
@@ -276,11 +402,16 @@ export default function GroceryListPage() {
                                         </div>
                                         {categories.length > 0 && (
                                             <div className="flex flex-wrap gap-2">
-                                                {categories.map(category => (
+                                                {categories.slice(0, 6).map(category => (
                                                     <Badge key={category} variant="secondary" className="text-xs">
                                                         {category}
                                                     </Badge>
                                                 ))}
+                                                {categories.length > 6 && (
+                                                    <Badge variant="secondary" className="text-xs">
+                                                        +{categories.length - 6} more
+                                                    </Badge>
+                                                )}
                                             </div>
                                         )}
                                     </CardContent>
@@ -300,7 +431,7 @@ export default function GroceryListPage() {
                                             />
                                             <Button onClick={addCategory}>Add</Button>
                                         </div>
-                                        <div className="flex flex-wrap gap-2">
+                                        <div className="flex flex-wrap gap-2 max-h-24 overflow-y-auto">
                                             {categories.map(category => (
                                                 <Badge key={category} variant="outline" className="text-xs">
                                                     {category}
@@ -367,9 +498,11 @@ export default function GroceryListPage() {
                                                                         </label>
                                                                         <div className="text-xs text-muted-foreground mt-1 flex flex-wrap gap-2">
                                                                             {item.quantity && <span>{item.quantity}</span>}
-                                                                            <Badge variant="outline" className="text-[10px]">
-                                                                                {item.category}
-                                                                            </Badge>
+                                                                            {item.fromMealPlan && (
+                                                                                <Badge variant="outline" className="text-[10px] text-primary">
+                                                                                    from meal plan
+                                                                                </Badge>
+                                                                            )}
                                                                         </div>
                                                                     </div>
                                                                 ) : (
@@ -481,9 +614,9 @@ export default function GroceryListPage() {
                                 <Card className="text-center py-12">
                                     <CardContent>
                                         <ShoppingCart className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                                        <h3 className="text-lg font-semibold mb-2">You grocery list is empty</h3>
+                                        <h3 className="text-lg font-semibold mb-2">Your grocery list is empty</h3>
                                         <p className="text-muted-foreground mb-4">
-                                            Start by adding some items to your grocery list
+                                            Start by adding some items to your grocery list or generate one from your meal plan
                                         </p>
                                         <Button onClick={() => document.querySelector('input')?.focus()}>
                                             <Plus className="h-4 w-4 mr-2" />
@@ -502,5 +635,25 @@ export default function GroceryListPage() {
                 </div>
             </div>
         </SidebarProvider>
+    );
+}
+
+export default function GroceryListPage() {
+    return (
+        <Suspense fallback={
+            <SidebarProvider>
+                <div className="min-h-screen flex">
+                    <AppSidebar />
+                    <div className="flex-1 flex flex-col">
+                        <AppHeader title="Grocery List" />
+                        <main className="relative flex-1 p-6 bg-muted/20 flex items-center justify-center">
+                            <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+                        </main>
+                    </div>
+                </div>
+            </SidebarProvider>
+        }>
+            <GroceryListContent />
+        </Suspense>
     );
 }
