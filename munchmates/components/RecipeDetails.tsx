@@ -15,8 +15,22 @@ import {
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import { authedFetch } from "@/lib/authedFetch";
 import { useRouter } from "next/navigation";
+
+const LOCAL_KEY = "saved-recipes";
+
+const loadLocalSavedRecipes = () => {
+  try {
+    return JSON.parse(localStorage.getItem(LOCAL_KEY) || "[]");
+  } catch {
+    return [];
+  }
+};
+
+const saveLocalSavedRecipes = (recipes: any[]) => {
+  localStorage.setItem(LOCAL_KEY, JSON.stringify(recipes));
+};
+
 
 type RecipeDetailsProps = {
   recipeId: string | null;
@@ -77,11 +91,10 @@ export default function RecipeDetails({ recipeId, onClose }: RecipeDetailsProps)
       setError(null);
 
       try {
-        // Info, instructions, and saved status in parallel
-        const [infoRes, instructionsRes, savedRes] = await Promise.all([
+        // Info + instructions in parallel
+        const [infoRes, instructionsRes] = await Promise.all([
           fetch(`/api/spoonacular/recipes/information?id=${recipeId}`),
           fetch(`/api/spoonacular/recipes/searchRecipeInstructions?id=${recipeId}`),
-          authedFetch("/api/recipes/saved"),
         ]);
 
         // Handle recipe info and possible API-limit errors
@@ -107,13 +120,6 @@ export default function RecipeDetails({ recipeId, onClose }: RecipeDetailsProps)
           // API returns { instructions: [{ name, steps: [...] }, ...] }
           setInstructions(instructionsData.instructions || []);
         }
-
-        // Saved status
-        if (savedRes.ok) {
-          const savedData = await savedRes.json();
-          const savedRecipes = savedData.recipes || [];
-          setIsSaved(savedRecipes.some((r: any) => String(r.recipeId) === String(recipeId)));
-        }
       } catch (err) {
         console.error("Error fetching recipe:", err);
         setError(err instanceof Error ? err.message : "Failed to load recipe details");
@@ -125,30 +131,40 @@ export default function RecipeDetails({ recipeId, onClose }: RecipeDetailsProps)
     fetchData();
   }, [recipeId]);
 
-  const handleSaveToggle = async () => {
+  useEffect(() => {
+    if (!recipeId) return;
+
+    const saved = loadLocalSavedRecipes();
+    setIsSaved(saved.some((r: any) => String(r.recipeId) === String(recipeId)));
+  }, [recipeId]);
+
+
+  const handleSaveToggle = () => {
     if (!recipeInfo) return;
 
-    try {
-      if (isSaved) {
-        const res = await authedFetch(`/api/recipes/saved?recipeId=${recipeInfo.id}`, {
-          method: "DELETE",
-        });
-        if (res.ok) setIsSaved(false);
-      } else {
-        const res = await authedFetch("/api/recipes/saved", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            recipeId: recipeInfo.id,
-            recipeName: recipeInfo.title,
-          }),
-        });
-        if (res.ok) setIsSaved(true);
-      }
-    } catch (err) {
-      console.error("Error toggling save:", err);
+    const saved = loadLocalSavedRecipes();
+
+    if (isSaved) {
+      // Remove from saved list
+      const updated = saved.filter(
+          (r: any) => String(r.recipeId) !== String(recipeInfo.id)
+      );
+      saveLocalSavedRecipes(updated);
+      setIsSaved(false);
+    } else {
+      // Add to saved list
+      const newEntry = {
+        recipeId: recipeInfo.id,
+        recipeName: recipeInfo.title,
+        recipeImage: recipeInfo.image,
+        savedAt: new Date().toISOString(),
+      };
+      const updated = [...saved, newEntry];
+      saveLocalSavedRecipes(updated);
+      setIsSaved(true);
     }
   };
+
 
   const handleClose = () => {
     if (onClose) onClose();

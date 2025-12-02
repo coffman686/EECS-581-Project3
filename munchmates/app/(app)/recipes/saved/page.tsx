@@ -7,7 +7,13 @@ import { SidebarProvider } from '@/components/ui/sidebar';
 import AppSidebar from '@/components/layout/app-sidebar';
 import { Button } from '@/components/ui/button';
 import { useRouter } from 'next/navigation';
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+    Card,
+    CardContent,
+    CardFooter,
+    CardHeader,
+    CardTitle,
+} from '@/components/ui/card';
 import {
     Dialog,
     DialogContent,
@@ -22,18 +28,24 @@ import {
     SelectItem,
     SelectTrigger,
     SelectValue,
-} from "@/components/ui/select";
-import { Clock, Users, ChefHat, Heart, ArrowLeft, Trash2, FolderHeart, Plus } from 'lucide-react';
-import { useRouter } from 'next/navigation';
+} from '@/components/ui/select';
+import {
+    ChefHat,
+    Heart,
+    ArrowLeft,
+    Trash2,
+    FolderHeart,
+    Plus,
+} from 'lucide-react';
+import { authedFetch } from '@/lib/authedFetch';
 
-// Same localStorage key as recipes page
-const SAVED_RECIPES_STORAGE_KEY = 'saved-recipes';
+const LOCAL_KEY = 'saved-recipes';
 
 type SavedRecipe = {
     recipeId: number;
     recipeName: string;
     recipeImage?: string;
-    savedAt: string;
+    savedAt?: string;
 };
 
 type SharedCollection = {
@@ -46,54 +58,91 @@ const SavedRecipesPage = () => {
     const router = useRouter();
     const [savedRecipes, setSavedRecipes] = useState<SavedRecipe[]>([]);
     const [isLoading, setIsLoading] = useState(true);
+
     const [collections, setCollections] = useState<SharedCollection[]>([]);
+    const [collectionsLoading, setCollectionsLoading] = useState(false);
+    const [collectionsLoaded, setCollectionsLoaded] = useState(false);
+
     const [isAddToCollectionOpen, setIsAddToCollectionOpen] = useState(false);
     const [selectedRecipe, setSelectedRecipe] = useState<SavedRecipe | null>(null);
     const [selectedCollectionId, setSelectedCollectionId] = useState<string>('');
     const [isAddingToCollection, setIsAddingToCollection] = useState(false);
 
-    // Load saved recipes and collections on mount
+    // Load saved recipes from localStorage on mount
     useEffect(() => {
-        const loadData = async () => {
-            setIsLoading(true);
-            try {
-                const [recipesRes, collectionsRes] = await Promise.all([
-                    authedFetch('/api/recipes/saved'),
-                    authedFetch('/api/shared-collections'),
-                ]);
-                
-                if (recipesRes.ok) {
-                    const data = await recipesRes.json();
-                    setSavedRecipes(data.recipes || []);
-                }
-                
-                if (collectionsRes.ok) {
-                    const data = await collectionsRes.json();
-                    setCollections(data.collections || []);
-                }
-            } catch (error) {
-                console.error('Error loading data:', error);
-            } finally {
-                setIsLoading(false);
+        setIsLoading(true);
+        try {
+            const savedData = localStorage.getItem(LOCAL_KEY);
+            if (savedData) {
+                const parsed: SavedRecipe[] = JSON.parse(savedData);
+                setSavedRecipes(parsed);
             }
-        };
-        loadData();
+        } catch (err) {
+            console.error('Error loading saved recipes from localStorage:', err);
+        } finally {
+            setIsLoading(false);
+        }
     }, []);
 
-    // Save to localStorage whenever savedRecipes changes
-    useEffect(() => {
-        if (isLoaded) {
-            localStorage.setItem(SAVED_RECIPES_STORAGE_KEY, JSON.stringify(savedRecipes));
-        }
-    }, [savedRecipes, isLoaded]);
+    // Shared loader for collections
+    const loadCollections = async () => {
+        if (collectionsLoading) return;
 
-    const handleRemoveSavedRecipe = (recipeId: number) => {
-        setSavedRecipes(prev => prev.filter(r => r.recipeId !== recipeId));
+        setCollectionsLoading(true);
+
+        try {
+            const response = await authedFetch('/api/shared-collections');
+
+            if (response.status === 401) {
+                console.warn('Token not ready yet, retrying...');
+                // Retry once after 300ms
+                setTimeout(loadCollections, 300);
+                return;
+            }
+
+            if (response.ok) {
+                const data = await response.json();
+                setCollections(data.collections || []);
+            } else {
+                console.error('Failed to load collections. Status:', response.status);
+                setCollections([]);
+            }
+        } catch (err) {
+            console.error('Error loading collections:', err);
+            setCollections([]);
+        } finally {
+            setCollectionsLoading(false);
+            setCollectionsLoaded(true);
+        }
     };
 
-    const openAddToCollectionDialog = (recipe: SavedRecipe) => {
+
+    // Initial attempt to load collections on mount
+    useEffect(() => {
+        loadCollections();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
+
+    // Remove recipe and update localStorage
+    const handleRemoveSavedRecipe = (recipeId: number) => {
+        const updated = savedRecipes.filter((r) => r.recipeId !== recipeId);
+        setSavedRecipes(updated);
+        try {
+            localStorage.setItem(LOCAL_KEY, JSON.stringify(updated));
+        } catch (err) {
+            console.error('Error saving updated recipes to localStorage:', err);
+        }
+    };
+
+    const openAddToCollectionDialog = async (recipe: SavedRecipe) => {
         setSelectedRecipe(recipe);
         setSelectedCollectionId('');
+
+        // If we don't have any collections yet (maybe initial load failed), try again now
+        if (!collectionsLoaded || collections.length === 0) {
+            await loadCollections();
+        }
+
         setIsAddToCollectionOpen(true);
     };
 
@@ -102,7 +151,7 @@ const SavedRecipesPage = () => {
 
         setIsAddingToCollection(true);
         try {
-            const response = await authedFetch(`/api/shared-collections/${selectedCollectionId}`, {
+            const res = await authedFetch(`/api/shared-collections/${selectedCollectionId}`, {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
@@ -112,23 +161,26 @@ const SavedRecipesPage = () => {
                 }),
             });
 
-            if (response.ok) {
+            if (res.ok) {
                 alert(`"${selectedRecipe.recipeName}" has been added to the collection!`);
                 setIsAddToCollectionOpen(false);
             } else {
-                const error = await response.json();
+                const error = await res.json().catch(() => ({}));
                 alert(error.error || error.message || 'Failed to add recipe to collection');
             }
-        } catch (error) {
-            console.error('Error adding to collection:', error);
+        } catch (err) {
+            console.error('Error adding to collection:', err);
             alert('Failed to add recipe to collection. Please try again.');
         } finally {
             setIsAddingToCollection(false);
         }
     };
 
-    const formatDate = (dateString: string) => {
-        return new Date(dateString).toLocaleDateString('en-US', {
+    const formatDate = (dateString?: string) => {
+        if (!dateString) return '';
+        const d = new Date(dateString);
+        if (isNaN(d.getTime())) return '';
+        return d.toLocaleDateString('en-US', {
             year: 'numeric',
             month: 'short',
             day: 'numeric',
@@ -172,7 +224,9 @@ const SavedRecipesPage = () => {
                                     <Card className="text-center py-12">
                                         <CardContent>
                                             <Heart className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
-                                            <h3 className="text-xl font-semibold mb-2">No saved recipes yet</h3>
+                                            <h3 className="text-xl font-semibold mb-2">
+                                                No saved recipes yet
+                                            </h3>
                                             <p className="text-muted-foreground mb-6">
                                                 Start exploring recipes and save your favorites!
                                             </p>
@@ -184,7 +238,10 @@ const SavedRecipesPage = () => {
                                 ) : (
                                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                                         {savedRecipes.map((recipe) => (
-                                            <Card key={recipe.recipeId} className="flex flex-col overflow-hidden hover:shadow-lg transition-shadow duration-300">
+                                            <Card
+                                                key={recipe.recipeId}
+                                                className="flex flex-col overflow-hidden hover:shadow-lg transition-shadow duration-300"
+                                            >
                                                 {/* Recipe Image */}
                                                 <div className="h-48 bg-gradient-to-br from-primary/20 to-muted flex items-center justify-center">
                                                     {recipe.recipeImage ? (
@@ -203,15 +260,19 @@ const SavedRecipesPage = () => {
                                                     </CardTitle>
                                                 </CardHeader>
                                                 <CardContent className="flex-1 pt-0">
-                                                    <p className="text-sm text-muted-foreground">
-                                                        Saved on {formatDate(recipe.savedAt)}
-                                                    </p>
+                                                    {recipe.savedAt && (
+                                                        <p className="text-sm text-muted-foreground">
+                                                            Saved on {formatDate(recipe.savedAt)}
+                                                        </p>
+                                                    )}
                                                 </CardContent>
                                                 <CardFooter className="flex gap-2">
                                                     <Button
                                                         variant="default"
                                                         className="flex-1"
-                                                        onClick={() => router.push(`/recipes/${recipe.recipeId}`)}
+                                                        onClick={() =>
+                                                            router.push(`/recipes/${recipe.recipeId}`)
+                                                        }
                                                     >
                                                         View Recipe
                                                     </Button>
@@ -226,7 +287,9 @@ const SavedRecipesPage = () => {
                                                     <Button
                                                         variant="outline"
                                                         size="icon"
-                                                        onClick={() => handleRemoveSavedRecipe(recipe.recipeId)}
+                                                        onClick={() =>
+                                                            handleRemoveSavedRecipe(recipe.recipeId)
+                                                        }
                                                         className="text-red-500 hover:text-red-600 hover:bg-red-50"
                                                     >
                                                         <Trash2 className="h-4 w-4" />
@@ -239,18 +302,28 @@ const SavedRecipesPage = () => {
                             </div>
 
                             {/* Add to Collection Dialog */}
-                            <Dialog open={isAddToCollectionOpen} onOpenChange={setIsAddToCollectionOpen}>
+                            <Dialog
+                                open={isAddToCollectionOpen}
+                                onOpenChange={setIsAddToCollectionOpen}
+                            >
                                 <DialogContent>
                                     <DialogHeader>
                                         <DialogTitle>Add to Shared Collection</DialogTitle>
                                         <DialogDescription>
                                             {selectedRecipe && (
-                                                <>Add &quot;{selectedRecipe.recipeName}&quot; to a shared collection.</>
+                                                <>
+                                                    Add &quot;{selectedRecipe.recipeName}&quot; to a
+                                                    shared collection.
+                                                </>
                                             )}
                                         </DialogDescription>
                                     </DialogHeader>
                                     <div className="py-4">
-                                        {collections.length === 0 ? (
+                                        {collectionsLoading ? (
+                                            <div className="flex items-center justify-center py-4">
+                                                <ChefHat className="h-8 w-8 text-muted-foreground animate-spin" />
+                                            </div>
+                                        ) : collectionsLoaded && collections.length === 0 ? (
                                             <div className="text-center py-4">
                                                 <FolderHeart className="h-12 w-12 text-muted-foreground mx-auto mb-3" />
                                                 <p className="text-sm text-muted-foreground mb-4">
@@ -281,7 +354,10 @@ const SavedRecipesPage = () => {
                                                     </SelectTrigger>
                                                     <SelectContent>
                                                         {collections.map((collection) => (
-                                                            <SelectItem key={collection.id} value={collection.id}>
+                                                            <SelectItem
+                                                                key={collection.id}
+                                                                value={collection.id}
+                                                            >
                                                                 {collection.name}
                                                             </SelectItem>
                                                         ))}
@@ -300,9 +376,13 @@ const SavedRecipesPage = () => {
                                         {collections.length > 0 && (
                                             <Button
                                                 onClick={handleAddToCollection}
-                                                disabled={!selectedCollectionId || isAddingToCollection}
+                                                disabled={
+                                                    !selectedCollectionId || isAddingToCollection
+                                                }
                                             >
-                                                {isAddingToCollection ? 'Adding...' : 'Add to Collection'}
+                                                {isAddingToCollection
+                                                    ? 'Adding...'
+                                                    : 'Add to Collection'}
                                             </Button>
                                         )}
                                     </DialogFooter>

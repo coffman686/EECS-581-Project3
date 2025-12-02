@@ -1,7 +1,7 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import RecipeDetails from '@/components/RecipeDetails';
 import { usePathname } from "next/navigation";
 
