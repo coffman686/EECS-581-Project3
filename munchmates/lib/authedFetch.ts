@@ -8,7 +8,13 @@ export async function authedFetch(input: RequestInfo, init: RequestInit = {}) {
 
     if (keycloak.authenticated) {
         const token = await ensureToken();
-        if (token) headers.set('Authorization', `Bearer ${token}`);
+        if (token) {
+            headers.set('Authorization', `Bearer ${token}`);
+        } else {
+            console.warn('authedFetch: Keycloak authenticated but no token available');
+        }
+    } else {
+        console.warn('authedFetch: Keycloak not authenticated');
     }
 
     return fetch(input, { ...init, headers });

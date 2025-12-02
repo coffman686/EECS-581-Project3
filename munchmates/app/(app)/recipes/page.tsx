@@ -154,17 +154,30 @@ const Recipes = () => {
 
 
     const fetchRecipes = async () => {
+        if (!searchTerm) {
+            setRecipes([]);
+            return;
+        }
 
         setIsLoading(true);
 
-        const response = await fetch(`/api/spoonacular/recipes/searchByIngredient?ingredients=${searchTerm}&cuisine=${selectedCuisine !== 'All' ? selectedCuisine : undefined}&dishType=${selectedDishType !== 'All' ? selectedDishType : undefined}&diet=${diet}&intolerances=${intolerances}`);
+        const params = new URLSearchParams();
+        params.set('ingredients', searchTerm);
+        if (selectedCuisine !== 'All') params.set('cuisine', selectedCuisine);
+        if (selectedDishType !== 'All') params.set('dishType', selectedDishType);
+        if (diet) params.set('diet', diet);
+        if (intolerances) params.set('intolerances', intolerances);
 
-        const data = await response.json();
-
-        setRecipes(data.results);
-
-        setIsLoading(false);
-
+        try {
+            const response = await fetch(`/api/spoonacular/recipes/searchByIngredient?${params.toString()}`);
+            const data = await response.json();
+            setRecipes(data.results || []);
+        } catch (error) {
+            console.error('Error fetching recipes:', error);
+            setRecipes([]);
+        } finally {
+            setIsLoading(false);
+        }
     }
 
 

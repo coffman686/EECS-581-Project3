@@ -6,8 +6,24 @@ import RequireAuth from '@/components/RequireAuth';
 import { SidebarProvider } from '@/components/ui/sidebar';
 import AppSidebar from '@/components/layout/app-sidebar';
 import { Button } from '@/components/ui/button';
+import { useRouter } from 'next/navigation';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { ChefHat, Heart, ArrowLeft, Trash2 } from 'lucide-react';
+import {
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogFooter,
+    DialogHeader,
+    DialogTitle,
+} from '@/components/ui/dialog';
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from "@/components/ui/select";
+import { Clock, Users, ChefHat, Heart, ArrowLeft, Trash2, FolderHeart, Plus } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
 // Same localStorage key as recipes page
@@ -20,26 +36,48 @@ type SavedRecipe = {
     savedAt: string;
 };
 
+type SharedCollection = {
+    id: string;
+    name: string;
+    description: string;
+};
+
 const SavedRecipesPage = () => {
     const router = useRouter();
     const [savedRecipes, setSavedRecipes] = useState<SavedRecipe[]>([]);
     const [isLoading, setIsLoading] = useState(true);
-    const [isLoaded, setIsLoaded] = useState(false);
+    const [collections, setCollections] = useState<SharedCollection[]>([]);
+    const [isAddToCollectionOpen, setIsAddToCollectionOpen] = useState(false);
+    const [selectedRecipe, setSelectedRecipe] = useState<SavedRecipe | null>(null);
+    const [selectedCollectionId, setSelectedCollectionId] = useState<string>('');
+    const [isAddingToCollection, setIsAddingToCollection] = useState(false);
 
-    // Load saved recipes from localStorage on mount
+    // Load saved recipes and collections on mount
     useEffect(() => {
-        setIsLoading(true);
-        const savedData = localStorage.getItem(SAVED_RECIPES_STORAGE_KEY);
-        if (savedData) {
+        const loadData = async () => {
+            setIsLoading(true);
             try {
-                const recipes: SavedRecipe[] = JSON.parse(savedData);
-                setSavedRecipes(recipes);
+                const [recipesRes, collectionsRes] = await Promise.all([
+                    authedFetch('/api/recipes/saved'),
+                    authedFetch('/api/shared-collections'),
+                ]);
+                
+                if (recipesRes.ok) {
+                    const data = await recipesRes.json();
+                    setSavedRecipes(data.recipes || []);
+                }
+                
+                if (collectionsRes.ok) {
+                    const data = await collectionsRes.json();
+                    setCollections(data.collections || []);
+                }
             } catch (error) {
-                console.error('Error loading saved recipes:', error);
+                console.error('Error loading data:', error);
+            } finally {
+                setIsLoading(false);
             }
-        }
-        setIsLoading(false);
-        setIsLoaded(true);
+        };
+        loadData();
     }, []);
 
     // Save to localStorage whenever savedRecipes changes
@@ -51,6 +89,42 @@ const SavedRecipesPage = () => {
 
     const handleRemoveSavedRecipe = (recipeId: number) => {
         setSavedRecipes(prev => prev.filter(r => r.recipeId !== recipeId));
+    };
+
+    const openAddToCollectionDialog = (recipe: SavedRecipe) => {
+        setSelectedRecipe(recipe);
+        setSelectedCollectionId('');
+        setIsAddToCollectionOpen(true);
+    };
+
+    const handleAddToCollection = async () => {
+        if (!selectedRecipe || !selectedCollectionId) return;
+
+        setIsAddingToCollection(true);
+        try {
+            const response = await authedFetch(`/api/shared-collections/${selectedCollectionId}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    action: 'addRecipe',
+                    recipeId: selectedRecipe.recipeId,
+                    recipeName: selectedRecipe.recipeName,
+                }),
+            });
+
+            if (response.ok) {
+                alert(`"${selectedRecipe.recipeName}" has been added to the collection!`);
+                setIsAddToCollectionOpen(false);
+            } else {
+                const error = await response.json();
+                alert(error.error || error.message || 'Failed to add recipe to collection');
+            }
+        } catch (error) {
+            console.error('Error adding to collection:', error);
+            alert('Failed to add recipe to collection. Please try again.');
+        } finally {
+            setIsAddingToCollection(false);
+        }
     };
 
     const formatDate = (dateString: string) => {
@@ -144,6 +218,14 @@ const SavedRecipesPage = () => {
                                                     <Button
                                                         variant="outline"
                                                         size="icon"
+                                                        onClick={() => openAddToCollectionDialog(recipe)}
+                                                        title="Add to shared collection"
+                                                    >
+                                                        <FolderHeart className="h-4 w-4" />
+                                                    </Button>
+                                                    <Button
+                                                        variant="outline"
+                                                        size="icon"
                                                         onClick={() => handleRemoveSavedRecipe(recipe.recipeId)}
                                                         className="text-red-500 hover:text-red-600 hover:bg-red-50"
                                                     >
@@ -155,6 +237,77 @@ const SavedRecipesPage = () => {
                                     </div>
                                 )}
                             </div>
+
+                            {/* Add to Collection Dialog */}
+                            <Dialog open={isAddToCollectionOpen} onOpenChange={setIsAddToCollectionOpen}>
+                                <DialogContent>
+                                    <DialogHeader>
+                                        <DialogTitle>Add to Shared Collection</DialogTitle>
+                                        <DialogDescription>
+                                            {selectedRecipe && (
+                                                <>Add &quot;{selectedRecipe.recipeName}&quot; to a shared collection.</>
+                                            )}
+                                        </DialogDescription>
+                                    </DialogHeader>
+                                    <div className="py-4">
+                                        {collections.length === 0 ? (
+                                            <div className="text-center py-4">
+                                                <FolderHeart className="h-12 w-12 text-muted-foreground mx-auto mb-3" />
+                                                <p className="text-sm text-muted-foreground mb-4">
+                                                    You don&apos;t have any shared collections yet.
+                                                </p>
+                                                <Button
+                                                    variant="outline"
+                                                    onClick={() => {
+                                                        setIsAddToCollectionOpen(false);
+                                                        router.push('/shared-collections');
+                                                    }}
+                                                >
+                                                    <Plus className="h-4 w-4 mr-2" />
+                                                    Create a Collection
+                                                </Button>
+                                            </div>
+                                        ) : (
+                                            <div className="space-y-2">
+                                                <label className="text-sm font-medium">
+                                                    Select Collection
+                                                </label>
+                                                <Select
+                                                    value={selectedCollectionId}
+                                                    onValueChange={setSelectedCollectionId}
+                                                >
+                                                    <SelectTrigger>
+                                                        <SelectValue placeholder="Choose a collection" />
+                                                    </SelectTrigger>
+                                                    <SelectContent>
+                                                        {collections.map((collection) => (
+                                                            <SelectItem key={collection.id} value={collection.id}>
+                                                                {collection.name}
+                                                            </SelectItem>
+                                                        ))}
+                                                    </SelectContent>
+                                                </Select>
+                                            </div>
+                                        )}
+                                    </div>
+                                    <DialogFooter>
+                                        <Button
+                                            variant="outline"
+                                            onClick={() => setIsAddToCollectionOpen(false)}
+                                        >
+                                            Cancel
+                                        </Button>
+                                        {collections.length > 0 && (
+                                            <Button
+                                                onClick={handleAddToCollection}
+                                                disabled={!selectedCollectionId || isAddingToCollection}
+                                            >
+                                                {isAddingToCollection ? 'Adding...' : 'Add to Collection'}
+                                            </Button>
+                                        )}
+                                    </DialogFooter>
+                                </DialogContent>
+                            </Dialog>
                         </main>
                     </div>
                 </div>

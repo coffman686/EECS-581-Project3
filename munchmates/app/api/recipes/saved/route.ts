@@ -1,15 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { verifyBearer } from "@/lib/verifyToken";
-
-type SavedRecipe = {
-    userId: string;
-    recipeId: number;
-    recipeName: string;
-    savedAt: string;
-};
-
-// Simple in-memory store for saved recipes
-const savedRecipes = new Map<string, SavedRecipe[]>();
+import { savedRecipesStore, SavedRecipe } from "@/lib/savedRecipesStore";
 
 export async function POST(req: NextRequest) {
     try {
@@ -28,19 +19,8 @@ export async function POST(req: NextRequest) {
             );
         }
 
-        // Initialize user's saved recipes if not present
-        if (!savedRecipes.has(userId)) {
-            savedRecipes.set(userId, []);
-        }
-
-        const userSavedRecipes = savedRecipes.get(userId)!;
-
         // Check if recipe is already saved
-        const existingIndex = userSavedRecipes.findIndex(
-            (r) => r.recipeId === recipeId
-        );
-
-        if (existingIndex >= 0) {
+        if (savedRecipesStore.hasRecipe(userId, recipeId)) {
             return NextResponse.json(
                 { message: "Recipe is already saved" },
                 { status: 200 }
@@ -55,7 +35,7 @@ export async function POST(req: NextRequest) {
             savedAt: new Date().toISOString(),
         };
 
-        userSavedRecipes.push(newSavedRecipe);
+        savedRecipesStore.addRecipe(userId, newSavedRecipe);
 
         return NextResponse.json(
             {
@@ -86,7 +66,7 @@ export async function GET(req: NextRequest) {
         const p = await verifyBearer(req.headers.get("authorization") || undefined);
         const userId = p.sub;
 
-        const recipes = savedRecipes.get(userId) || [];
+        const recipes = savedRecipesStore.get(userId);
 
         return NextResponse.json({
             ok: true,
@@ -117,26 +97,14 @@ export async function DELETE(req: NextRequest) {
             );
         }
 
-        const userSavedRecipes = savedRecipes.get(userId);
-        if (!userSavedRecipes) {
-            return NextResponse.json(
-                { error: "No saved recipes found" },
-                { status: 404 }
-            );
-        }
+        const removed = savedRecipesStore.removeRecipe(userId, parseInt(recipeId));
 
-        const index = userSavedRecipes.findIndex(
-            (r) => r.recipeId === parseInt(recipeId)
-        );
-
-        if (index === -1) {
+        if (!removed) {
             return NextResponse.json(
                 { error: "Recipe not found in saved recipes" },
                 { status: 404 }
             );
         }
-
-        userSavedRecipes.splice(index, 1);
 
         return NextResponse.json({
             ok: true,
