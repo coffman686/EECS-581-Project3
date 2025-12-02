@@ -1,8 +1,55 @@
 /* login/keycloak/themes/munchmates/login/resources/css/custom.css */
 
 /* ============================================
-   MODERN MUNCHMATES KEYCLOAK THEME
+   MUNCHMATES KEYCLOAK THEME
+   Styled to match the MunchMates webapp
    ============================================ */
+
+/* ===== FONTS ===== */
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400;500;600;700&display=swap');
+
+/* ===== CSS VARIABLES (Matching MunchMates Design System) ===== */
+:root {
+    /* Primary Colors */
+    --primary: hsl(14, 70%, 62%);
+    --primary-foreground: hsl(25, 56%, 98%);
+    --primary-hover: hsl(14, 70%, 55%);
+
+    /* Secondary Colors */
+    --secondary: hsl(14, 30%, 88%);
+    --secondary-foreground: hsl(14, 70%, 30%);
+
+    /* Accent Colors */
+    --accent: hsl(230, 18%, 30%);
+    --accent-foreground: hsl(25, 56%, 98%);
+
+    /* Background & Foreground */
+    --background: hsl(25, 56%, 95%);
+    --foreground: hsl(230, 18%, 15%);
+
+    /* Card */
+    --card: hsl(25, 56%, 98%);
+    --card-foreground: hsl(230, 18%, 15%);
+
+    /* Muted */
+    --muted: hsl(14, 30%, 92%);
+    --muted-foreground: hsl(230, 10%, 40%);
+
+    /* Border & Input */
+    --border: hsl(14, 30%, 80%);
+    --input: hsl(14, 30%, 85%);
+    --ring: hsl(14, 70%, 62%);
+
+    /* Destructive */
+    --destructive: hsl(0, 84%, 60%);
+
+    /* Radius */
+    --radius: 0.625rem;
+    --radius-sm: 0.375rem;
+    --radius-md: 0.5rem;
+    --radius-lg: 0.625rem;
+    --radius-xl: 0.875rem;
+}
 
 /* ===== GLOBAL STYLES ===== */
 * {
@@ -10,21 +57,205 @@
 }
 
 body {
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
-    background: white !important; /* Force white background */
+    font-family: 'Noto Sans', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background: var(--background) !important;
     min-height: 100vh;
     margin: 0;
     padding: 20px;
     display: flex;
     align-items: center;
     justify-content: center;
+    color: var(--foreground);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
 }
 
-/* Also add this to override Keycloak's default backgrounds */
+/* Override Keycloak's default backgrounds */
 .login-pf-page,
 .login-pf,
 html {
-    background: white !important;
+    background: var(--background) !important;
+}
+
+/* ===== KEYCLOAK PATTERNFLY OVERRIDES ===== */
+/* Remove/hide the blue header bar */
+.card-pf-title,
+.login-pf-page .card-pf-title,
+.card-pf > .card-pf-heading,
+.card-pf-heading {
+    display: none !important;
+}
+
+/* Style the main card container (remove sharp corners, match theme) */
+.card-pf,
+.login-pf-page .card-pf {
+    background: var(--card) !important;
+    border: 1px solid var(--border) !important;
+    border-radius: var(--radius-xl) !important;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1) !important;
+    margin: 0 !important;
+    overflow: hidden !important;
+}
+
+/* Card body styling */
+.card-pf-body,
+.login-pf-page .card-pf-body {
+    background: var(--card) !important;
+    border-radius: var(--radius-xl) !important;
+    padding: 40px !important;
+}
+
+/* Remove any login box specific styling that creates sharp edges */
+.login-pf-page .login-pf-accounts,
+.login-pf-accounts {
+    background: transparent !important;
+    border: none !important;
+}
+
+/* Override the login page header area */
+.login-pf-page .login-pf-header,
+.login-pf-header {
+    background: transparent !important;
+    border: none !important;
+    padding: 0 !important;
+}
+
+/* Fix any nested card styling */
+.card-pf .card-pf-body .card-pf,
+.login-pf-page .card-pf .card-pf {
+    border: none !important;
+    box-shadow: none !important;
+    background: transparent !important;
+}
+
+/* PatternFly page header overrides */
+.pf-c-page__header,
+.pf-c-masthead {
+    background: var(--primary) !important;
+    border: none !important;
+}
+
+/* If there's a brand bar, style it with primary color instead of blue */
+.pf-c-brand,
+.brand {
+    background: var(--primary) !important;
+}
+
+/* Login pf specific brand header */
+.login-pf-page .login-pf-brand,
+.login-pf-brand {
+    background: transparent !important;
+    margin-bottom: 20px !important;
+}
+
+/* Remove borders from content areas */
+#kc-content-wrapper,
+.login-pf-page #kc-content-wrapper {
+    border: none !important;
+    background: transparent !important;
+}
+
+/* Ensure the form card doesn't have extra borders */
+.login-pf-page .card-pf-body > *,
+.card-pf-body > * {
+    border: none !important;
+}
+
+/* Additional Keycloak element overrides for the header bar */
+.kc-logo-text,
+#kc-logo,
+.login-pf-page #kc-logo {
+    display: none !important;
+}
+
+/* Target any blue-colored header elements */
+[class*="header"],
+[class*="brand"] {
+    background-color: transparent !important;
+    border-color: transparent !important;
+}
+
+/* Override for kc-header specifically if it has a background */
+#kc-header,
+.login-pf-page #kc-header {
+    background: transparent !important;
+    border: none !important;
+    padding: 0 0 20px 0 !important;
+}
+
+/* Panel overrides */
+.panel,
+.panel-default,
+.panel-heading {
+    background: var(--card) !important;
+    border: none !important;
+    border-radius: var(--radius-xl) !important;
+}
+
+.panel-heading {
+    display: none !important;
+}
+
+.panel-body {
+    background: var(--card) !important;
+    border-radius: var(--radius-xl) !important;
+    padding: 40px !important;
+}
+
+/* Form wrapper overrides */
+#kc-form-wrapper,
+.login-pf-page #kc-form-wrapper {
+    background: transparent !important;
+    border: none !important;
+}
+
+/* Override any inline styles on the login card */
+.login-pf-page .card-pf[style],
+.card-pf[style] {
+    background: var(--card) !important;
+    border-radius: var(--radius-xl) !important;
+}
+
+/* Social login divider styling */
+#kc-social-providers hr,
+.login-pf-page hr {
+    border-color: var(--border) !important;
+    margin: 24px 0 !important;
+}
+
+/* Fix for any wrapper that might have the blue color */
+.login-pf-page .container,
+.login-pf-page .container-fluid {
+    background: transparent !important;
+}
+
+/* Override PatternFly v4 specific classes */
+.pf-c-login,
+.pf-c-login__main,
+.pf-c-login__main-body,
+.pf-c-login__main-header {
+    background: var(--card) !important;
+    border-radius: var(--radius-xl) !important;
+}
+
+.pf-c-login__header {
+    background: transparent !important;
+    display: none !important;
+}
+
+.pf-c-login__main {
+    border: 1px solid var(--border) !important;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1) !important;
+}
+
+/* Override any lingering blue from Keycloak's default theme */
+.alert-info,
+.bg-info,
+.text-info,
+.btn-info {
+    background-color: var(--primary) !important;
+    border-color: var(--primary) !important;
+    color: var(--primary-foreground) !important;
 }
 
 /* ===== MAIN CONTAINER ===== */
@@ -42,10 +273,11 @@ html {
 
 /* ===== CARD/CONTENT ===== */
 #kc-content {
-    background: white;
-    border-radius: 16px;
+    background: var(--card);
+    border-radius: var(--radius-xl);
     padding: 48px 40px;
-    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
+    border: 1px solid var(--border);
     width: 100%;
 }
 
@@ -59,12 +291,17 @@ html {
     padding: 0;
 }
 
-/* Logo/Brand Area  */
+/* Logo/Brand Area - Custom MunchMates logo */
 #kc-header::before {
-    content: '🍽️';
+    content: '';
     display: block;
-    font-size: 48px; 
-    margin-bottom: 12px;
+    width: 64px;
+    height: 64px;
+    margin: 0 auto 12px auto;
+    background-image: url('../img/logo.png');
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
     animation: float 3s ease-in-out infinite;
 }
 
@@ -74,7 +311,7 @@ html {
 }
 
 .login-pf-page #kc-header h1 {
-    color: #1f2937;
+    color: var(--foreground);
     font-size: 28px;
     font-weight: 700;
     margin: 0 0 8px 0;
@@ -82,9 +319,18 @@ html {
 }
 
 #kc-header-wrapper #kc-header + p {
-    color: #6b7280;
+    color: var(--muted-foreground);
     font-size: 15px;
     margin: 0;
+}
+
+/* Page title styling */
+#kc-page-title {
+    color: var(--foreground);
+    font-size: 24px;
+    font-weight: 600;
+    margin: 0 0 8px 0;
+    letter-spacing: -0.025em;
 }
 
 /* ===== FORM STYLES ===== */
@@ -96,7 +342,7 @@ html {
 .pf-c-form__label,
 label {
     display: block;
-    color: #374151;
+    color: var(--foreground);
     font-size: 14px;
     font-weight: 600;
     margin-bottom: 8px;
@@ -107,22 +353,29 @@ label {
 input[type="text"],
 input[type="password"],
 input[type="email"] {
-    width: 100% !important; 
+    width: 100% !important;
     padding: 12px 16px;
-    border: 2px solid #e5e7eb;
-    border-radius: 8px;
+    border: 2px solid var(--border);
+    border-radius: var(--radius-md);
     font-size: 15px;
+    font-family: 'Noto Sans', system-ui, sans-serif;
     transition: all 0.2s ease;
-    background: #f9fafb;
-    min-height: 48px; 
+    background: var(--card);
+    color: var(--foreground);
+    min-height: 48px;
+}
+
+.pf-c-form-control::placeholder,
+input::placeholder {
+    color: var(--muted-foreground);
 }
 
 .pf-c-form-control:hover,
 input[type="text"]:hover,
 input[type="password"]:hover,
 input[type="email"]:hover {
-    border-color: #d1d5db;
-    background: white;
+    border-color: var(--primary);
+    background: var(--card);
 }
 
 .pf-c-form-control:focus,
@@ -130,24 +383,25 @@ input[type="text"]:focus,
 input[type="password"]:focus,
 input[type="email"]:focus {
     outline: none;
-    border-color: #667eea;
-    background: white;
-    box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
+    border-color: var(--primary);
+    background: var(--card);
+    box-shadow: 0 0 0 3px hsla(14, 70%, 62%, 0.2);
 }
 
 /* Form Groups */
 .pf-c-form__group,
 .form-group {
     margin-bottom: 20px;
-    position: relative; /* For positioning the eye icon */
+    position: relative;
 }
 
-/* Password visibility toggle */
+/* Password visibility toggle - simplified */
 .pf-c-form-control__utilities,
 .pf-c-input-group__utilities {
     position: absolute;
-    right: 12px;
-    top: 38px; 
+    right: 8px;
+    top: 50%;
+    transform: translateY(-50%);
     display: flex;
     align-items: center;
     z-index: 10;
@@ -156,28 +410,32 @@ input[type="email"]:focus {
 .pf-c-form-control__utilities button,
 .pf-c-input-group__utilities button,
 button.pf-c-button.pf-m-control {
-    width: 32px !important; 
-    height: 32px !important;
-    padding: 4px !important;
+    width: 28px !important;
+    height: 28px !important;
+    padding: 6px !important;
     min-height: auto !important;
     background: transparent !important;
     border: none !important;
     box-shadow: none !important;
     cursor: pointer;
+    color: var(--muted-foreground);
+    border-radius: var(--radius-sm) !important;
+    transition: color 0.15s ease !important;
 }
 
 .pf-c-form-control__utilities button:hover,
 .pf-c-input-group__utilities button:hover,
 button.pf-c-button.pf-m-control:hover {
-    background: #f3f4f6 !important;
+    background: transparent !important;
     transform: none !important;
+    color: var(--primary) !important;
 }
 
 .pf-c-form-control__utilities svg,
 .pf-c-input-group__utilities svg {
-    width: 20px !important; 
-    height: 20px !important;
-    color: #6b7280;
+    width: 16px !important;
+    height: 16px !important;
+    color: inherit;
 }
 
 /* Password input wrapper fix */
@@ -188,7 +446,72 @@ button.pf-c-button.pf-m-control:hover {
 }
 
 .pf-c-input-group input {
-    padding-right: 48px; 
+    padding-right: 40px;
+}
+
+/* ===== SIMPLIFY VALIDATION - Remove excessive indicators ===== */
+/* Hide exclamation marks and error icons inside inputs */
+.pf-c-form-control__icon,
+.pf-c-form-control__utilities .pf-c-button__icon,
+.pf-c-input-group__utilities .pf-c-button__icon,
+.pf-c-form__helper-text .pf-c-helper-text__item-icon,
+.pf-c-helper-text__item-icon,
+input:invalid + .pf-c-form-control__utilities .pf-c-form-control__icon,
+.pf-m-error .pf-c-form-control__icon,
+.pf-m-warning .pf-c-form-control__icon {
+    display: none !important;
+}
+
+/* Simple error state - just red border, no icons */
+.pf-c-form-control.pf-m-error,
+.pf-c-form-control[aria-invalid="true"],
+input.pf-m-error,
+input[aria-invalid="true"],
+.has-error input,
+.has-error .pf-c-form-control {
+    border-color: var(--destructive) !important;
+    background: var(--card) !important;
+}
+
+/* Remove any error/warning icons from form groups */
+.pf-c-form__group.pf-m-error .pf-c-form__group-label::after,
+.pf-c-form__group.pf-m-warning .pf-c-form__group-label::after,
+.form-group.has-error .control-label::after,
+.form-group.has-warning .control-label::after {
+    display: none !important;
+    content: none !important;
+}
+
+/* Keep helper text simple */
+.pf-c-helper-text,
+.pf-c-form__helper-text,
+.help-block {
+    font-size: 13px !important;
+    margin-top: 6px !important;
+    color: var(--muted-foreground) !important;
+}
+
+.pf-c-helper-text.pf-m-error,
+.pf-c-form__helper-text.pf-m-error,
+.help-block.text-danger {
+    color: var(--destructive) !important;
+}
+
+/* Hide any status icons in inputs */
+.pf-c-form-control__toggle,
+.pf-c-form-control__toggle-icon {
+    display: none !important;
+}
+
+/* Remove feedback icons from Bootstrap-style forms */
+.form-control-feedback,
+.glyphicon-warning-sign,
+.glyphicon-remove,
+.glyphicon-ok,
+.fa-exclamation-triangle,
+.fa-times-circle,
+.fa-check-circle {
+    display: none !important;
 }
 
 /* ===== BUTTONS ===== */
@@ -198,9 +521,10 @@ input[type="submit"] {
     width: 100%;
     padding: 14px 24px;
     border: none;
-    border-radius: 8px;
+    border-radius: var(--radius-md);
     font-size: 16px;
     font-weight: 600;
+    font-family: 'Noto Sans', system-ui, sans-serif;
     cursor: pointer;
     transition: all 0.2s ease;
     letter-spacing: 0.3px;
@@ -211,40 +535,42 @@ input[type="submit"] {
 .pf-c-button.pf-m-primary,
 #kc-form-buttons input[type="submit"],
 button[type="submit"] {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    color: white;
-    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+    background: var(--primary);
+    color: var(--primary-foreground);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .pf-c-button.pf-m-primary:hover,
 #kc-form-buttons input[type="submit"]:hover,
 button[type="submit"]:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(102, 126, 234, 0.5);
+    background: var(--primary-hover);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
 }
 
 .pf-c-button.pf-m-primary:active,
 #kc-form-buttons input[type="submit"]:active,
 button[type="submit"]:active {
     transform: translateY(0);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 /* Secondary Button */
 .pf-c-button.pf-m-secondary {
-    background: white;
-    color: #667eea;
-    border: 2px solid #667eea;
+    background: var(--card);
+    color: var(--primary);
+    border: 2px solid var(--primary);
 }
 
 .pf-c-button.pf-m-secondary:hover {
-    background: #f3f4f6;
+    background: var(--secondary);
 }
 
 /* ===== LINKS ===== */
 #kc-form-options a,
 #kc-info a,
 a {
-    color: #667eea;
+    color: var(--primary);
     text-decoration: none;
     font-weight: 500;
     transition: all 0.2s ease;
@@ -253,7 +579,7 @@ a {
 #kc-form-options a:hover,
 #kc-info a:hover,
 a:hover {
-    color: #764ba2;
+    color: var(--primary-hover);
     text-decoration: underline;
 }
 
@@ -270,59 +596,66 @@ a:hover {
 .pf-c-alert,
 .alert {
     padding: 12px 16px;
-    border-radius: 8px;
+    border-radius: var(--radius-md);
     margin-bottom: 20px;
     font-size: 14px;
 }
 
 .pf-c-alert.pf-m-danger,
 .alert-error {
-    background: #fef2f2;
-    color: #991b1b;
-    border: 1px solid #fecaca;
+    background: hsl(0, 93%, 94%);
+    color: hsl(0, 84%, 32%);
+    border: 1px solid hsl(0, 93%, 82%);
 }
 
 .pf-c-alert.pf-m-warning,
 .alert-warning {
-    background: #fffbeb;
-    color: #92400e;
-    border: 1px solid #fde68a;
+    background: hsl(48, 96%, 89%);
+    color: hsl(25, 95%, 27%);
+    border: 1px solid hsl(48, 96%, 76%);
 }
 
 .pf-c-alert.pf-m-success,
 .alert-success {
-    background: #f0fdf4;
-    color: #166534;
-    border: 1px solid #bbf7d0;
+    background: hsl(143, 85%, 96%);
+    color: hsl(140, 100%, 20%);
+    border: 1px solid hsl(141, 78%, 75%);
 }
 
 .pf-c-alert.pf-m-info,
 .alert-info {
-    background: #eff6ff;
-    color: #1e40af;
-    border: 1px solid #bfdbfe;
+    background: hsl(214, 100%, 97%);
+    color: hsl(221, 83%, 40%);
+    border: 1px solid hsl(213, 97%, 87%);
 }
 
 /* ===== INFO SECTION (Register, Back to Login) ===== */
 #kc-info {
     margin-top: 32px;
     padding-top: 24px;
-    border-top: 1px solid #e5e7eb;
+    border-top: 1px solid var(--border);
     text-align: center;
-    width: 100%; /* Ensure full width */
-    overflow: visible; /* Don't cut off text */
+    width: 100%;
+    overflow: visible;
+    background: transparent !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
 }
 
 #kc-info-wrapper {
     font-size: 14px;
-    color: #6b7280;
-    line-height: 1.6; /* Better line spacing */
+    color: var(--muted-foreground);
+    line-height: 1.6;
     width: 100%;
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    padding: 0 !important;
 }
 
 #kc-info-wrapper p {
     margin: 8px 0;
-    word-wrap: break-word; /* Wrap long words */
+    word-wrap: break-word;
 }
 
 /* ===== REGISTRATION SPECIFIC ===== */
@@ -330,12 +663,51 @@ a:hover {
     margin-top: 24px;
     text-align: center;
     width: 100%;
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    padding: 0 !important;
 }
 
 #kc-registration span {
-    color: #6b7280;
+    color: var(--muted-foreground);
     font-size: 14px;
     margin-right: 8px;
+}
+
+/* Fix grey box around registration/info sections */
+#kc-info-wrapper > *,
+#kc-registration > *,
+.login-pf-page #kc-info,
+.login-pf-page #kc-info-wrapper,
+.login-pf-page #kc-registration {
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+}
+
+/* Override any card styling on info sections */
+#kc-info .card-pf,
+#kc-info-wrapper .card-pf,
+#kc-registration .card-pf,
+#kc-info .pf-c-card,
+#kc-info-wrapper .pf-c-card,
+#kc-registration .pf-c-card {
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    padding: 0 !important;
+}
+
+/* Remove any well or panel styling from registration area */
+.login-pf-page .well,
+.well,
+.login-pf-signup {
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    padding: 0 !important;
+    margin: 0 !important;
 }
 
 /* ===== CHECKBOX STYLING ===== */
@@ -344,20 +716,20 @@ input[type="checkbox"] {
     height: 18px;
     margin-right: 8px;
     cursor: pointer;
-    accent-color: #667eea;
+    accent-color: var(--primary);
 }
 
 .pf-c-check__label {
     cursor: pointer;
     font-size: 14px;
-    color: #374151;
+    color: var(--foreground);
 }
 
 /* ===== SOCIAL PROVIDERS (if enabled) ===== */
 #kc-social-providers {
     margin-top: 32px;
     padding-top: 24px;
-    border-top: 1px solid #e5e7eb;
+    border-top: 1px solid var(--border);
 }
 
 #kc-social-providers ul {
@@ -373,29 +745,29 @@ input[type="checkbox"] {
 #kc-social-providers a {
     display: block;
     padding: 12px 16px;
-    border: 2px solid #e5e7eb;
-    border-radius: 8px;
+    border: 2px solid var(--border);
+    border-radius: var(--radius-md);
     text-align: center;
     transition: all 0.2s ease;
 }
 
 #kc-social-providers a:hover {
-    border-color: #667eea;
-    background: #f9fafb;
+    border-color: var(--primary);
+    background: var(--secondary);
     text-decoration: none;
 }
 
 /* ===== REQUIRED FIELD INDICATOR ===== */
 .required {
-    color: #dc2626;
+    color: var(--destructive);
     margin-left: 2px;
-    display: inline; /* Keep it on the same line */
+    display: inline;
 }
 
 .pf-c-form__label,
 label {
     display: block;
-    color: #374151;
+    color: var(--foreground);
     font-size: 14px;
     font-weight: 600;
     margin-bottom: 8px;
@@ -403,10 +775,9 @@ label {
 
 .pf-c-form__label-text,
 label > * {
-    display: inline; /* Keep all label content inline */
+    display: inline;
 }
 
-/* Target the required indicator specifically */
 .pf-c-form__label-required,
 label .required,
 label > .required {
@@ -419,15 +790,19 @@ label > .required {
     body {
         padding: 12px;
     }
-    
+
     #kc-content {
         padding: 32px 24px;
     }
-    
+
     .login-pf-page #kc-header h1 {
         font-size: 24px;
     }
-    
+
+    #kc-page-title {
+        font-size: 20px;
+    }
+
     #kc-form-options {
         flex-direction: column;
         gap: 12px;
@@ -468,6 +843,32 @@ input[type="submit"]:disabled {
 
 /* Focus visible for accessibility */
 *:focus-visible {
-    outline: 2px solid #667eea;
+    outline: 2px solid var(--ring);
     outline-offset: 2px;
+}
+
+/* Selection styling */
+::selection {
+    background: hsla(14, 70%, 62%, 0.2);
+    color: var(--foreground);
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: var(--muted);
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--border);
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--muted-foreground);
 }
