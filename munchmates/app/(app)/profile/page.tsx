@@ -1,4 +1,8 @@
-// app/(app)/profile/page.tsx
+// app/(app)/profile/page.tsx serves as the user's "profile" page.
+// Right now all data is stored locally for user's information aside from what
+// is kept on the Keycloak server. That information is pulled using a route,
+// and the dietary info/allergies are stored locally until we have the money to
+// implement a larger database for the operational site
 "use client";
 
 import { useEffect, useState } from "react";
@@ -12,7 +16,9 @@ import {
     initKeycloak,
     ensureToken,
     getAccessTokenClaims,
+    logout,
 } from "@/lib/keycloak";
+import {LogOut} from "lucide-react";
 
 type AccessTokenClaims = {
     sub?: string;
@@ -38,6 +44,7 @@ const ProfilePage = () => {
 
     const [dietModal, setDietModal] = useState(false);
     const [saving, setSaving] = useState(false);
+    const [deleting, setDeleting] = useState(false);
 
     const openDiet = () => setDietModal(true);
     const closeDiet = () => setDietModal(false);
@@ -153,6 +160,42 @@ const ProfilePage = () => {
             ? intolerances.join(", ")
             : "No allergies listed";
 
+    const handleDeleteAccount = async () => {
+        const confirmed = window.confirm(
+            "Are you sure you want to delete your account? This action cannot be undone."
+        );
+        if (!confirmed) return;
+
+        try {
+            setDeleting(true);
+
+            const token = await ensureToken();
+            const headers: Record<string, string> = {};
+            if (token) {
+                headers.Authorization = `Bearer ${token}`;
+            }
+
+            const res = await fetch("/api/account", {
+                method: "DELETE",
+                headers,
+            });
+
+            if (!res.ok) {
+                console.error("Failed to delete account", res.status);
+                setDeleting(false);
+                return;
+            }
+
+            // Log out from Keycloak and send the user back to your entrypoint.
+            await logout(window.location.origin);
+            // If logout's redirect doesn't fire for some reason, fall back:
+            // router.push("/");
+        } catch (err) {
+            console.error("Error deleting account", err);
+            setDeleting(false);
+        }
+    };
+
     return (
         <SidebarProvider>
             <div className="min-h-screen flex w-full">
@@ -174,108 +217,131 @@ const ProfilePage = () => {
                     My Profile
                 </h2>
 
-                <form className="space-y-6" onSubmit={handleSubmit}>
-                    {/* Name (from Keycloak) */}
-                    <div className="space-y-2">
-                        <label
-                            htmlFor="name"
-                            className="block text-sm font-medium text-foreground"
-                        >
-                            Name
-                        </label>
-                        <input
-                            id="name"
-                            type="text"
-                            value={name}
-                            readOnly
-                            className="w-full rounded-lg border border-input bg-muted px-3 py-2 text-sm text-muted-foreground"
-                        />
-                    </div>
+                            <form className="space-y-6" onSubmit={handleSubmit}>
+                                {/* Name (from Keycloak) */}
+                                <div className="space-y-2">
+                                    <label
+                                        htmlFor="name"
+                                        className="block text-sm font-medium text-foreground"
+                                    >
+                                        Name
+                                    </label>
+                                    <input
+                                        id="name"
+                                        type="text"
+                                        value={name}
+                                        readOnly
+                                        className="w-full rounded-lg border border-input bg-muted px-3 py-2 text-sm text-muted-foreground"
+                                    />
+                                </div>
 
-                    {/* Email (from Keycloak) */}
-                    <div className="space-y-2">
-                        <label
-                            htmlFor="email"
-                            className="block text-sm font-medium text-foreground"
-                        >
-                            Email
-                        </label>
-                        <input
-                            id="email"
-                            type="email"
-                            value={email}
-                            readOnly
-                            className="w-full rounded-lg border border-input bg-muted px-3 py-2 text-sm text-muted-foreground"
-                        />
-                    </div>
+                                {/* Email (from Keycloak) */}
+                                <div className="space-y-2">
+                                    <label
+                                        htmlFor="email"
+                                        className="block text-sm font-medium text-foreground"
+                                    >
+                                        Email
+                                    </label>
+                                    <input
+                                        id="email"
+                                        type="email"
+                                        value={email}
+                                        readOnly
+                                        className="w-full rounded-lg border border-input bg-muted px-3 py-2 text-sm text-muted-foreground"
+                                    />
+                                </div>
 
-                    {/* Favorite Cuisines */}
-                    <div className="space-y-2">
-                        <p className="block text-sm font-medium text-foreground">
-                            Favorite Cuisines
-                        </p>
-                        <input
-                            type="text"
-                            placeholder="e.g., Italian, Mexican"
-                            value={favoriteCuisines}
-                            onChange={(e) => setFavoriteCuisines(e.target.value)}
-                            className="w-full rounded-lg border border-input bg-background px-3 py-2 text-sm shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
-                        />
-                    </div>
+                                {/* Favorite Cuisines */}
+                                <div className="space-y-2">
+                                    <p className="block text-sm font-medium text-foreground">
+                                        Favorite Cuisines
+                                    </p>
+                                    <input
+                                        type="text"
+                                        placeholder="e.g., Italian, Mexican"
+                                        value={favoriteCuisines}
+                                        onChange={(e) => setFavoriteCuisines(e.target.value)}
+                                        className="w-full rounded-lg border border-input bg-background px-3 py-2 text-sm shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+                                    />
+                                </div>
 
-                    {/* Dietary preferences */}
-                    <div className="space-y-2">
-                        <p className="block text-sm font-medium text-foreground">
-                            Dietary preferences
-                        </p>
-                        <div className="flex gap-3">
-                            <input
-                                type="text"
-                                readOnly
-                                value={dietText}
-                                className="flex-1 rounded-lg border border-input bg-muted px-3 py-2 text-sm text-muted-foreground shadow-inner"
-                            />
-                            <Button
-                                type="button"
-                                variant="outline"
-                                className="shrink-0"
-                                onClick={openDiet}
-                            >
-                                Edit
-                            </Button>
-                        </div>
-                    </div>
+                                {/* Dietary preferences */}
+                                <div className="space-y-2">
+                                    <p className="block text-sm font-medium text-foreground">
+                                        Dietary preferences
+                                    </p>
+                                    <div className="flex gap-3">
+                                        <input
+                                            type="text"
+                                            readOnly
+                                            value={dietText}
+                                            className="flex-1 rounded-lg border border-input bg-muted px-3 py-2 text-sm text-muted-foreground shadow-inner"
+                                        />
+                                        <Button
+                                            type="button"
+                                            variant="outline"
+                                            className="shrink-0"
+                                            onClick={openDiet}
+                                        >
+                                            Edit
+                                        </Button>
+                                    </div>
+                                </div>
 
-                    {/* Allergies */}
-                    <div className="space-y-2">
-                        <p className="block text-sm font-medium text-foreground">
-                            Allergies
-                        </p>
-                        <div className="flex gap-3">
-                            <input
-                                type="text"
-                                readOnly
-                                value={intoleranceText}
-                                className="flex-1 rounded-lg border border-input bg-muted px-3 py-2 text-sm text-muted-foreground shadow-inner"
-                            />
-                            <Button
-                                type="button"
-                                variant="outline"
-                                className="shrink-0"
-                                onClick={openDiet}
-                            >
-                                Edit
-                            </Button>
-                        </div>
-                    </div>
-
-                    {/* Save Settings */}
-                    <div className="pt-4">
-                        <Button type="submit" className="w-full" disabled={saving}>
-                            {saving ? "Saving..." : "Save Settings"}
-                        </Button>
-                    </div>
-                </form>
+                                {/* Allergies */}
+                                <div className="space-y-2">
+                                    <p className="block text-sm font-medium text-foreground">
+                                        Allergies
+                                    </p>
+                                    <div className="flex gap-3">
+                                        <input
+                                            type="text"
+                                            readOnly
+                                            value={intoleranceText}
+                                            className="flex-1 rounded-lg border border-input bg-muted px-3 py-2 text-sm text-muted-foreground shadow-inner"
+                                        />
+                                        <Button
+                                            type="button"
+                                            variant="outline"
+                                            className="shrink-0"
+                                            onClick={openDiet}
+                                        >
+                                            Edit
+                                        </Button>
+                                    </div>
+                                </div>
+                                <div className="pt-4">
+                                    <Button
+                                        variant="outline"
+                                        onClick={() => logout()}
+                                        className="w-full"
+                                    >
+                                        <LogOut className="h-4 w-4"/>
+                                        Sign Out
+                                    </Button>
+                                </div>
+                                {/* Save Settings */}
+                                <div className="pt-4">
+                                    <Button type="submit" className="w-full" disabled={saving}>
+                                        {saving ? "Saving..." : "Save Settings"}
+                                    </Button>
+                                </div>
+                                {/* Delete Account */}
+                                <div className="pt-4">
+                                    <Button
+                                        type="button"
+                                        variant="destructive"
+                                        className="w-full"
+                                        disabled={saving || deleting}
+                                        onClick={handleDeleteAccount}
+                                    >
+                                        {deleting
+                                            ? "Removing account..."
+                                            : "Delete Account"}
+                                    </Button>
+                                </div>
+                            </form>
                         </div>
                     </main>
                 </div>
