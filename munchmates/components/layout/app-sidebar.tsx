@@ -25,6 +25,7 @@ import {
     Users,
     Settings,
     PanelLeft,
+    FolderHeart,
 } from "lucide-react";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
@@ -33,6 +34,7 @@ import { Button } from "../ui/button";
 const navItems = [
     { href: "/dashboard", icon: <LayoutDashboard />, label: "Dashboard" },
     { href: "/recipes", icon: <BookOpen />, label: "Recipes" },
+    { href: "/shared-collections", icon: <FolderHeart />, label: "Shared Collections" },
     { href: "/meal-planner", icon: <CalendarDays />, label: "Meal Planner" },
     { href: "/grocery-list", icon: <ShoppingCart />, label: "Grocery List" },
     { href: "/pantry", icon: <Warehouse />, label: "Pantry" },

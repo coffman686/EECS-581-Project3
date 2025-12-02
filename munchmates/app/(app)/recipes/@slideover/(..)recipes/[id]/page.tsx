@@ -1,11 +1,9 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import { useEffect, useState } from 'react';
-import { Button } from '@/components/ui/button';
+import { useState } from 'react';
 import RecipeDetails from '@/components/RecipeDetails';
 import { usePathname } from "next/navigation";
-import { XIcon } from 'lucide-react';
 
 export default function InterceptedRecipePage() {
   const pathname = usePathname();
@@ -17,21 +15,17 @@ export default function InterceptedRecipePage() {
     setIsOpen(false);
     router.back(); 
   };
+
   if (!isOpen) return null;
 
   return (
-    // This is your overlay/slideover structure
-    <div className="fixed inset-0 bg-opacity-50 z-40" onClick={handleClose}>
+    // Overlay/slideover structure
+    <div className="fixed inset-0 bg-black/50 z-40" onClick={handleClose}>
       <div 
-        className="fixed right-0 top-0 h-full w-full sm:w-96 bg-background shadow-xl z-50 overflow-y-auto border-l" 
-        // Stop clicks inside the slideover from closing the modal via the overlay handler
+        className="fixed right-0 top-0 h-full w-full sm:w-[450px] bg-background shadow-xl z-50 overflow-hidden border-l" 
         onClick={(e) => e.stopPropagation()}
       >
-        <Button onClick={handleClose} className="p-4">
-          <XIcon className=""/>
-        </Button>
-        {/* Pass the recipe ID to your detailed component */}
-        <RecipeDetails recipeId={id!} />
+        <RecipeDetails recipeId={id!} onClose={handleClose} />
       </div>
     </div>
   );
