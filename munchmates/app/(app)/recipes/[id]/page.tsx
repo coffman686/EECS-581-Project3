@@ -8,6 +8,7 @@
 
 "use client";
 
+// import necessary libraries and components
 import { useState, useEffect } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import RequireAuth from "@/components/RequireAuth";
@@ -32,6 +33,7 @@ import {
   UtensilsCrossed,
 } from "lucide-react";
 
+// define types for recipe information and instruction steps
 type RecipeInfo = {
   id: number;
   title: string;
@@ -60,6 +62,7 @@ type RecipeInfo = {
   }>;
 };
 
+// define type for instruction steps
 type InstructionStep = {
   number: number;
   step: string;
@@ -67,6 +70,9 @@ type InstructionStep = {
   equipment?: Array<{ id: number; name: string; image: string }>;
 };
 
+// main RecipeDetailPage component
+// handles fetching and displaying recipe details
+// and allows saving/removing from saved recipes
 const RecipeDetailPage = () => {
   const pathname = usePathname();
   const router = useRouter();

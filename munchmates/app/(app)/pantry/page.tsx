@@ -42,6 +42,7 @@
 
 'use client';
 
+// import all necessary modules and components
 import { useState, useEffect } from 'react';
 import AppHeader from '@/components/layout/app-header';
 import RequireAuth from '@/components/RequireAuth';
@@ -61,6 +62,7 @@ import {
     SelectItem,
 } from "@/components/ui/select";
 
+// define TypeScript interfaces and constants
 interface PantryItem {
     id: number;
     name: string;
@@ -88,9 +90,12 @@ const categories = [
     'Other'
 ];
 
-// Storage key for pantry persistence
-const PANTRY_STORAGE_KEY = 'munchmates_pantry';
+// storage key for pantry persistence
+export const PANTRY_STORAGE_KEY = 'munchmates_pantry';
 
+// default pantry items for initial load
+// testing and demonstration purposes
+// these can be removed in production
 const defaultItems: PantryItem[] = [
     { id: 1, name: 'All-Purpose Flour', quantity: '2 lbs', category: 'Grains & Flour', addedDate: '2024-01-15' },
     { id: 2, name: 'Granulated Sugar', quantity: '1 lb', category: 'Sweeteners', addedDate: '2024-01-10' },
@@ -99,6 +104,9 @@ const defaultItems: PantryItem[] = [
     { id: 5, name: 'Canned Tomatoes', quantity: '2 cans', category: 'Canned Goods', expiryDate: '2025-01-01', addedDate: '2024-01-12' },
 ];
 
+// main Pantry component
+// handles pantry item management
+// including adding, editing, deleting, searching, and filtering
 const Pantry = () => {
     // Retrieves pantry items per user from browser local storage
     const [items, setItems] = useState<PantryItem[]>(() => {
@@ -130,12 +138,12 @@ const Pantry = () => {
 
     const [imageDialogOpen, setImageDialogOpen] = useState(false);
 
-    // Persist pantry items to localStorage
+    // persist pantry items to localStorage on changes
     useEffect(() => {
         localStorage.setItem(PANTRY_STORAGE_KEY, JSON.stringify(items));
     }, [items]);
 
-    // Prefills input content for editiing items
+    // functions to handle editing pantry items
     const beginEdit = (item: PantryItem) => {
         setEditingId(item.id);
         setEditName(item.name);
@@ -144,7 +152,7 @@ const Pantry = () => {
         setEditExpiry(item.expiryDate ?? '');
     };
 
-    // Clears input fields
+    // cancel editing and reset edit states
     const cancelEdit = () => {
         setEditingId(null);
         setEditName('');
@@ -153,7 +161,7 @@ const Pantry = () => {
         setEditExpiry('');
     };
 
-    // Updates edited item
+    // save edited item details
     const saveEdit = (id: number) => {
         setItems(prev =>
         prev.map(it =>
@@ -171,11 +179,14 @@ const Pantry = () => {
         cancelEdit();
     };
 
+    // handle keyboard events during editing
     const handleEditKey = (e: React.KeyboardEvent, id: number) => {
         if (e.key === 'Enter') saveEdit(id);
         if (e.key === 'Escape') cancelEdit();
     };
 
+    // function to add new pantry item
+    // validates input before adding
     const addItem = () => {
         if (itemName.trim() !== '' && itemQuantity.trim() !== '') {
             const newItem: PantryItem = {
@@ -194,16 +205,19 @@ const Pantry = () => {
         }
     };
 
+    // function to remove pantry item by id
     const removeItem = (id: number) => {
         setItems(items.filter(item => item.id !== id));
     };
 
+    // function to clear all pantry items
     const clearAll = () => {
         setItems([]);
         cancelEdit();
     };
 
-    // Calculates difference between current and expiration date
+    // utility functions for expiry status
+    // calculates days until expiry
     const getDaysUntilExpiry = (expiryDate: string): number => {
         const today = new Date();
         const expiry = new Date(expiryDate);
@@ -211,6 +225,7 @@ const Pantry = () => {
         return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
     };
 
+    // determines expiry status label and variant
     const getExpiryStatus = (expiryDate?: string) => {
         if (!expiryDate) return null;
 
@@ -222,12 +237,14 @@ const Pantry = () => {
         return { label: 'Good', variant: 'default' as const};
     };
 
+    // filter and categorize pantry items based on search and selected category
     const filteredItems = items.filter(item => {
         const matchesSearch = item.name.toLowerCase().includes(searchTerm.toLowerCase());
         const matchesCategory = selectedCategory === 'All' || item.category === selectedCategory;
         return matchesSearch && matchesCategory;
     });
 
+    // group items by category for display
     const itemsByCategory = filteredItems.reduce((acc, item) => {
         if (!acc[item.category]) {
             acc[item.category] = [];
@@ -236,6 +253,7 @@ const Pantry = () => {
         return acc;
     }, {} as Record<string, PantryItem[]>);
 
+    // calculate pantry statistics for overview display
     const totalItems = items.length;
     const expiringSoon = items.filter((item) => {
         if (!item.expiryDate) return false;
@@ -243,12 +261,16 @@ const Pantry = () => {
         return days <= 7 && days >= 0;
     }).length;
 
+    // handle Enter key for adding items
     const handleKeyPress = (e: React.KeyboardEvent) => {
         if (e.key === 'Enter') {
             addItem();
         }
     };
 
+    // render pantry management UI
+    // includes stats, add item form, search/filter, and item list
+    // wrapped in authentication and sidebar layout
     return (
         <RequireAuth>
             <SidebarProvider>
@@ -258,7 +280,7 @@ const Pantry = () => {
                         <AppHeader title="Pantry" />
                         <main className="relative flex-1 p-6 bg-muted/20">
                             <div className="max-w-6xl mx-auto space-y-6">
-                                {/* Stats Overview */}
+                                {/* render stats overview */}
                                 <div className="grid gap-4 md:grid-cols-3">
                                     <Card>
                                         <CardContent className="p-4 flex items-center gap-3">
@@ -289,7 +311,7 @@ const Pantry = () => {
                                     </Card>
                                 </div>
 
-                                {/* Add Item Form */}
+                                {/* render add item forum */}
                                 <Card>
                                     <CardHeader>
                                         <CardTitle className="flex items-center gap-2">
@@ -362,7 +384,7 @@ const Pantry = () => {
                                     </CardContent>
                                 </Card>
 
-                                {/* Search and Filter */}
+                                {/* render search and filter */}
                                 <div className="flex flex-col sm:flex-row gap-4">
                                     <div className="flex-1 relative">
                                         <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
@@ -392,7 +414,7 @@ const Pantry = () => {
 
                                 </div>
 
-                                {/* Pantry Items by Category */}
+                                {/* render pantry components by category */}
                                 <div className="space-y-6">
                                     {Object.keys(itemsByCategory).length > 0 ? (
                                         Object.entries(itemsByCategory).map(([category, categoryItems]) => (

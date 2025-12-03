@@ -17,11 +17,14 @@
 //     this page thus
 'use client';
 
+// import all necessary libraries and components
 import { useRouter } from 'next/navigation';
 import { useState, useEffect } from 'react';
 import RecipeDetails from '@/components/RecipeDetails';
 import { usePathname } from "next/navigation";
 
+// main InterceptedRecipePage component
+// handles displaying recipe details in a slideover overlay
 export default function InterceptedRecipePage() {
   const pathname = usePathname();
   const id = pathname.split('/').pop();

@@ -21,6 +21,7 @@
 
 'use client';
 
+// import all necessary modules and components
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { DndContext, DragEndEvent, DragOverlay, DragStartEvent } from '@dnd-kit/core';
@@ -47,30 +48,31 @@ import {
 import { aggregateIngredients } from '@/lib/ingredient-aggregator';
 
 const DAYS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
-const MEALS: MealType[] = ['breakfast', 'lunch', 'dinner'];
+const MEALS: MealType[] = ['breakfast', 'lunch', 'dinner']; // may add snacks in the future
 
+// main meal planner component
+// handles state, loading/saving, navigation, drag-and-drop, and rendering
 const MealPlanner = () => {
   const router = useRouter();
-  // Initialize with a function to ensure we get the current date at render time
   const [currentDate, setCurrentDate] = useState(() => new Date());
   const [weekPlan, setWeekPlan] = useState<WeeklyMealPlan | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [isGenerating, setIsGenerating] = useState(false);
 
-  // Ensure we're using the current date on client mount
+  // ensure current date is set on mount
   useEffect(() => {
     setCurrentDate(new Date());
   }, []);
 
-  // Recipe picker state
+  // recipe picker state
   const [pickerOpen, setPickerOpen] = useState(false);
   const [selectedSlot, setSelectedSlot] = useState<{ dayDate: string; mealType: MealType } | null>(null);
 
-  // Drag state
+  // drag-and-drop state
   const [activeDragEntry, setActiveDragEntry] = useState<MealPlanEntry | null>(null);
 
-  // Format date as YYYY-MM-DD in local timezone (avoids UTC shift issues)
+  // format date as YYYY-MM-DD for stable string comparison
   const formatLocalDateStr = (d: Date): string => {
     const year = d.getFullYear();
     const month = String(d.getMonth() + 1).padStart(2, '0');
@@ -78,10 +80,11 @@ const MealPlanner = () => {
     return `${year}-${month}-${day}`;
   };
 
-  // Compute week Monday and use string for stable dependency
+  // calculate week start (Monday) string
   const weekMonday = getWeekMonday(currentDate);
   const weekStartStr = formatLocalDateStr(weekMonday);
 
+  // get week range for display
   const getWeekRange = (date: Date) => {
     const start = getWeekMonday(date);
     const end = new Date(start);
@@ -96,7 +99,7 @@ const MealPlanner = () => {
 
   const weekRange = getWeekRange(currentDate);
 
-  // Load meal plan from API
+  // load meal plan on week change
   useEffect(() => {
     const loadMealPlan = async () => {
       setIsLoading(true);
@@ -121,11 +124,11 @@ const MealPlanner = () => {
           }
         }
 
-        // Fall back to localStorage
+        // fallback to localStorage if no API data
         if (localData) {
           setWeekPlan(JSON.parse(localData));
         } else {
-          // Create empty plan for this week
+          // create empty plan if none exists
           const monday = new Date(weekStartStr + 'T00:00:00');
           setWeekPlan(createEmptyWeekPlan(monday));
         }
@@ -141,7 +144,7 @@ const MealPlanner = () => {
     loadMealPlan();
   }, [weekStartStr]);
 
-  // Save meal plan
+  // save meal plan function
   const saveMealPlan = async () => {
     if (!weekPlan) return;
 
@@ -149,10 +152,10 @@ const MealPlanner = () => {
     try {
       const localKey = `mealPlan-${weekStartStr}`;
 
-      // Save to localStorage
+      // localStorage save
       localStorage.setItem(localKey, JSON.stringify(weekPlan));
 
-      // Save to API
+      // API save
       const token = await ensureToken();
       if (token) {
         await fetch('/api/meal-plan', {
@@ -171,7 +174,7 @@ const MealPlanner = () => {
     }
   };
 
-  // Navigation
+  // week navigation handlers
   const prevWeek = () => {
     const newDate = new Date(currentDate);
     newDate.setDate(currentDate.getDate() - 7);
@@ -184,7 +187,7 @@ const MealPlanner = () => {
     setCurrentDate(newDate);
   };
 
-  // Update plan helper
+  // update day plan entry
   const updateDayPlan = (dayDate: string, mealType: MealType, entry: MealPlanEntry | undefined) => {
     if (!weekPlan) return;
 
@@ -198,27 +201,27 @@ const MealPlanner = () => {
     setWeekPlan({ ...weekPlan, days: newDays });
   };
 
-  // Get entry from day plan
+  // get meal plan entry for a specific day and meal type
   const getEntry = (dayDate: string, mealType: MealType): MealPlanEntry | undefined => {
     if (!weekPlan) return undefined;
     const day = weekPlan.days.find((d) => d.date === dayDate);
     return day?.[mealType];
   };
 
-  // Open recipe picker for a slot
+  // open recipe picker for a specific slot
   const handleAddRecipe = (dayDate: string, mealType: MealType) => {
     setSelectedSlot({ dayDate, mealType });
     setPickerOpen(true);
   };
 
-  // Recipe selected from picker - now supports multiple days
+  // recipe selection handler for multiple days
   const handleSelectRecipe = (
     recipe: { id: number; title: string; image: string; servings: number },
     selectedDays: string[]
   ) => {
     if (!selectedSlot || !weekPlan) return;
 
-    // Add recipe to all selected days for the same meal type
+    // add recipe to all selected days in the chosen slot
     const newDays = weekPlan.days.map((day) => {
       if (selectedDays.includes(day.date)) {
         const entry: MealPlanEntry = {
@@ -227,7 +230,7 @@ const MealPlanner = () => {
           title: recipe.title,
           image: recipe.image,
           servings: recipe.servings,
-          originalServings: recipe.servings, // Store original for scaling
+          originalServings: recipe.servings,
         };
         return { ...day, [selectedSlot.mealType]: entry };
       }
@@ -238,7 +241,7 @@ const MealPlanner = () => {
     setSelectedSlot(null);
   };
 
-  // Update servings for a specific meal entry
+  // update servings for a meal slot
   const handleUpdateServings = (dayDate: string, mealType: MealType, newServings: number) => {
     if (!weekPlan || newServings < 1) return;
 
@@ -255,7 +258,7 @@ const MealPlanner = () => {
     setWeekPlan({ ...weekPlan, days: newDays });
   };
 
-  // Get available days for the picker
+  // get available days for recipe picker
   const getAvailableDays = () => {
     if (!weekPlan) return [];
     return weekPlan.days.map((day) => ({
@@ -267,18 +270,19 @@ const MealPlanner = () => {
     }));
   };
 
-  // Remove recipe from slot
+  // remove recipe from a meal slot
   const handleRemoveRecipe = (dayDate: string, mealType: MealType) => {
     updateDayPlan(dayDate, mealType, undefined);
   };
 
-  // Drag handlers
+  // drag-and-drop handlers
   const handleDragStart = (event: DragStartEvent) => {
     const { active } = event;
     const entry = active.data.current?.entry as MealPlanEntry | undefined;
     setActiveDragEntry(entry || null);
   };
-
+ 
+  // handle drag end to move or swap meal entries
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
     setActiveDragEntry(null);
@@ -290,7 +294,6 @@ const MealPlanner = () => {
 
     if (!sourceEntry || !targetData) return;
 
-    // Find source slot
     let sourceDayDate: string | null = null;
     let sourceMealType: MealType | null = null;
 
@@ -307,19 +310,19 @@ const MealPlanner = () => {
 
     if (!sourceDayDate || !sourceMealType) return;
 
-    // Get target entry if exists
+    // get target entry
     const targetEntry = getEntry(targetData.dayDate, targetData.mealType);
 
-    // Swap or move
+    // create new days array with updated entries
     const newDays = weekPlan.days.map((day) => {
       const updated: DayPlan = { ...day };
 
       if (day.date === sourceDayDate) {
-        updated[sourceMealType!] = targetEntry; // Put target in source (swap) or undefined
+        updated[sourceMealType!] = targetEntry; 
       }
 
       if (day.date === targetData.dayDate) {
-        updated[targetData.mealType] = sourceEntry; // Put source in target
+        updated[targetData.mealType] = sourceEntry; 
       }
 
       return updated;
@@ -328,18 +331,15 @@ const MealPlanner = () => {
     setWeekPlan({ ...weekPlan, days: newDays });
   };
 
-  // Generate grocery list
+  // generate grocery list from meal plan
   const handleGenerateGroceryList = async () => {
     if (!weekPlan) return;
 
     setIsGenerating(true);
     try {
       const aggregated = await aggregateIngredients(weekPlan);
-
-      // Store in localStorage for grocery list page
+      // store in localStorage for grocery list page
       localStorage.setItem('pending-grocery-items', JSON.stringify(aggregated));
-
-      // Navigate to grocery list
       router.push('/grocery-list?fromMealPlan=true');
     } catch (error) {
       console.error('Failed to generate grocery list:', error);
@@ -348,11 +348,14 @@ const MealPlanner = () => {
     }
   };
 
-  // Check if plan has any recipes
+  // check if there are any recipes in the current week plan
   const hasRecipes = weekPlan?.days.some(
     (day) => day.breakfast || day.lunch || day.dinner
   );
 
+  // main render for meal planner page
+  // includes sidebar, header, week navigation, meal plan grid, and action buttons
+  // also includes drag-and-drop context and recipe picker dialog
   return (
     <RequireAuth>
       <SidebarProvider>
@@ -364,7 +367,7 @@ const MealPlanner = () => {
 
               <main className="flex-1 p-6 bg-muted/20">
                 <div className="w-full space-y-6">
-                  {/* Week Navigation */}
+                  {/* week nav */}
                   <Card>
                     <CardContent className="p-6">
                       <div className="flex items-center justify-between">
@@ -394,7 +397,7 @@ const MealPlanner = () => {
                     </CardContent>
                   </Card>
 
-                  {/* Meal Plan Grid - Horizontal Rows */}
+                  {/* meal planning grid */}
                   {isLoading ? (
                     <div className="flex items-center justify-center py-12">
                       <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
@@ -402,7 +405,7 @@ const MealPlanner = () => {
                   ) : (
                     <Card>
                       <CardContent className="p-4">
-                        {/* Header row with meal type labels */}
+                        {/* header row */}
                         <div className="hidden sm:flex items-center gap-4 mb-4 pb-3 border-b">
                           <div className="w-28 flex-shrink-0" />
                           {MEALS.map((meal) => (
@@ -412,10 +415,9 @@ const MealPlanner = () => {
                           ))}
                         </div>
 
-                        {/* Days as horizontal rows */}
                         <div className="space-y-4">
                           {weekPlan?.days.map((day, dayIndex) => {
-                            // Parse the date string properly to avoid timezone issues
+                            // added to ensure correct date parsing across timezones
                             const dayDate = new Date(day.date + 'T00:00:00');
                             const today = new Date();
                             const todayStr = formatLocalDateStr(today);
@@ -428,7 +430,7 @@ const MealPlanner = () => {
                                   isToday ? 'bg-primary/5 ring-2 ring-primary/20' : 'hover:bg-muted/30'
                                 }`}
                               >
-                                {/* Day label */}
+                                {/* render day label */}
                                 <div className="w-28 flex-shrink-0 flex flex-col justify-center">
                                   <p className="font-bold text-lg">{DAYS[dayIndex]}</p>
                                   <p className="text-sm text-muted-foreground">
@@ -442,7 +444,7 @@ const MealPlanner = () => {
                                   )}
                                 </div>
 
-                                {/* Meal slots - fills remaining width */}
+                                {/* meal slots */}
                                 <div className="flex-1 flex gap-4">
                                   {MEALS.map((mealType) => (
                                     <MealSlot
@@ -464,7 +466,7 @@ const MealPlanner = () => {
                     </Card>
                   )}
 
-                  {/* Action Buttons */}
+                  {/* render buttons */}
                   <div className="flex flex-col sm:flex-row gap-3 justify-center items-center">
                     <Button
                       size="lg"
@@ -499,7 +501,7 @@ const MealPlanner = () => {
             </div>
           </div>
 
-          {/* Drag Overlay */}
+          {/* drag and drop overlay */}
           <DragOverlay>
             {activeDragEntry && (
               <div className="opacity-80">
@@ -509,7 +511,7 @@ const MealPlanner = () => {
           </DragOverlay>
         </DndContext>
 
-        {/* Recipe Picker Dialog */}
+        {/* recipe dialog */}
         <RecipePickerDialog
           open={pickerOpen}
           onOpenChange={setPickerOpen}

@@ -48,23 +48,6 @@ npm run dev:all
 
 ---
 
-## testing the integration
-
-follow these steps to test Spoonacular API integration
-
-1. start your development server
-2. navigate to: **http://localhost:3000/spoonacular_test**
-3. click the test buttons to verify everything works
-4. check the results displayed on the page
-
-this page provides a nice UI to test:
-
-- recipe search
-- ingredient search
-- random recipes
-- search by ingredients
-- detailed recipe information
-
 ## api key in code
 
 ### server side (API routes)

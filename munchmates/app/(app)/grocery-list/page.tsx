@@ -16,6 +16,7 @@
 
 'use client';
 
+// import all necessary modules and components
 import { useState, useEffect, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import AppHeader from '@/components/layout/app-header';
@@ -36,7 +37,7 @@ import {
 } from "@/components/ui/select";
 import { AggregatedIngredient } from '@/lib/types/meal-plan';
 
-
+// define grocery item interface
 interface GroceryItem {
     id: string;
     name: string;
@@ -49,6 +50,10 @@ interface GroceryItem {
 const STORAGE_KEY = 'grocery-list-items';
 const CATEGORIES_STORAGE_KEY = 'grocery-list-categories';
 
+// main grocery list component
+// includes adding, editing, deleting, categorizing, and filtering items
+// also handles importing items from meal planner
+// and saving/loading from localStorage
 function GroceryListContent() {
     const searchParams = useSearchParams();
     const [newItem, setNewItem] = useState('');
@@ -65,7 +70,7 @@ function GroceryListContent() {
     const [editCategory, setEditCategory] = useState('');
     const [imageDialogOpen, setImageDialogOpen] = useState(false);
 
-    // Load items and categories from localStorage on mount
+    // load items and categories from localStorage on mount
     useEffect(() => {
         const savedItems = localStorage.getItem(STORAGE_KEY);
         const savedCategories = localStorage.getItem(CATEGORIES_STORAGE_KEY);
@@ -89,21 +94,21 @@ function GroceryListContent() {
         setIsLoaded(true);
     }, []);
 
-    // Save items to localStorage whenever they change
+    // save items to localStorage
     useEffect(() => {
         if (isLoaded) {
             localStorage.setItem(STORAGE_KEY, JSON.stringify(items));
         }
     }, [items, isLoaded]);
 
-    // Save categories to localStorage whenever they change
+    // save categories to localStorage
     useEffect(() => {
         if (isLoaded) {
             localStorage.setItem(CATEGORIES_STORAGE_KEY, JSON.stringify(categories));
         }
     }, [categories, isLoaded]);
 
-    // Handle incoming items from meal planner
+    // import items from meal plan if URL param is present
     useEffect(() => {
         if (!isLoaded) return;
 
@@ -116,7 +121,6 @@ function GroceryListContent() {
                     mergeIngredients(aggregatedItems);
                     localStorage.removeItem('pending-grocery-items');
 
-                    // Clear the URL parameter
                     window.history.replaceState({}, '', '/grocery-list');
                 } catch (error) {
                     console.error('Failed to parse pending grocery items:', error);
@@ -125,7 +129,7 @@ function GroceryListContent() {
         }
     }, [searchParams, isLoaded]);
 
-    // Merge aggregated ingredients with existing items
+    // merge imported ingredients into grocery list
     const mergeIngredients = (aggregatedItems: AggregatedIngredient[]) => {
         let addedCount = 0;
 
@@ -136,15 +140,15 @@ function GroceryListContent() {
             for (const ingredient of aggregatedItems) {
                 const nameLower = ingredient.name.toLowerCase();
 
-                // Check if item already exists (case-insensitive)
+                // check if item already exists
                 if (existingNames.has(nameLower)) {
-                    // Update quantity for existing item
+                    // update existing item's quantity
                     const existingIndex = newItems.findIndex(
                         (item) => item.name.toLowerCase() === nameLower
                     );
                     if (existingIndex !== -1) {
                         const existing = newItems[existingIndex];
-                        // Append quantity info
+                        // append quantities to existing quantity
                         const newQuantity = formatQuantity(ingredient.totalAmount, ingredient.unit);
                         if (existing.quantity && newQuantity) {
                             newItems[existingIndex] = {
@@ -159,7 +163,7 @@ function GroceryListContent() {
                         }
                     }
                 } else {
-                    // Add new item
+                    // add new item to grocery list
                     const newItem: GroceryItem = {
                         id: `meal-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
                         name: ingredient.name,
@@ -174,7 +178,7 @@ function GroceryListContent() {
                 }
             }
 
-            // Ensure all categories from ingredients are available
+            // make sure all categories from imported items exist
             const newCategories = new Set(categories);
             for (const ingredient of aggregatedItems) {
                 if (!newCategories.has(ingredient.category)) {
@@ -188,20 +192,20 @@ function GroceryListContent() {
 
         setImportedCount(addedCount);
 
-        // Clear the notification after 5 seconds
+        // clear notification after 5 seconds
         setTimeout(() => {
             setImportedCount(0);
         }, 5000);
     };
 
-    // Format quantity for display
+    // format quantity string for display
     const formatQuantity = (amount: number, unit: string): string => {
         if (!amount && !unit) return '';
         if (!unit) return amount.toString();
         return `${amount} ${unit}`;
     };
 
-    // Fill in input fields with existing data
+    // editing handlers for grocery items
     const beginEdit = (item: GroceryItem) => {
         setEditingId(item.id);
         setEditName(item.name);
@@ -209,7 +213,7 @@ function GroceryListContent() {
         setEditCategory(item.category);
     };
 
-    // Clear input
+    // cancel editing
     const cancelEdit = () => {
         setEditingId(null);
         setEditName('');
@@ -217,7 +221,7 @@ function GroceryListContent() {
         setEditCategory('');
     };
 
-    // Update item with edited information
+    // save edited item
     const saveEdit = (id: string) => {
         setItems(prev =>
         prev.map(it =>
@@ -234,12 +238,13 @@ function GroceryListContent() {
         cancelEdit();
     };
 
+    // handle keyboard events during editing
     const handleEditKey = (e: React.KeyboardEvent, id: string) => {
         if (e.key === 'Enter') saveEdit(id);
         if (e.key === 'Escape') cancelEdit();
     };
 
-    // Add a new item to the grocery list
+    // add new grocery item to list
     const addItem = () => {
         if (!newItem.trim()) return;
 
@@ -255,7 +260,7 @@ function GroceryListContent() {
         setNewItem('');
     };
 
-    // Add a new category of items
+    // add new category to list
     const addCategory = () => {
         if (!newCategory.trim() || categories.includes(newCategory)) return;
 
@@ -263,21 +268,20 @@ function GroceryListContent() {
         setNewCategory('');
     };
 
-    // Check off an item from the list by ID
+    // toggle completion status of item
     const toggleItem = (id: string) => {
         setItems(items.map(item =>
             item.id === id ? {...item, completed: !item.completed } : item
         ));
     };
 
-    // Delete an item by ID
+    // delete item from list
     const deleteItem = (id: string) => {
         setItems(items.filter((item) => item.id !== id));
     };
 
-    // Delete a category by name
+    // delete category and reassign its items
     const deleteCategory = (category: string) => {
-        // Move items from deleted category to first available category
         const newCategories = categories.filter(cat => cat !== category);
         const fallbackCategory = newCategories[0] || 'Uncategorized';
 
@@ -289,37 +293,44 @@ function GroceryListContent() {
         setCategories(newCategories);
     };
 
-    // Remove all completed items from the list
+    // clear all completed items
     const clearCompleted = () => {
         setItems(items.filter(item => !item.completed));
     };
 
+    // clear all items from list
     const clearAll = () => {
         setItems([]);
         cancelEdit();
     };
 
+    // filter items based on selected filter
     const filteredItems = items.filter(item => {
         if (filter === 'active') return !item.completed;
         if (filter === 'completed') return item.completed;
         return true;
     });
 
-    // Filter items by category name
+    // get items by category for display
     const getItemsByCategory = (category: string) => {
         return filteredItems.filter(item => item.category === category);
     };
 
+    // calculate stats for display
     const totalItems = items.length;
     const completedItems = items.filter(item => item.completed).length;
     const activeItems = totalItems - completedItems;
 
+    // handle key press for adding items and categories
     const handleKeyPress = (e: React.KeyboardEvent, action: () => void) => {
         if (e.key === 'Enter') {
             action();
         }
     };
 
+    // main render
+    // layout with sidebar, header, and main content
+    // includes stats, filters, item/category management, and grocery list display
     return (
         <SidebarProvider>
             <div className="min-h-screen flex">
@@ -329,7 +340,7 @@ function GroceryListContent() {
 
                     <main className="relative flex-1 p-6 bg-muted/20">
                         <div className="max-w-6xl mx-auto space-y-6">
-                            {/* Import notification */}
+                            {/* import notification */}
                             {importedCount > 0 && (
                                 <Card className="bg-green-50 border-green-200">
                                     <CardContent className="p-4 flex items-center gap-3">
@@ -341,7 +352,7 @@ function GroceryListContent() {
                                 </Card>
                             )}
 
-                            {/* Stats and Filters */}
+                            {/* stats and filters */}
                             <div className="grid gap-4 md:grid-cols-4">
                                 <Card>
                                     <CardContent className="p-4 flex items-center gap-3">
@@ -399,7 +410,7 @@ function GroceryListContent() {
                                 </Card>
                             </div>
 
-                            {/* Add Item and Category */}
+                            {/* add item and category */}
                             <div className="grid md:grid-cols-2 gap-6">
                                 <Card className="relative z-10">
                                     <CardHeader className="pb-4">
@@ -474,7 +485,7 @@ function GroceryListContent() {
                                 </Card>
                             </div>
 
-                            {/* Grocery List by Category */}
+                            {/* list by category */}
                             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 pointer-events-auto">
                                 {categories.map(category => {
                                     const categoryItems = getItemsByCategory(category);
@@ -612,7 +623,7 @@ function GroceryListContent() {
                                 })}
                             </div>
 
-                            {/* Action Buttons */}
+                            {/* render action buttons */}
                             {(completedItems > 0 || totalItems > 0) && (
                                 <div className="flex justify-center gap-4">
                                     {completedItems > 0 && (
@@ -635,7 +646,7 @@ function GroceryListContent() {
                                 </div>
                             )}
 
-                            {/* Empty State */}
+                            {/* handle empty state */}
                             {totalItems === 0 && (
                                 <Card className="text-center py-12">
                                     <CardContent>
@@ -664,6 +675,7 @@ function GroceryListContent() {
     );
 }
 
+ // wrap page in suspense for loading state
 export default function GroceryListPage() {
     return (
         <Suspense fallback={

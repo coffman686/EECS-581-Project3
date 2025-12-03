@@ -9,6 +9,7 @@
 
 'use client';
 
+// import necessary libraries and components
 import { useState, useEffect, SetStateAction } from 'react';
 import DynamicList from '@/components/ingredients/DynamicList';
 import Autosuggest from '@/components/ingredients/Autosuggest';
@@ -111,6 +112,7 @@ const ingredientData = [
     "Beef Broth", "Vegetable Broth",
 ];
 
+// define type for recipe
 type Recipe = {
     id: number;
     title: string;
@@ -122,6 +124,7 @@ type Recipe = {
     dishTypes: string[];
 }
 
+// define type for new recipe form
 type NewRecipeForm = {
     title: string;
     servings: number;
@@ -132,6 +135,8 @@ type NewRecipeForm = {
     instructions: string;
 }
 
+// main Recipes component
+// renders the recipes page with search, filters, and recipe grid
 const Recipes = () => {
     const router = useRouter();
     const [recipes, setRecipes] = useState<Recipe[]>([]);
@@ -146,7 +151,8 @@ const Recipes = () => {
 
     const cuisines = ['All', 'African', 'Asian', 'American', 'British', 'Cajun', 'Caribbean', 'Chinese', 'Eastern European', 'European', 'French', 'German', 'Greek', 'Indian', 'Irish', 'Italian', 'Japanese', 'Jewish', 'Korean', 'Latin American', 'Mediterranean', 'Mexican', 'Middle Eastern', 'Nordic', 'Southern', 'Spanish', 'Thai', 'Vietnamese'];
 
-    // Fetch recipes with given search term, ingredients, and filters
+
+    // function to fetch recipes based on search term and filters
     const fetchRecipes = async () => {
         if (!searchTerm) {
             setRecipes([]);
@@ -154,7 +160,8 @@ const Recipes = () => {
         }
 
         setIsLoading(true);
-
+        
+        // build query parameters for API request
         const params = new URLSearchParams();
         params.set('ingredients', searchTerm);
         if (selectedCuisine !== 'All') params.set('cuisine', selectedCuisine);
@@ -174,15 +181,21 @@ const Recipes = () => {
         }
     }
 
+
+    // fetch diets and intolerances on component mount
     useEffect(() => {
         setDiet(getDiets())
         setIntolerances(getIntolerances())
     }, []);
 
+
+    // fetch recipes whenever search term or filters change
     useEffect(() => {
         fetchRecipes()
     }, [searchTerm, selectedCuisine, selectedDishType, diet, intolerances])
 
+
+    // handle search button click
     const handleSearch = async () => {
         const ingredientListString = ingredientList.join(',').toLowerCase();
         setDiet(getDiets());
@@ -190,6 +203,8 @@ const Recipes = () => {
         setSearchTerm(ingredientListString);
     };
 
+
+    // state for ingredient list in search
     const [ingredientList, setIngredientList] = useState<string[]>([]);
 
     const [showCreateDialog, setShowCreateDialog] = useState(false);
@@ -340,6 +355,8 @@ const Recipes = () => {
         setSavedRecipes(prev => prev.filter(r => r.recipeId !== recipeId));
     };
 
+    // main render for Recipes component
+    // includes header, search, filters, and recipe grid
     return (
         <RequireAuth>
             <SidebarProvider>
@@ -349,7 +366,6 @@ const Recipes = () => {
                         <AppHeader title="Recipes" />
                         <main className="flex-1 p-6 bg-muted/20">
                             <div className="max-w-7xl mx-auto space-y-6">
-                                {/* Header with Search and Create */}
                                 {/* Header with Search and Create */}
                                 <DynamicList
                                     ingredients={ingredientList}

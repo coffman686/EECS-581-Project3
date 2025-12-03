@@ -19,6 +19,7 @@
 
 'use client';
 
+// import all necessary modules and components
 import RequireAuth from '@/components/RequireAuth';
 import { ensureToken, getParsedIdToken, getAccessTokenClaims, keycloak } from '@/lib/keycloak';
 import { useEffect, useState } from 'react';
@@ -56,11 +57,11 @@ import {
 } from 'lucide-react';
 import { DietaryDialog } from '@/components/ingredients/Dietary';
 
-// Types
+// initialize types
 type IdClaims = { name?: string; preferred_username?: string; email?: string };
 type AccessClaims = { preferred_username?: string; email?: string; realm_access?: { roles?: string[] } };
 
-// Meal planner entry
+// define interfaces for data structures
 interface MealPlanEntry {
     id: string;
     recipeId: number;
@@ -124,7 +125,7 @@ interface SharedCollection {
     recipes: { recipeId: number; recipeName: string; addedBy: string; addedByName: string; addedAt: string }[];
 }
 
-// Helper functions
+// helper function to get Monday of the week for a given date
 function getWeekMonday(date: Date): Date {
     const d = new Date(date);
     const day = d.getDay();
@@ -132,7 +133,7 @@ function getWeekMonday(date: Date): Date {
     return new Date(d.setDate(diff));
 }
 
-// Format date as YYYY-MM-DD in local timezone (avoids UTC shift issues)
+// helper function to get local date string in YYYY-MM-DD format
 function formatLocalDateStr(d: Date): string {
     const year = d.getFullYear();
     const month = String(d.getMonth() + 1).padStart(2, '0');
@@ -140,7 +141,7 @@ function formatLocalDateStr(d: Date): string {
     return `${year}-${month}-${day}`;
 }
 
-// Greet user based on current time
+// helper function to get greeting based on time of day
 function getGreeting(): string {
     const hour = new Date().getHours();
     if (hour < 12) return 'Good morning';
@@ -148,7 +149,7 @@ function getGreeting(): string {
     return 'Good evening';
 }
 
-// Calculate difference between current date and expiration date
+// helper function to calculate days until expiry
 function getDaysUntilExpiry(expiryDate: string): number {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
@@ -157,23 +158,28 @@ function getDaysUntilExpiry(expiryDate: string): number {
     return Math.ceil((expiry.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
 }
 
-// Format date with user locale
+// helper function to format date nicely
 function formatDate(date: Date): string {
     return date.toLocaleDateString(undefined, { weekday: 'long', month: 'long', day: 'numeric' });
 }
 
-// Motivational tips
+// generic motivational tips for dashboard
 const cookingTips = [
     "Try adding a splash of acid (lemon juice or vinegar) to brighten up any dish!",
-    "Prep your ingredients before you start cooking - it makes everything smoother.",
+    "Prep your ingredients before you start cooking, it makes everything smoother.",
     "Don't be afraid to experiment with spices. Start small and taste as you go!",
     "Fresh herbs can transform a simple dish into something special.",
     "Let your meat rest after cooking for juicier results.",
-    "Taste your food as you cook - seasoning adjustments make all the difference.",
+    "Taste your food as you cook, seasoning adjustments make all the difference.",
     "A sharp knife is a safe knife. Keep your blades honed!",
     "Room temperature ingredients blend better in baking.",
 ];
 
+// main dashboard component
+// displays user info, today's meal plan, pantry alerts, grocery list, saved recipes, and shared collections
+// allows setting dietary preferences on first visit
+// uses various hooks to load data and manage state
+// provides quick access to key features via cards
 export default function Dashboard() {
     const [name, setName] = useState('');
     const [todayPlan, setTodayPlan] = useState<DayPlan | null>(null);
@@ -184,7 +190,7 @@ export default function Dashboard() {
     const [weeklyStats, setWeeklyStats] = useState({ mealsPlanned: 0, recipesTotal: 0 });
     const [tipOfDay, setTipOfDay] = useState('');
 
-    // Dietary preferences modal
+    // dietary preferences modal state
     const [dietModal, setDietModal] = useState(false);
     const [diets, setDiets] = useState<string[]>([]);
     const [intolerances, setIntolerances] = useState<string[]>([]);
@@ -204,13 +210,14 @@ export default function Dashboard() {
         setDietModal(false);
     }
 
-    // Set tip of the day (changes daily based on date)
+    // set tip of the day based on day of year
     useEffect(() => {
         const dayOfYear = Math.floor((Date.now() - new Date(new Date().getFullYear(), 0, 0).getTime()) / (1000 * 60 * 60 * 24));
         setTipOfDay(cookingTips[dayOfYear % cookingTips.length]);
     }, []);
 
-    // Load user info
+    // load user info from Keycloak
+    // set up listeners for auth events to refresh info
     useEffect(() => {
         let mounted = true;
 
@@ -244,7 +251,9 @@ export default function Dashboard() {
         };
     }, []);
 
-    // Load today's meal plan
+    // load today's meal plan
+    // tries API first, falls back to localStorage
+    // also calculates weekly stats
     useEffect(() => {
         const loadMealPlan = async () => {
             const today = new Date();
@@ -253,14 +262,14 @@ export default function Dashboard() {
             const todayStr = formatLocalDateStr(today);
 
             try {
-                // Try API first
+                // try API fetch
                 const res = await authedFetch(`/api/meal-plan?weekStart=${weekStart}`);
                 if (res.ok) {
                     const data: WeeklyMealPlan = await res.json();
                     const todayMeals = data.days.find(d => d.date === todayStr);
                     setTodayPlan(todayMeals || null);
 
-                    // Calculate weekly stats
+                    // calculate weekly stats
                     let mealsCount = 0;
                     data.days.forEach(day => {
                         if (day.breakfast) mealsCount++;
@@ -271,7 +280,7 @@ export default function Dashboard() {
                     return;
                 }
             } catch {
-                // Fall back to localStorage
+                // fall back to localStorage
             }
 
             // localStorage fallback
@@ -294,7 +303,7 @@ export default function Dashboard() {
         loadMealPlan();
     }, []);
 
-    // Load pantry alerts (expiring soon)
+    // load pantry alerts for items expiring within 7 days
     useEffect(() => {
         const stored = localStorage.getItem('munchmates_pantry');
         if (stored) {
@@ -308,7 +317,7 @@ export default function Dashboard() {
         }
     }, []);
 
-    // Load grocery list count
+    // load grocery list and count active items
     useEffect(() => {
         const stored = localStorage.getItem('grocery-list-items');
         if (stored) {
@@ -318,7 +327,7 @@ export default function Dashboard() {
         }
     }, []);
 
-    // Load saved recipes
+    // load saved recipes and show most recent 4
     useEffect(() => {
         const stored = localStorage.getItem('saved-recipes');
         if (stored) {
@@ -331,7 +340,7 @@ export default function Dashboard() {
         }
     }, []);
 
-    // Load shared collections
+    // load shared collections and show up to 3
     useEffect(() => {
         const loadCollections = async () => {
             try {
@@ -342,13 +351,13 @@ export default function Dashboard() {
                     setCollections(collectionsArray.slice(0, 3));
                 }
             } catch {
-                // Collections not available
+                // catch errors silently
             }
         };
         loadCollections();
     }, []);
-
-    // Setup sidebar quick actions
+    
+    // define quick action cards
     const quickActions = [
         { href: '/recipes', icon: BookOpen, label: 'Find Recipes', description: 'Discover new dishes' },
         { href: '/meal-planner', icon: CalendarDays, label: 'Plan Meals', description: 'Organize your week' },
@@ -358,6 +367,8 @@ export default function Dashboard() {
         { href: '/community', icon: Users, label: 'Community', description: 'Connect with others' },
     ];
 
+    // render dashboard
+    // includes welcome section, today's meals, quick actions, pantry alerts, grocery list, saved recipes, and shared collections
     return (
         <RequireAuth>
             <SidebarProvider>
@@ -369,7 +380,7 @@ export default function Dashboard() {
                         <main className="flex-1 p-6 bg-muted/20">
                             <div className="w-full space-y-6">
 
-                                {/* Welcome Section */}
+                                {/* reneder welcome section */}
                                 <div className="relative overflow-hidden rounded-xl bg-gradient-to-r from-primary/10 via-primary/5 to-transparent border p-6 md:p-8">
                                     <div className="relative z-10">
                                         <div className="flex items-center gap-2 text-primary mb-2">
@@ -386,7 +397,7 @@ export default function Dashboard() {
                                     <ChefHat className="absolute right-4 bottom-4 h-24 w-24 text-primary/10" />
                                 </div>
 
-                                {/* Today's Meals */}
+                                {/* render todays meals */}
                                 <Card>
                                     <CardHeader className="flex flex-row items-center justify-between">
                                         <div>
@@ -405,7 +416,7 @@ export default function Dashboard() {
                                     <CardContent>
                                         {todayPlan && (todayPlan.breakfast || todayPlan.lunch || todayPlan.dinner) ? (
                                             <div className="grid gap-4 md:grid-cols-3">
-                                                {/* Breakfast */}
+                                                {/* render breakfast card */}
                                                 {todayPlan.breakfast ? (
                                                     <Link href={`/recipes/${todayPlan.breakfast.recipeId}`}>
                                                         <div className="flex items-center gap-3 p-3 rounded-lg bg-muted/50 hover:bg-muted transition-colors cursor-pointer">
@@ -431,7 +442,7 @@ export default function Dashboard() {
                                                     </div>
                                                 )}
 
-                                                {/* Lunch */}
+                                                {/* render lunch card */}
                                                 {todayPlan.lunch ? (
                                                     <Link href={`/recipes/${todayPlan.lunch.recipeId}`}>
                                                         <div className="flex items-center gap-3 p-3 rounded-lg bg-muted/50 hover:bg-muted transition-colors cursor-pointer">
@@ -457,7 +468,7 @@ export default function Dashboard() {
                                                     </div>
                                                 )}
 
-                                                {/* Dinner */}
+                                                {/* render dinner card */}
                                                 {todayPlan.dinner ? (
                                                     <Link href={`/recipes/${todayPlan.dinner.recipeId}`}>
                                                         <div className="flex items-center gap-3 p-3 rounded-lg bg-muted/50 hover:bg-muted transition-colors cursor-pointer">
@@ -495,7 +506,7 @@ export default function Dashboard() {
                                     </CardContent>
                                 </Card>
 
-                                {/* Quick Actions */}
+                                {/* render all quick actions */}
                                 <div className="grid gap-4 grid-cols-2 md:grid-cols-3 lg:grid-cols-6">
                                     {quickActions.map((action) => (
                                         <Link key={action.href} href={action.href}>
@@ -513,7 +524,7 @@ export default function Dashboard() {
                                 </div>
 
                                 <div className="grid gap-6 lg:grid-cols-2">
-                                    {/* Pantry Alerts */}
+                                    {/* render pantry alerts */}
                                     <Card>
                                         <CardHeader className="flex flex-row items-center justify-between">
                                             <div>
@@ -557,7 +568,7 @@ export default function Dashboard() {
                                         </CardContent>
                                     </Card>
 
-                                    {/* Grocery List Preview */}
+                                    {/* render grocery list card */}
                                     <Card>
                                         <CardHeader className="flex flex-row items-center justify-between">
                                             <div>
@@ -599,7 +610,7 @@ export default function Dashboard() {
                                     </Card>
                                 </div>
 
-                                {/* Saved Recipes */}
+                                {/* display saved recipes */}
                                 <Card>
                                     <CardHeader className="flex flex-row items-center justify-between">
                                         <div>
@@ -654,7 +665,7 @@ export default function Dashboard() {
                                 </Card>
 
                                 <div className="grid gap-6 lg:grid-cols-2">
-                                    {/* Shared Collections */}
+                                    {/* render shared meal collections */}
                                     <Card>
                                         <CardHeader className="flex flex-row items-center justify-between">
                                             <div>
@@ -699,7 +710,7 @@ export default function Dashboard() {
                                         </CardContent>
                                     </Card>
 
-                                    {/* Weekly Stats */}
+                                    {/* render weekly stats */}
                                     <Card>
                                         <CardHeader>
                                             <CardTitle className="flex items-center gap-2">
@@ -732,7 +743,7 @@ export default function Dashboard() {
                                 </div>
 
                             </div>
-
+                            {/* dietary preferences dialog */}
                             <DietaryDialog
                                 isOpen={dietModal}
                                 closePopup={closeDiet}

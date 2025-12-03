@@ -8,6 +8,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { verifyBearer } from "@/lib/verifyToken";
 
+// define type for saved recipe
 type SavedRecipe = {
     userId: string;
     recipeId: number;

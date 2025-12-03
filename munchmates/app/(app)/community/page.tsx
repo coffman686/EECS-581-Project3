@@ -14,6 +14,7 @@
 
 'use client';
 
+// import all necessary components and hooks for page functionality
 import { useState } from 'react';
 import AppHeader from '@/components/layout/app-header';
 import RequireAuth from '@/components/RequireAuth';
@@ -50,7 +51,10 @@ interface Post {
     tags: string[];
 }
 
-// Construct temporary data for user posts
+// community page component
+// includes search, filters, post interactions, and sidebar with stats
+// uses mock data for demonstration purposes
+// goal is to add community page next semester with real posts and interactions
 const Community = () => {
     const [posts, setPosts] = useState<Post[]>([
         {
@@ -102,7 +106,7 @@ const Community = () => {
         'quick-meals', 'healthy', 'comfort-food', 'international'
     ];
 
-    // Sort posts by like count
+    // derive trending posts based on likes
     const trendingPosts = [...posts].sort((a, b) => b.likes - a.likes).slice(0, 3);
 
     // Filter posts with a search term for text, author, or tags
@@ -110,9 +114,9 @@ const Community = () => {
         post.text.toLowerCase().includes(searchTerm.toLowerCase()) ||
         post.author.toLowerCase().includes(searchTerm.toLowerCase()) ||
         post.tags.some(tag => tag.toLowerCase().includes(searchTerm.toLowerCase()))
-    );
+    ); 
 
-    // Filter and sort posts by like count if trending filter selected
+    // apply active filter to posts
     const filteredPosts =
         activeFilter === 'trending'
             ? baseFilteredPosts
@@ -120,7 +124,7 @@ const Community = () => {
                 .sort((a, b) => b.likes - a.likes)
             : baseFilteredPosts;
 
-    // Handlse liking and disliking a post
+    // handle like button click
     const handleLike = (postId: number) => {
         setPosts(posts.map(post =>
             post.id === postId
@@ -133,7 +137,7 @@ const Community = () => {
         ));
     };
 
-    // Handles adding a post to bookmarks
+    // handle bookmark button click
     const handleBookmark = (postId: number) => {
         setPosts(posts.map(post =>
             post.id === postId
@@ -141,11 +145,16 @@ const Community = () => {
                 : post
         ));
     };
-
+    
+    // utility to get initials from author name
     const getInitials = (name: string) => {
         return name.split(' ').map(n => n[0]).join('').toUpperCase();
     };
 
+    // render community page
+    // includes search, filters, posts, and sidebar
+    // uses mock data for demonstration purposes
+    // goal is to add community page next semester with real posts and interactions
     return (
         <RequireAuth>
             <SidebarProvider>
@@ -156,9 +165,9 @@ const Community = () => {
                         <main className="flex-1 p-6 bg-muted/20">
                             <div className="max-w-6xl mx-auto">
                                 <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-                                    {/* Main Content */}
+                                    {/* render main component */}
                                     <div className="lg:col-span-3 space-y-6">
-                                        {/* Search and Filters */}
+                                        {/* render search and filters */}
                                         <div className="flex flex-col sm:flex-row gap-4">
                                             <div className="flex-1 relative">
                                                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
@@ -185,7 +194,7 @@ const Community = () => {
                                             </div>
                                         </div>
 
-                                        {/* Posts */}
+                                        {/* render posts */}
                                         <div className="space-y-4">
                                             {filteredPosts.map(post => (
                                                 <Card key={post.id} className="overflow-hidden">
@@ -274,7 +283,7 @@ const Community = () => {
                                             ))}
                                         </div>
 
-                                        {/* Empty State */}
+                                        {/* render empty state */}
                                         {filteredPosts.length === 0 && (
                                             <Card className="text-center py-12">
                                                 <CardContent>
@@ -291,9 +300,9 @@ const Community = () => {
                                         )}
                                     </div>
 
-                                    {/* Sidebar */}
+                                    {/* render sidebar */}
                                     <div className="space-y-6">
-                                        {/* Community Stats */}
+                                        {/* render community stats */}
                                         <Card>
                                             <CardHeader className="pb-3">
                                                 <h3 className="font-semibold flex items-center gap-2">
@@ -317,7 +326,7 @@ const Community = () => {
                                             </CardContent>
                                         </Card>
 
-                                        {/* Trending Posts */}
+                                        {/* render trending posts */}
                                         <Card>
                                             <CardHeader className="pb-3">
                                                 <h3 className="font-semibold flex items-center gap-2">
@@ -340,7 +349,7 @@ const Community = () => {
                                             </CardContent>
                                         </Card>
 
-                                        {/* Popular Tags */}
+                                        {/* render popular tags */}
                                         <Card>
                                             <CardHeader className="pb-3">
                                                 <h3 className="font-semibold">Popular Tags</h3>

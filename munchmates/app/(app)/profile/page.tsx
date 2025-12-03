@@ -5,6 +5,7 @@
 // implement a larger database for the operational site
 "use client";
 
+// import all necessary libraries and components
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
@@ -20,6 +21,7 @@ import {
 } from "@/lib/keycloak";
 import {LogOut} from "lucide-react";
 
+// define the shape of access token claims we care about
 type AccessTokenClaims = {
     sub?: string;
     email?: string;
@@ -27,17 +29,19 @@ type AccessTokenClaims = {
     name?: string;
 };
 
+// main ProfilePage component
+// handles displaying and editing user profile information
 const ProfilePage = () => {
     const router = useRouter();
 
     // gate to avoid calling APIs before Keycloak is ready
     const [authReady, setAuthReady] = useState(false);
 
-    // Display-only from Keycloak
+    // display-only from Keycloak
     const [name, setName] = useState("");
     const [email, setEmail] = useState("");
 
-    // App-owned profile data
+    // app-owned profile data
     const [favoriteCuisines, setFavoriteCuisines] = useState("");
     const [diets, setDiets] = useState<string[]>([]);
     const [intolerances, setIntolerances] = useState<string[]>([]);
@@ -153,6 +157,7 @@ const ProfilePage = () => {
         }
     };
 
+    // prepare display text for diets and intolerances
     const dietText =
         diets.length > 0 ? diets.join(", ") : "No dietary preferences selected";
     const intoleranceText =

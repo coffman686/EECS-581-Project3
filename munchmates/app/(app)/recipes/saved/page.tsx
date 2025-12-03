@@ -1,5 +1,6 @@
 'use client';
 
+// import all necessary libraries and components
 import { useState, useEffect } from 'react';
 import AppHeader from '@/components/layout/app-header';
 import RequireAuth from '@/components/RequireAuth';
@@ -39,8 +40,10 @@ import {
 } from 'lucide-react';
 import { authedFetch } from '@/lib/authedFetch';
 
+// key for localStorage
 const LOCAL_KEY = 'saved-recipes';
 
+// define type for saved recipe
 type SavedRecipe = {
     recipeId: number;
     recipeName: string;
@@ -48,12 +51,15 @@ type SavedRecipe = {
     savedAt?: string;
 };
 
+// define type for shared collection
 type SharedCollection = {
     id: string;
     name: string;
     description: string;
 };
 
+// main SavedRecipesPage component
+// handles displaying and managing saved recipes
 const SavedRecipesPage = () => {
     const router = useRouter();
     const [savedRecipes, setSavedRecipes] = useState<SavedRecipe[]>([]);
@@ -134,6 +140,7 @@ const SavedRecipesPage = () => {
         }
     };
 
+    // Open dialog to add recipe to shared collection
     const openAddToCollectionDialog = async (recipe: SavedRecipe) => {
         setSelectedRecipe(recipe);
         setSelectedCollectionId('');
@@ -146,6 +153,7 @@ const SavedRecipesPage = () => {
         setIsAddToCollectionOpen(true);
     };
 
+    // Handle adding recipe to selected shared collection
     const handleAddToCollection = async () => {
         if (!selectedRecipe || !selectedCollectionId) return;
 
@@ -176,6 +184,7 @@ const SavedRecipesPage = () => {
         }
     };
 
+    // Format date for display
     const formatDate = (dateString?: string) => {
         if (!dateString) return '';
         const d = new Date(dateString);
@@ -187,8 +196,10 @@ const SavedRecipesPage = () => {
         });
     };
 
+    // render the saved recipes page
+    // with header, content, and dialogs
     return (
-        <RequireAuth>
+        <RequireAuth> 
             <SidebarProvider>
                 <div className="min-h-screen flex w-full">
                     <AppSidebar />
