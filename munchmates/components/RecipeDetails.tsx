@@ -1,3 +1,14 @@
+// RecipeDetails Component
+// Displays full recipe information inside the slideover or standalone view.
+// Fetches recipe data (information + instructions) from Spoonacular API routes.
+// Handles loading states, error states, and API-limit errors gracefully.
+// Provides a localStorage-based "Save Recipe" toggle using a unique LOCAL_KEY.
+// Renders summary, badges, stats, ingredients, and step-by-step instructions.
+// Automatically cleans HTML from summary text and falls back to raw HTML instructions.
+// Supports being closed via router.back() or parent callback (onClose).
+// Consumes recipeId passed in by parent route or intercepted slideover.
+// Intended as UI-only component; persistent saving should later be replaced with a DB.
+
 "use client";
 
 import { useState, useEffect } from "react";
@@ -322,9 +333,9 @@ export default function RecipeDetails({ recipeId, onClose }: RecipeDetailsProps)
               <h2 className="text-lg font-semibold mb-3">Ingredients</h2>
               <ul className="space-y-2">
                 {recipeInfo.extendedIngredients.map((ingredient, index) => (
-                  <li
-                    key={ingredient.id || index}
-                    className="flex items-start gap-2 text-sm"
+                    <li
+                        key={ingredient.id || index}
+                        className="flex items-start gap-2 text-sm"
                   >
                     <span className="text-primary font-medium">•</span>
                     <span>

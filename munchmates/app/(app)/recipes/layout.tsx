@@ -1,3 +1,9 @@
+// File: layout.tsx
+// Purpose: Provide layout for recipe pages with optional slideover
+// Inputs: children (main content), slideover (intercepted route UI)
+// Outputs: Combined page layout with background content + slideover
+// Keeps main page rendered while displaying modal/slideover content
+
 export default function RecipesLayout({
     children, // This is the main page content (e.g., recipes/page.tsx)
     slideover, // This is the content from the @slideover slot

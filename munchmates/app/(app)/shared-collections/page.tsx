@@ -1,3 +1,9 @@
+// File: page.tsx
+// Purpose: List and manage shared recipe collections
+// Inputs: None (uses authedFetch to load current user's collections)
+// Outputs: Grid of collections with create/delete actions and member/recipe counts
+// Uses: Dialog for new collection, role hints, navigation to collection detail
+
 'use client';
 
 import { useState, useEffect } from 'react';

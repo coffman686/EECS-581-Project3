@@ -1,3 +1,11 @@
+// Avatar Component Utilities
+// Wraps Radix UI Avatar primitives with project-specific styling helpers.
+// Provides:
+// - <Avatar>: container element with rounded clipping and sizing
+// - <AvatarImage>: displays the avatar image with aspect lock
+// - <AvatarFallback>: rendered when image fails or is missing
+// Used throughout the app for consistent user avatar display.
+
 "use client"
 
 import * as React from "react"

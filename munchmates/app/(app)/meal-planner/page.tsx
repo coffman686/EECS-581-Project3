@@ -1,3 +1,24 @@
+// Meal Planner Page
+// Implements the weekly MunchMates meal planning experience with drag-and-drop,
+// persistent storage, and tight integration with the grocery list.
+// Features:
+// - Week-based meal planning (Mon–Sun) with three slots per day (breakfast, lunch, dinner)
+// - Uses `getWeekMonday` + `formatLocalDateStr` to anchor plans to a stable local week start
+// - Loads an existing plan from the meal-plan API when authenticated, otherwise falls back
+//   to per-week localStorage (`mealPlan-<YYYY-MM-DD>`), creating an empty plan when needed
+// - Horizontal layout: days as rows, meal types as columns, with “Today” row visually highlighted
+// - Drag-and-drop support via `@dnd-kit/core` to move or swap recipes between meal slots
+//   (DraggableRecipeCard + MealSlot + DragOverlay)
+// - RecipePickerDialog to add a recipe into one or multiple days for the same meal type
+// - Per-entry servings control, preserving original servings for later scaling logic
+// - “Save Plan” persists the current week to both localStorage and the `/api/meal-plan` endpoint
+// - “Generate Grocery List” aggregates ingredients via `aggregateIngredients(weekPlan)`,
+//   stores them in `pending-grocery-items`, and routes to `/grocery-list?fromMealPlan=true`
+// - Loading / saving / generating states are surfaced via buttons with spinners and disabled states
+// - Fully wrapped in RequireAuth + SidebarProvider + AppSidebar/AppHeader so it matches the
+//   overall authenticated app shell and navigation structure.
+
+
 'use client';
 
 import { useState, useEffect } from 'react';

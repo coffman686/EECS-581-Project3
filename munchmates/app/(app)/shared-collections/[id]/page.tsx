@@ -1,3 +1,9 @@
+// File: page.tsx
+// Purpose: Show details for a single shared recipe collection
+// Inputs: Dynamic route param id (collectionId)
+// Outputs: Collection header, recipes list, members list
+// Uses: authedFetch for collection/members CRUD, role-based edit controls
+
 'use client';
 
 import { useState, useEffect, use } from 'react';

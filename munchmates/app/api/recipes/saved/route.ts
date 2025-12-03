@@ -1,3 +1,11 @@
+// Saved Recipes API Route (POST / GET / DELETE)
+// Provides per-user saved-recipe management using Bearer-token authentication.
+// POST   → Saves a new recipe for the authenticated user (id, name required).
+// GET    → Returns all saved recipes for the requesting user.
+// DELETE → Removes a specific saved recipe using ?recipeId=.
+// Backed by an in-memory savedRecipesStore, meaning data resets on server restart.
+// Intended for temporary development use — replace with a database for persistence.
+
 import { NextRequest, NextResponse } from "next/server";
 import { verifyBearer } from "@/lib/verifyToken";
 import { savedRecipesStore, SavedRecipe } from "@/lib/savedRecipesStore";

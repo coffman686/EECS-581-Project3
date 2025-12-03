@@ -1,3 +1,12 @@
+// Recipes Page
+// Main recipes discovery screen for MunchMates.
+// Supports ingredient-based search with autosuggest, cuisine and dish-type filters,
+// and respects user dietary preferences/intolerances pulled from their profile.
+// Integrates with Spoonacular search API for external recipes and a custom
+// "Create Recipe" dialog that posts user-authored recipes to /api/recipes/create.
+// Also manages local favorite recipes via `saved-recipes` in localStorage so users
+// can toggle hearts in the grid and access them later from the Saved Recipes view.
+
 'use client';
 
 import { useState, useEffect, SetStateAction } from 'react';

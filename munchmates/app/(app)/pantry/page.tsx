@@ -1,3 +1,45 @@
+// Pantry Page
+// Implements the MunchMates pantry management experience with rich local persistence
+// and support for expiry-awareness and image-based item entry.
+//
+// Features:
+// - Auth-gated page wrapped in RequireAuth + SidebarProvider + AppSidebar/AppHeader
+//   so it fits the main application shell.
+// - Local persistence with PANTRY_STORAGE_KEY (`munchmates_pantry`) so the pantry
+//   survives reloads without requiring a backend.
+// - Seeded with `defaultItems` for an initial, non-empty experience when there is no
+//   stored pantry yet or parsing fails.
+// - Add Item form:
+//   - Name, quantity, category (via <Select>), optional expiry date
+//   - “Add via image” opens ImageClassificationDialog and pre-fills the item name
+//   - Enter key support to quickly add items from the keyboard.
+// - Inline edit support per item:
+//   - Click the pencil icon to edit name, quantity, category, and expiry date
+//   - Save/Cancel actions, with Enter/Escape keyboard handling.
+// - Deletion controls:
+//   - Per-item delete (trash icon)
+//   - “Clear All” button to wipe the pantry and reset any in-progress edits.
+// - Expiry awareness:
+//   - getDaysUntilExpiry / getExpiryStatus determine status badges:
+//     * Expired (red / destructive)
+//     * Expiring Soon (<= 3 days)
+//     * This Week (<= 7 days)
+//     * Good (beyond 7 days)
+//   - Expiry and added dates are displayed using toLocaleDateString.
+// - Search and filter:
+//   - Text search over item name
+//   - Category filter (All + each category), driven by the shared `categories` array.
+// - Grouping & layout:
+//   - Items are grouped by category (itemsByCategory) and rendered in category cards
+//     with a count badge per category.
+//   - Empty states differentiate between “no results for current search/filter” and
+//     “pantry is completely empty,” with a CTA to add the first item.
+// - Stats header:
+//   - Total items
+//   - Items expiring soon (within 7 days)
+//   - Total number of pantry categories configured.
+
+
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -47,7 +89,7 @@ const categories = [
 ];
 
 // Storage key for pantry persistence
-export const PANTRY_STORAGE_KEY = 'munchmates_pantry';
+const PANTRY_STORAGE_KEY = 'munchmates_pantry';
 
 const defaultItems: PantryItem[] = [
     { id: 1, name: 'All-Purpose Flour', quantity: '2 lbs', category: 'Grains & Flour', addedDate: '2024-01-15' },

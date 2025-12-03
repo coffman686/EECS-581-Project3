@@ -1,3 +1,6 @@
+// Currently unused component so no comments necessary, it's kept around for testing without KC
+// which is rare, but does occur.
+
 'use client';
 import { useEffect } from 'react';
 import { logout } from '@/lib/keycloak';
