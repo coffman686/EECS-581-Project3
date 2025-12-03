@@ -106,6 +106,14 @@ function getWeekMonday(date: Date): Date {
     return new Date(d.setDate(diff));
 }
 
+// Format date as YYYY-MM-DD in local timezone (avoids UTC shift issues)
+function formatLocalDateStr(d: Date): string {
+    const year = d.getFullYear();
+    const month = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+}
+
 function getGreeting(): string {
     const hour = new Date().getHours();
     if (hour < 12) return 'Good morning';
@@ -210,8 +218,8 @@ export default function Dashboard() {
         const loadMealPlan = async () => {
             const today = new Date();
             const weekMonday = getWeekMonday(today);
-            const weekStart = weekMonday.toISOString().split('T')[0];
-            const todayStr = today.toISOString().split('T')[0];
+            const weekStart = formatLocalDateStr(weekMonday);
+            const todayStr = formatLocalDateStr(today);
 
             try {
                 // Try API first
