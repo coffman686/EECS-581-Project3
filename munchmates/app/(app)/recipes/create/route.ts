@@ -1,3 +1,10 @@
+// File: route.ts
+// Purpose: Handle CRUD operations for saved recipes
+// Inputs: Authorization header, JSON body fields (recipeId, recipeName)
+// Outputs: JSON responses for POST, GET, and DELETE
+// Stores saved recipes per user in memory
+// Validates authentication using verifyBearer
+
 import { NextRequest, NextResponse } from "next/server";
 import { verifyBearer } from "@/lib/verifyToken";
 

@@ -1,4 +1,12 @@
-// app/api/profile/route.ts
+// Saved Recipes API Route
+// Handles per-user profile data for favorites, diets, and intolerances.
+// Uses a simple in-memory Map keyed by the authenticated user’s `sub` claim.
+// GET  → Returns the stored profile for the requesting user (or defaults).
+// POST → Updates the user’s profile entry with favorite cuisines, diets,
+//        and intolerance lists. Requires a valid Bearer token.
+// NOTE: This storage is ephemeral — it resets on server restart. A database
+//       should replace this once persistent user profiles are needed.
+
 import { NextRequest, NextResponse } from "next/server";
 import { verifyBearer } from "@/lib/verifyToken";
 

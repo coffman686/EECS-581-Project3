@@ -1,3 +1,22 @@
+// Dashboard Page
+// Renders the main MunchMates home experience after login, giving users a
+// high-level snapshot of their cooking, planning, and pantry activity.
+// Includes:
+// - Personalized greeting from Keycloak ID/Access token claims
+// - "Tip of the day" motivation, rotated deterministically by date
+// - Today’s meal plan (breakfast / lunch / dinner) with quick links to recipes
+// - Quick action cards for Recipes, Meal Planner, Grocery List, Pantry,
+//   Shared Collections, and Community
+// - Pantry alerts for items expiring soon (localStorage-backed)
+// - Grocery list summary with active item count (localStorage-backed)
+// - Saved recipes preview (localStorage-backed favorites)
+// - Shared collections preview from /api/shared-collections
+// - Weekly stats for meals planned, saved recipes, pantry alerts, collections
+// Behavior:
+// - Prefers authenticated API data but gracefully falls back to localStorage
+// - Initializes a dietary preferences dialog on first visit via local flag
+// - Designed as the central hub tying together all major app features.
+
 'use client';
 
 import RequireAuth from '@/components/RequireAuth';

@@ -1,3 +1,20 @@
+// Intercepted Recipe Page (Slideover)
+// Purpose:
+// - Implements a modal-style slideover for viewing individual recipe details
+//   without leaving the underlying page, using Next.js intercepted routes.
+// Behavior:
+// - Uses usePathname() to extract the recipe `id` from the current URL.
+// - Special-case handling for `/recipes/saved`
+// State:
+// - `isOpen` (boolean) tracks whether the slideover is visible.
+//   - Initialized to `true` when the page loads.
+// Rendering / UX:
+// - If `!isOpen` or `id === "saved"`, the component returns `null` (no UI).
+// - Otherwise, renders:
+//   - A full-screen, semi-transparent black overlay (`bg-black/50`) that closes
+//     the slideover when clicked.
+//   - A right-side panel (`fixed right-0 top-0 h-full w-full sm:w-[450px]`) is the main content for
+//     this page thus
 'use client';
 
 import { useRouter } from 'next/navigation';

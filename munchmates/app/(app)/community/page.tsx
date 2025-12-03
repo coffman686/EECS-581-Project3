@@ -1,3 +1,17 @@
+// Community Page
+// Renders the social feed section of MunchMates, showcasing example posts
+// and exploring the future direction of in-app community features.
+// Includes:
+// - Search bar with text + tag matching
+// - Filters for all posts vs. trending posts
+// - Interactive post cards (likes, comments, shares, bookmarks)
+// - Sidebar with community stats, trending posts, and popular tags
+// Behavior:
+// - Uses local in-memory mock posts to demonstrate UX flow
+// - Supports liking and bookmarking with optimistic UI updates
+// - Placeholder for future authenticated posting + live community backend
+// This page serves as a proof-of-concept for the future social experience.
+
 'use client';
 
 import { useState } from 'react';

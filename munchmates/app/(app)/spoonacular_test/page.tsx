@@ -1,4 +1,9 @@
-// test page for spoonacular API integration
+// File: spoonacular-test/page.tsx
+// Purpose: Frontend test harness for Spoonacular API integration
+// Inputs: User button selections triggering /api/spoonacular/test endpoint
+// Outputs: Rendered test results for recipes, ingredients, random, and info queries
+// Uses: Reusable API tester to validate API key, endpoint correctness, and response structure
+
 'use client';
 
 import { useState } from 'react';

@@ -1,3 +1,11 @@
+// File: RecipeDetailPage
+// Purpose: Render the full details for a specific recipe ID
+// Inputs: recipeId extracted from the URL path
+// Outputs: Full recipe view including metadata, ingredients, and instructions
+// Fetches recipe information, instructions, and saved-status
+// Allows user to save/unsave recipes
+// Handles redirect if route matches /recipes/saved
+
 "use client";
 
 import { useState, useEffect } from "react";

@@ -1,3 +1,12 @@
+// Custom Recipe API Route (POST / GET)
+// Allows authenticated users to create and retrieve their own custom recipes.
+// POST → Validates required fields (title, ingredients, instructions), generates
+//        a unique high-range ID, and stores the recipe in an in-memory map
+//        keyed by userId.
+// GET  → Returns all custom recipes for the authenticated user.
+// Recipes persist only during server uptime; replace with a database for
+// long-term storage and cross-session consistency.
+
 import { NextRequest, NextResponse } from "next/server";
 import { verifyBearer } from "@/lib/verifyToken";
 
