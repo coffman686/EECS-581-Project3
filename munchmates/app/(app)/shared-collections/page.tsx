@@ -16,20 +16,20 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { 
-    Dialog, 
-    DialogContent, 
-    DialogDescription, 
-    DialogFooter, 
-    DialogHeader, 
-    DialogTitle, 
-    DialogTrigger 
+import {
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogFooter,
+    DialogHeader,
+    DialogTitle,
+    DialogTrigger
 } from '@/components/ui/dialog';
-import { 
-    FolderHeart, 
-    Plus, 
-    Users, 
-    ChefHat, 
+import {
+    FolderHeart,
+    Plus,
+    Users,
+    ChefHat,
     BookOpen,
     Trash2,
     Settings,
@@ -151,7 +151,7 @@ const SharedCollectionsPage = () => {
     };
 
     const formatDate = (dateString: string) => {
-        return new Date(dateString).toLocaleDateString('en-US', {
+        return new Date(dateString).toLocaleDateString(undefined, {
             year: 'numeric',
             month: 'short',
             day: 'numeric',

@@ -149,7 +149,7 @@ function getDaysUntilExpiry(expiryDate: string): number {
 }
 
 function formatDate(date: Date): string {
-    return date.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
+    return date.toLocaleDateString(undefined, { weekday: 'long', month: 'long', day: 'numeric' });
 }
 
 // Motivational tips
