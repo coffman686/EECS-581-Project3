@@ -10,14 +10,13 @@ import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
-import { 
-    MessageCircle, 
-    Heart, 
-    Share, 
-    Bookmark, 
-    Plus, 
-    Users, 
-    TrendingUp, 
+import {
+    MessageCircle,
+    Heart,
+    Share,
+    Bookmark,
+    Users,
+    TrendingUp,
     Search,
     MoreHorizontal,
     Clock
@@ -80,63 +79,48 @@ const Community = () => {
         }
     ]);
 
-    const [newPost, setNewPost] = useState('');
     const [searchTerm, setSearchTerm] = useState('');
-    const [activeFilter, setActiveFilter] = useState('all');
+    const [activeFilter, setActiveFilter] = useState<'all' | 'trending'>('all');
 
     const popularTags = [
-        'recipes', 'tips', 'vegan', 'meal-prep', 'baking', 
+        'recipes', 'tips', 'vegan', 'meal-prep', 'baking',
         'quick-meals', 'healthy', 'comfort-food', 'international'
     ];
 
-    const trendingPosts = posts.sort((a, b) => b.likes - a.likes).slice(0, 3);
+    const trendingPosts = [...posts].sort((a, b) => b.likes - a.likes).slice(0, 3);
 
-    const handleCreatePost = () => {
-        if (newPost.trim() === '') return;
+    const baseFilteredPosts = posts.filter(post =>
+        post.text.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        post.author.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        post.tags.some(tag => tag.toLowerCase().includes(searchTerm.toLowerCase()))
+    );
 
-        const newPostObj: Post = {
-            id: posts.length + 1,
-            author: 'You', // In real app, this would be the current user
-            avatar: 'https://i.pravatar.cc/150?u=currentuser',
-            text: newPost,
-            likes: 0,
-            comments: 0,
-            shares: 0,
-            timestamp: 'Just now',
-            isLiked: false,
-            isBookmarked: false,
-            tags: ['new-post']
-        };
-
-        setPosts([newPostObj, ...posts]);
-        setNewPost('');
-    };
+    const filteredPosts =
+        activeFilter === 'trending'
+            ? baseFilteredPosts
+                .slice()
+                .sort((a, b) => b.likes - a.likes)
+            : baseFilteredPosts;
 
     const handleLike = (postId: number) => {
-        setPosts(posts.map(post => 
-            post.id === postId 
-                ? { 
-                    ...post, 
+        setPosts(posts.map(post =>
+            post.id === postId
+                ? {
+                    ...post,
                     likes: post.isLiked ? post.likes - 1 : post.likes + 1,
-                    isLiked: !post.isLiked 
+                    isLiked: !post.isLiked
                 }
                 : post
         ));
     };
 
     const handleBookmark = (postId: number) => {
-        setPosts(posts.map(post => 
-            post.id === postId 
+        setPosts(posts.map(post =>
+            post.id === postId
                 ? { ...post, isBookmarked: !post.isBookmarked }
                 : post
         ));
     };
-
-    const filteredPosts = posts.filter(post => 
-        post.text.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        post.author.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        post.tags.some(tag => tag.toLowerCase().includes(searchTerm.toLowerCase()))
-    );
 
     const getInitials = (name: string) => {
         return name.split(' ').map(n => n[0]).join('').toUpperCase();
@@ -154,41 +138,6 @@ const Community = () => {
                                 <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
                                     {/* Main Content */}
                                     <div className="lg:col-span-3 space-y-6">
-                                        {/* Create Post Card */}
-                                        <Card>
-                                            <CardContent className="p-6">
-                                                <div className="flex gap-4">
-                                                    <Avatar className="h-10 w-10">
-                                                        <AvatarImage src="https://i.pravatar.cc/150?u=currentuser" />
-                                                        <AvatarFallback>YO</AvatarFallback>
-                                                    </Avatar>
-                                                    <div className="flex-1">
-                                                        <div className="flex justify-between items-center mt-4">
-                                                            <div className="flex gap-2">
-                                                                {popularTags.slice(0, 3).map(tag => (
-                                                                    <Badge 
-                                                                        key={tag} 
-                                                                        variant="secondary" 
-                                                                        className="cursor-pointer hover:bg-secondary/80"
-                                                                    >
-                                                                        #{tag}
-                                                                    </Badge>
-                                                                ))}
-                                                            </div>
-                                                            <Button 
-                                                                onClick={handleCreatePost}
-                                                                disabled={!newPost.trim()}
-                                                                className="flex items-center gap-2"
-                                                            >
-                                                                <Plus className="h-4 w-4" />
-                                                                Post
-                                                            </Button>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </CardContent>
-                                        </Card>
-
                                         {/* Search and Filters */}
                                         <div className="flex flex-col sm:flex-row gap-4">
                                             <div className="flex-1 relative">
@@ -201,13 +150,13 @@ const Community = () => {
                                                 />
                                             </div>
                                             <div className="flex gap-2">
-                                                <Button 
+                                                <Button
                                                     variant={activeFilter === 'all' ? 'default' : 'outline'}
                                                     onClick={() => setActiveFilter('all')}
                                                 >
                                                     All Posts
                                                 </Button>
-                                                <Button 
+                                                <Button
                                                     variant={activeFilter === 'trending' ? 'default' : 'outline'}
                                                     onClick={() => setActiveFilter('trending')}
                                                 >
@@ -250,8 +199,8 @@ const Community = () => {
                                                         </p>
                                                         <div className="flex flex-wrap gap-2 mt-3">
                                                             {post.tags.map(tag => (
-                                                                <Badge 
-                                                                    key={tag} 
+                                                                <Badge
+                                                                    key={tag}
                                                                     variant="secondary"
                                                                     className="cursor-pointer hover:bg-secondary/80"
                                                                 >
@@ -263,18 +212,18 @@ const Community = () => {
                                                     <CardFooter className="bg-muted/50 px-6 py-3">
                                                         <div className="flex items-center justify-between w-full">
                                                             <div className="flex items-center gap-6">
-                                                                <Button 
-                                                                    variant="ghost" 
+                                                                <Button
+                                                                    variant="ghost"
                                                                     size="sm"
                                                                     onClick={() => handleLike(post.id)}
                                                                     className={`flex items-center gap-2 ${
                                                                         post.isLiked ? 'text-red-500' : ''
                                                                     }`}
                                                                 >
-                                                                    <Heart 
+                                                                    <Heart
                                                                         className={`h-4 w-4 ${
                                                                             post.isLiked ? 'fill-current' : ''
-                                                                        }`} 
+                                                                        }`}
                                                                     />
                                                                     {post.likes}
                                                                 </Button>
@@ -287,16 +236,16 @@ const Community = () => {
                                                                     {post.shares}
                                                                 </Button>
                                                             </div>
-                                                            <Button 
-                                                                variant="ghost" 
+                                                            <Button
+                                                                variant="ghost"
                                                                 size="sm"
                                                                 onClick={() => handleBookmark(post.id)}
                                                                 className={post.isBookmarked ? 'text-blue-500' : ''}
                                                             >
-                                                                <Bookmark 
+                                                                <Bookmark
                                                                     className={`h-4 w-4 ${
                                                                         post.isBookmarked ? 'fill-current' : ''
-                                                                    }`} 
+                                                                    }`}
                                                                 />
                                                             </Button>
                                                         </div>
@@ -312,20 +261,11 @@ const Community = () => {
                                                     <Users className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
                                                     <h3 className="text-lg font-semibold mb-2">No posts found</h3>
                                                     <p className="text-muted-foreground mb-4">
-                                                        {searchTerm 
-                                                            ? 'Try adjusting your search terms'
-                                                            : 'Be the first to start a conversation!'
+                                                        {searchTerm
+                                                            ? 'Try adjusting your search terms.'
+                                                            : 'This page currently showcases example community posts. Posting will be added in a future release.'
                                                         }
                                                     </p>
-                                                    {!searchTerm && (
-                                                        <Button 
-                                                            onClick={() => document.querySelector('textarea')?.focus()}
-                                                            className="flex items-center gap-2 mx-auto"
-                                                        >
-                                                            <Plus className="h-4 w-4" />
-                                                            Create First Post
-                                                        </Button>
-                                                    )}
                                                 </CardContent>
                                             </Card>
                                         )}
@@ -388,8 +328,8 @@ const Community = () => {
                                             <CardContent>
                                                 <div className="flex flex-wrap gap-2">
                                                     {popularTags.map(tag => (
-                                                        <Badge 
-                                                            key={tag} 
+                                                        <Badge
+                                                            key={tag}
                                                             variant="outline"
                                                             className="cursor-pointer hover:bg-secondary"
                                                         >
