@@ -13,13 +13,13 @@ export default function RecipesLayout({
   }) {
     return (
       <div>
-        {/* 
-          This renders the main content. When you click a link, 
+        {/*
+          This renders the main content. When you click a link,
           Next.js keeps this content rendered in the background.
         */}
         <main>{children}</main>
-  
-        {/* 
+
+        {/*
           This renders the slideover/modal UI when the route is intercepted.
           If nothing is intercepted, the default @slideover/page.tsx renders null here.
         */}

@@ -30,6 +30,7 @@ import { useRouter } from "next/navigation";
 
 const LOCAL_KEY = "saved-recipes";
 
+// Load and save local recipes to local storage
 const loadLocalSavedRecipes = () => {
   try {
     return JSON.parse(localStorage.getItem(LOCAL_KEY) || "[]");

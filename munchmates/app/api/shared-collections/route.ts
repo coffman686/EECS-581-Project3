@@ -1,13 +1,17 @@
-// app/api/shared-collections/route.ts
-// Shared collections API route for managing shared recipe collections.
-// Supports listing, creating, and deleting shared collections.
+// sharedCollections/[id]/route.ts
+// Endpoints to retrieve and manage collections of recipes
+// This pertains to managing the list of collections a user holds
+// Requires authenticated user
+//   GET: retrieves all collections the user has created or joined
+//   POST: creates a new collection
+//   DELETE: deletes collection itself
 
 import { NextRequest, NextResponse } from "next/server";
 import { verifyBearer } from "@/lib/verifyToken";
-import { 
-    sharedCollections, 
-    generateCollectionId, 
-    SharedCollection 
+import {
+    sharedCollections,
+    generateCollectionId,
+    SharedCollection
 } from "@/lib/sharedCollectionsStore";
 
 // GET - List all collections the user is a member of

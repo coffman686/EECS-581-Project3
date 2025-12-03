@@ -1,6 +1,6 @@
 // app/api/profile/route.ts
-// User profile route.
-// Authenticates user and handles fetching or updating profile preferences.
+// Endpoint to retrieve and update user profile data in memory for local persistence
+// Temporary until munchmates goes public and we can afford 200 petabytes (onsite, no redundancy) to appease the shareholders
 
 import { NextRequest, NextResponse } from "next/server";
 import { verifyBearer } from "@/lib/verifyToken";

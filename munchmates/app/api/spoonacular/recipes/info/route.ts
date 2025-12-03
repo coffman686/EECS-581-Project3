@@ -1,7 +1,10 @@
-// munchmates/app/api/spoonacular/recipes/info/route.ts
-// Recipe information route.
-// Fetches detailed recipe data from Spoonacular using
-// a recipe ID provided via query parameters.
+// file: recipes/info/route.ts
+// GET endpoint to fetch additioinal recipe information
+// Inputs: spooncular recipe ID
+// Output:
+// - Recipe information if successful
+// - 404 if id not provided
+// - 500 otherwise
 
 import { NextRequest, NextResponse } from 'next/server';
 import { getRecipeInformation } from '@/lib/spoonacular';

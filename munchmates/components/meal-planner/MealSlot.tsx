@@ -1,7 +1,9 @@
-// munchmates/components/meal-planner/MealSlot.tsx
-// Meal slot component for meal planner.
-// Displays a droppable area for adding recipes to a meal slot,
-// or shows the added recipe with options to remove or adjust servings.
+// MealSlot.tsx
+// Container for recipe elements on meal plan view
+// - Holds a draggable recipe or empty slot
+// - Allows user to add a new recipe to the list
+// - Existing recipes can be dropped into an empty slot
+// - Currently holds 3 time slots for meals
 
 'use client';
 

@@ -50,6 +50,7 @@ interface Post {
     tags: string[];
 }
 
+// Construct temporary data for user posts
 const Community = () => {
     const [posts, setPosts] = useState<Post[]>([
         {
@@ -101,14 +102,17 @@ const Community = () => {
         'quick-meals', 'healthy', 'comfort-food', 'international'
     ];
 
+    // Sort posts by like count
     const trendingPosts = [...posts].sort((a, b) => b.likes - a.likes).slice(0, 3);
 
+    // Filter posts with a search term for text, author, or tags
     const baseFilteredPosts = posts.filter(post =>
         post.text.toLowerCase().includes(searchTerm.toLowerCase()) ||
         post.author.toLowerCase().includes(searchTerm.toLowerCase()) ||
         post.tags.some(tag => tag.toLowerCase().includes(searchTerm.toLowerCase()))
     );
 
+    // Filter and sort posts by like count if trending filter selected
     const filteredPosts =
         activeFilter === 'trending'
             ? baseFilteredPosts
@@ -116,6 +120,7 @@ const Community = () => {
                 .sort((a, b) => b.likes - a.likes)
             : baseFilteredPosts;
 
+    // Handlse liking and disliking a post
     const handleLike = (postId: number) => {
         setPosts(posts.map(post =>
             post.id === postId
@@ -128,6 +133,7 @@ const Community = () => {
         ));
     };
 
+    // Handles adding a post to bookmarks
     const handleBookmark = (postId: number) => {
         setPosts(posts.map(post =>
             post.id === postId

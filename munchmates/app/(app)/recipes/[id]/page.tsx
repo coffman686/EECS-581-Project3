@@ -124,6 +124,7 @@ const RecipeDetailPage = () => {
     fetchRecipeData();
   }, [recipeId]);
 
+  // Requests to saves (or unsave) selected recipe
   const handleSaveRecipe = async () => {
     if (!recipe) return;
 

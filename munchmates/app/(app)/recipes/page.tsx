@@ -122,8 +122,6 @@ type Recipe = {
     dishTypes: string[];
 }
 
-
-
 type NewRecipeForm = {
     title: string;
     servings: number;
@@ -134,34 +132,21 @@ type NewRecipeForm = {
     instructions: string;
 }
 
-
-
 const Recipes = () => {
-
     const router = useRouter();
-
     const [recipes, setRecipes] = useState<Recipe[]>([]);
-
     const [isLoading, setIsLoading] = useState(false);
-
     const [searchTerm, setSearchTerm] = useState('');
-
     const [selectedDishType, setSelectedDishType] = useState('All');
-
     const [selectedCuisine, setSelectedCuisine] = useState('All');
-
     const [diet, setDiet] = useState("");
-
     const [intolerances, setIntolerances] = useState("");
-
-
 
     const dishTypes = ['All', 'main course', 'side dish', 'dessert', 'appetizer', 'salad', 'bread', 'breakfast', 'soup', 'beverage', 'sauce', 'marinade', 'fingerfood', 'snack', 'drink'];
 
     const cuisines = ['All', 'African', 'Asian', 'American', 'British', 'Cajun', 'Caribbean', 'Chinese', 'Eastern European', 'European', 'French', 'German', 'Greek', 'Indian', 'Irish', 'Italian', 'Japanese', 'Jewish', 'Korean', 'Latin American', 'Mediterranean', 'Mexican', 'Middle Eastern', 'Nordic', 'Southern', 'Spanish', 'Thai', 'Vietnamese'];
 
-
-
+    // Fetch recipes with given search term, ingredients, and filters
     const fetchRecipes = async () => {
         if (!searchTerm) {
             setRecipes([]);
@@ -189,60 +174,34 @@ const Recipes = () => {
         }
     }
 
-
-
     useEffect(() => {
-
         setDiet(getDiets())
-
         setIntolerances(getIntolerances())
-
     }, []);
 
-
-
     useEffect(() => {
-
         fetchRecipes()
-
     }, [searchTerm, selectedCuisine, selectedDishType, diet, intolerances])
 
-
-
     const handleSearch = async () => {
-
         const ingredientListString = ingredientList.join(',').toLowerCase();
-
         setDiet(getDiets());
-
         setIntolerances(getIntolerances());
-
         setSearchTerm(ingredientListString);
-
     };
-
-
 
     const [ingredientList, setIngredientList] = useState<string[]>([]);
 
     const [showCreateDialog, setShowCreateDialog] = useState(false);
 
     const [recipeFormData, setRecipeFormData] = useState<NewRecipeForm>({
-
         title: '',
-
         servings: 1,
-
         readyInMinutes: 30,
-
         dishType: 'main course',
-
         cuisine: 'American',
-
         ingredients: [],
-
         instructions: '',
-
     });
 
     const [newIngredient, setNewIngredient] = useState('');

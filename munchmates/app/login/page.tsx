@@ -27,15 +27,15 @@ export default function Login() {
     }, []);
 
     return (
-        <main style={{ 
-            padding: 48, 
-            maxWidth: 400, 
-            margin: '0 auto', 
-            textAlign: 'center' 
+        <main style={{
+            padding: 48,
+            maxWidth: 400,
+            margin: '0 auto',
+            textAlign: 'center'
         }}>
             <h1 style={{ marginBottom: 24 }}>Sign In</h1>
             <p>Redirecting to login...</p>
-            
+
             <div style={{ marginTop: 32, fontSize: 14 }}>
                 <p>
                     Don't have an account?{' '}
