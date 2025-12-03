@@ -49,9 +49,17 @@ const MealPlanner = () => {
   // Drag state
   const [activeDragEntry, setActiveDragEntry] = useState<MealPlanEntry | null>(null);
 
+  // Format date as YYYY-MM-DD in local timezone (avoids UTC shift issues)
+  const formatLocalDateStr = (d: Date): string => {
+    const year = d.getFullYear();
+    const month = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  };
+
   // Compute week Monday and use string for stable dependency
   const weekMonday = getWeekMonday(currentDate);
-  const weekStartStr = weekMonday.toISOString().split('T')[0];
+  const weekStartStr = formatLocalDateStr(weekMonday);
 
   const getWeekRange = (date: Date) => {
     const start = getWeekMonday(date);
@@ -389,7 +397,7 @@ const MealPlanner = () => {
                             // Parse the date string properly to avoid timezone issues
                             const dayDate = new Date(day.date + 'T00:00:00');
                             const today = new Date();
-                            const todayStr = today.toISOString().split('T')[0];
+                            const todayStr = formatLocalDateStr(today);
                             const isToday = day.date === todayStr;
 
                             return (

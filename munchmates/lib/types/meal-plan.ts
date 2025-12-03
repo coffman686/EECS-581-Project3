@@ -31,6 +31,14 @@ export interface AggregatedIngredient {
   sourceRecipes: string[];
 }
 
+// Format date as YYYY-MM-DD in local timezone (avoids UTC shift issues)
+function formatLocalDateStr(d: Date): string {
+  const year = d.getFullYear();
+  const month = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+}
+
 // Helper to create an empty week plan
 export function createEmptyWeekPlan(weekStart: Date): WeeklyMealPlan {
   const days: DayPlan[] = [];
@@ -38,11 +46,11 @@ export function createEmptyWeekPlan(weekStart: Date): WeeklyMealPlan {
     const date = new Date(weekStart);
     date.setDate(weekStart.getDate() + i);
     days.push({
-      date: date.toISOString().split('T')[0],
+      date: formatLocalDateStr(date),
     });
   }
   return {
-    weekStart: weekStart.toISOString().split('T')[0],
+    weekStart: formatLocalDateStr(weekStart),
     days,
   };
 }
