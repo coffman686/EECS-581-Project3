@@ -1,3 +1,7 @@
+//munchmates/app/api/admin/route.ts
+// Admin route that requires 'admin' role.
+// Verifies the bearer token and checks for admin role.
+
 import { NextRequest, NextResponse } from 'next/server';
 import { verifyBearer, hasRole } from '@/lib/verifyToken';
 

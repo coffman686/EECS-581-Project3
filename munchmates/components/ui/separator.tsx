@@ -1,3 +1,8 @@
+// munchmates/components/ui/separator.tsx
+// Provides:
+// - <Separator>: a versatile separator component for dividing content
+// Used throughout the app for consistent separator display.
+
 "use client"
 
 import * as React from "react"

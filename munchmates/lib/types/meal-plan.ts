@@ -1,3 +1,4 @@
+// lib/types/meal-plan.ts
 // Meal plan type definitions
 
 export interface MealPlanEntry {

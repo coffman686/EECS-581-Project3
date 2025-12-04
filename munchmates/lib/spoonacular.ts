@@ -1,4 +1,8 @@
-// main spoonacular implementation file
+// lib/spoonacular.ts
+// Provides typed wrappers around Spoonacular endpoints for
+// recipes, ingredients, nutrition, meal planning, and image URL
+// helpers, along with a shared fetch handler that injects the API key.
+
 const SPOONACULAR_API_BASE_URL = 'https://api.spoonacular.com';
 
 function getApiKey(): string {

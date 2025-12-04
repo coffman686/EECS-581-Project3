@@ -1,3 +1,6 @@
+// app/layout.tsx
+// Root layout for MunchMates application.
+
 import type { Metadata } from "next";
 import { notoSans } from "../lib/fonts";
 import "./globals.css";

@@ -1,4 +1,8 @@
 // app/login/page.tsx
+// Login page for MunchMates application.
+// Initializes Keycloak authentication and redirects users accordingly.
+// If the user is already logged in, they are redirected to the dashboard.
+
 'use client';
 import { useEffect, useState } from 'react';
 import { initKeycloak } from '@/lib/keycloak';

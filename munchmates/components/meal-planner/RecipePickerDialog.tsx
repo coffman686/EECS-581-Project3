@@ -1,3 +1,8 @@
+// munchmates/components/meal-planner/RecipePickerDialog.tsx
+// Recipe picker dialog component for meal planner.
+// Allows users to search for recipes or select from saved recipes,
+// then choose days to add the selected recipe to.
+
 'use client';
 
 import { useState, useEffect } from 'react';

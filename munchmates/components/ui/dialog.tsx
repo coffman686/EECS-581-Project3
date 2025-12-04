@@ -1,3 +1,8 @@
+// munchmates/components/ui/dialog.tsx
+// Provides:
+// - <Dialog> and related subcomponents for modal dialogs
+// Used throughout the app for consistent dialog display.
+
 "use client"
 
 import * as React from "react"

@@ -1,3 +1,7 @@
+// munchmates/app/api/shared-collections/[id]/members/route.ts
+// Manage members of a shared collection.
+// Supports adding, removing, and updating member roles.
+
 import { NextRequest, NextResponse } from "next/server";
 import { verifyBearer } from "@/lib/verifyToken";
 import { 

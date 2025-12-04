@@ -1,3 +1,8 @@
+// munchmates/components/ui/sheet.tsx
+// Provides:
+// - <Sheet> and related subcomponents for slide-over panels
+// Used throughout the app for consistent sheet display.
+
 "use client"
 
 import * as React from "react"

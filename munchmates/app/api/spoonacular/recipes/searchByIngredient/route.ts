@@ -1,3 +1,7 @@
+// munchmates/app/api/spoonacular/recipes/searchByIngredient/route.ts
+// Queries Spoonacular for recipes filtered by ingredients, cuisine,
+// dish type, diet, and intolerances, returning summarized results.
+
 import { NextRequest, NextResponse } from 'next/server';
 import { searchRecipes } from '@/lib/spoonacular';
   

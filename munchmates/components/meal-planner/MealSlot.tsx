@@ -1,3 +1,8 @@
+// munchmates/components/meal-planner/MealSlot.tsx
+// Meal slot component for meal planner.
+// Displays a droppable area for adding recipes to a meal slot,
+// or shows the added recipe with options to remove or adjust servings.
+
 'use client';
 
 import { useDroppable } from '@dnd-kit/core';

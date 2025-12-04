@@ -1,3 +1,8 @@
+// munchmates/components/ui/select.tsx
+// Provides:
+// - <Select> and related subcomponents for custom select dropdowns
+// Used throughout the app for consistent select display.
+
 "use client"
 
 import * as React from "react"

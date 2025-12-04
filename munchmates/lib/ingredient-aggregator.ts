@@ -1,3 +1,6 @@
+// lib/ingredient-aggregator.ts
+// Aggregate ingredients from a weekly meal plan into a consolidated shopping list
+
 import { WeeklyMealPlan, MealPlanEntry, AggregatedIngredient } from './types/meal-plan';
 
 // ExtendedIngredient type (copied from spoonacular.ts to avoid importing server-side code)

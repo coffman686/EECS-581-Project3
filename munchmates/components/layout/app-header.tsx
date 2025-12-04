@@ -1,3 +1,7 @@
+// munchmates/components/layout/app-header.tsx
+// App header component.
+// Displays the application title in a styled header.
+
 type AppHeaderProps = {
     title: string;
 };

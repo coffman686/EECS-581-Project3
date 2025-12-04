@@ -1,3 +1,8 @@
+// munchmates/app/api/spoonacular/recipes/information/route.ts
+// Spoonacular recipe information route.
+// Retrieves detailed recipe data by ID and handles Spoonacular-specific
+// errors like daily quota limits.
+
 import { NextRequest, NextResponse } from 'next/server';
 import { getRecipeInformation } from '@/lib/spoonacular';
 

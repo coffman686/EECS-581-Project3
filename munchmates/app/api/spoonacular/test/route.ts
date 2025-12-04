@@ -1,4 +1,7 @@
-// test route.ts file to showcase how to utilize spoonacular API 
+// munchmates/app/api/spoonacular/test/route.ts
+// Runs various test calls against Spoonacular helpers (search,
+// random, by ingredients, detailed info) and returns results for verification.
+
 import { NextRequest, NextResponse } from 'next/server';
 import {
   searchRecipes,

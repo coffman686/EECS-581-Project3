@@ -1,4 +1,7 @@
 // app/register/page.tsx
+// Registration page for MunchMates application.
+// Initializes Keycloak registration flow and redirects users accordingly.
+
 'use client';
 import { useEffect, useState } from 'react';
 import { initKeycloak, register } from '@/lib/keycloak';

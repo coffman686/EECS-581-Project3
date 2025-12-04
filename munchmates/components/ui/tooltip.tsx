@@ -1,3 +1,8 @@
+// munchmates/components/ui/tooltip.tsx
+// Provides:
+// - <Tooltip> and related subcomponents for tooltips
+// Used throughout the app for consistent tooltip display.
+
 "use client"
 
 import * as React from "react"

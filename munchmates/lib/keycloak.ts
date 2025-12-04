@@ -1,4 +1,7 @@
 // lib/keycloak.ts
+// Provides a singleton KC instance, initialization helper,
+// token refresh logic, and convenience wrappers for login/logout.
+
 'use client';
 import Keycloak, { KeycloakLoginOptions } from 'keycloak-js';
 

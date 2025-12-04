@@ -1,4 +1,5 @@
 // app/page.tsx
+// Landing page for MunchMates application.
 
 import Image from "next/image";
 import Link from "next/link";

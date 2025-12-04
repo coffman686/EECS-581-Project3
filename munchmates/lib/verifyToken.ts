@@ -1,4 +1,6 @@
 // lib/verifyToken.ts
+// Server-side token verification using jose and Keycloak JWKS
+
 import 'server-only';
 import * as jose from 'jose';
 

@@ -1,3 +1,8 @@
+// munchmates/app/api/meal-plan/route.ts
+// Weekly meal plan route.
+// Authenticates the user and retrieves or stores
+// meal plans keyed by user and week start date.
+
 import { NextRequest, NextResponse } from "next/server";
 import { verifyBearer } from "@/lib/verifyToken";
 import { WeeklyMealPlan } from "@/lib/types/meal-plan";

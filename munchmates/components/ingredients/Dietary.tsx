@@ -1,3 +1,7 @@
+// munchmates/components/ingredients/Dietary.tsx
+// Dietary preferences dialog component.
+// Allows users to select dietary restrictions and intolerances
+
 'use client';
 
 import { Dispatch, SetStateAction, useEffect } from "react";

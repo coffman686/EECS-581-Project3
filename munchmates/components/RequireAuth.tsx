@@ -1,3 +1,8 @@
+// munchmates/components/RequireAuth.tsx
+// Authentication gate component.
+// Initializes Keycloak on mount and blocks rendering of
+// protected content until authentication is confirmed.
+
 'use client';
 import { useEffect, useState } from 'react';
 import { initKeycloak } from '@/lib/keycloak';

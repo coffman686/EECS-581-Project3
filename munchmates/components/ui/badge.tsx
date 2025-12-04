@@ -1,3 +1,8 @@
+// munchmates/components/ui/badge.tsx
+// Provides:
+// - <Badge>: a versatile badge component with variant styling
+// Used throughout the app for consistent badge display.
+
 import * as React from "react"
 import { Slot } from "@radix-ui/react-slot"
 import { cva, type VariantProps } from "class-variance-authority"

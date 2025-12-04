@@ -1,3 +1,7 @@
+// app/api/shared-collections/route.ts
+// Shared collections API route for managing shared recipe collections.
+// Supports listing, creating, and deleting shared collections.
+
 import { NextRequest, NextResponse } from "next/server";
 import { verifyBearer } from "@/lib/verifyToken";
 import { 

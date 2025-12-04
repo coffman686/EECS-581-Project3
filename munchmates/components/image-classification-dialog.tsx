@@ -1,3 +1,8 @@
+// munchmates/components/image-classification-dialog.tsx
+// Image classification dialog component.
+// Lets user upload or capture an image, classifies it using MobileNet,
+// and suggests a label for the item based on the image content.
+
 'use client';
 
 import { useEffect, useRef, useState } from 'react';

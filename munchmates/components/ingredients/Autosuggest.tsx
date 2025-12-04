@@ -1,3 +1,8 @@
+// munchmates/components/ingredients/Autosuggest.tsx
+// Autosuggest input component.
+// Filters a list of strings based on user input and displays
+// a clickable dropdown of suggestions.
+
 import { useState, useEffect } from 'react';
 import { Input } from '../ui/input';
 import { Search } from 'lucide-react';

@@ -1,3 +1,6 @@
+// lib/fonts.ts
+// Use Noto Sans font
+
 import { Noto_Sans } from 'next/font/google'
 
 export const notoSans = Noto_Sans({

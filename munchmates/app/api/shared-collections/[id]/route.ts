@@ -1,3 +1,8 @@
+// munchmates/app/api/shared-collections/[id]/route.ts
+// Shared collection by ID route.
+// Supports getting, updating, and deleting a specific shared collection.
+// Authenticates user and checks membership and permissions.
+
 import { NextRequest, NextResponse } from "next/server";
 import { verifyBearer } from "@/lib/verifyToken";
 import { 

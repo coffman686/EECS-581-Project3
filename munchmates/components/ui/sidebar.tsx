@@ -1,3 +1,8 @@
+// munchmates/components/ui/sidebar.tsx
+// Provides:
+// - <Sidebar> and related subcomponents for a responsive sidebar
+// Used throughout the app for consistent sidebar display.
+
 "use client"
 
 import * as React from "react"

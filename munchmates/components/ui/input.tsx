@@ -1,3 +1,8 @@
+// munchmates/components/ui/input.tsx
+// Provides:
+// - <Input>: a versatile input component with styling
+// Used throughout the app for consistent input display.
+
 import * as React from "react"
 
 import { cn } from "@/lib/utils"

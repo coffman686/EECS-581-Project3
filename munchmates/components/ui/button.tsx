@@ -1,3 +1,8 @@
+// munchmates/components/ui/badge.tsx
+// Provides:
+// - <Button>: a versatile button component with variant and size styling
+// Used throughout the app for consistent button display.
+
 import * as React from "react"
 import { Slot } from "@radix-ui/react-slot"
 import { cva, type VariantProps } from "class-variance-authority"

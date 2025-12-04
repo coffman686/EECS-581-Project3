@@ -1,3 +1,8 @@
+// munchmates/components/meal-planner/DraggableRecipeCard.tsx
+// Draggable recipe card component for meal planner.
+// Displays recipe info with drag-and-drop, remove, and
+// servings adjustment functionality.
+
 'use client';
 
 import { useDraggable } from '@dnd-kit/core';

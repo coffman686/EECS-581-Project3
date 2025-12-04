@@ -1,3 +1,8 @@
+// munchmates/components/ui/card.tsx
+// Provides:
+// - <Card> and related subcomponents for structured card layouts
+// Used throughout the app for consistent card display.
+
 import * as React from "react"
 
 import { cn } from "@/lib/utils"

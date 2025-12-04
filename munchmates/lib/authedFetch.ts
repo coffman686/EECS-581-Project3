@@ -1,4 +1,6 @@
 // lib/authedFetch.ts
+// Ensures authenticated fetch requests with Keycloak token
+
 'use client';
 import { ensureToken, keycloak } from '@/lib/keycloak';
 

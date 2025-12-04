@@ -1,3 +1,6 @@
+// munchmates/hooks/use-mobile.ts
+// Responsive utility hook to determine if the device is mobile based on viewport width.
+
 import * as React from "react"
 
 const MOBILE_BREAKPOINT = 768

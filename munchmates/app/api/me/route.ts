@@ -1,4 +1,7 @@
 // app/api/profile/route.ts
+// User profile route.
+// Authenticates request, then retrieves or updates user profile data.
+
 import { NextRequest, NextResponse } from "next/server";
 import { verifyBearer } from "@/lib/verifyToken";
 

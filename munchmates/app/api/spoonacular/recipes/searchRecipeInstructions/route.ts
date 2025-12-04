@@ -1,3 +1,7 @@
+// munchmates/app/api/spoonacular/recipes/searchRecipeInstructions/route.ts
+// Retrieves step by step cooking instructions for a recipe
+// using its Spoonacular ID.
+
 import { NextRequest, NextResponse } from 'next/server';
 import { getRecipeInstructions } from '@/lib/spoonacular';
 
