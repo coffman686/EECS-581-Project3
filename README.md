@@ -166,7 +166,7 @@ Option B — Run separately:
 
 Terminal 1:
 ```
-npm run kc:up
+npm run kc:up+logs
 ```
 
 Terminal 2:
