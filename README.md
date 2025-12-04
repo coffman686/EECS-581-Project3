@@ -174,6 +174,18 @@ Terminal 2:
 npm run dev
 ```
 
+Option C — Manual Docker fallback (if all else fails):
+
+Terminal 1 (in `login/keycloak` directory):
+```
+docker compose up
+```
+
+Terminal 2 (in `munchmates` directory):
+```
+npm run dev
+```
+
 ---
 
 ## 📍 Local URLs
