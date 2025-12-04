@@ -1,6 +1,7 @@
 # 🥗 Munch Mates — EECS 581 Project 3
 **Capstone Project – Fall 2025**  
-**Team 26 • University of Kansas • EECS 581: Software Engineering II**
+**Team 26 • University of Kansas • EECS 581: Software Engineering II**  
+**The video demo for this project can be found here: [MunchMates Demo](https://drive.google.com/file/d/1emgFaO0tZ4wGwE9JFasXCoqDHG3-TNd6/view?usp=sharing)**  
 
 ---
 
@@ -11,7 +12,6 @@
 <p align="center"><strong>Your future meal planning companion, Munch!</strong></p>
 
 ---
-
 ## 📖 Overview
 
 **Munch Mates** is a full-stack, intelligent meal planning and recipe management application designed to make cooking simpler and smarter.  
