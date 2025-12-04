@@ -201,6 +201,7 @@ function GroceryListContent() {
         return `${amount} ${unit}`;
     };
 
+    // Fill in input fields with existing data
     const beginEdit = (item: GroceryItem) => {
         setEditingId(item.id);
         setEditName(item.name);
@@ -208,6 +209,7 @@ function GroceryListContent() {
         setEditCategory(item.category);
     };
 
+    // Clear input
     const cancelEdit = () => {
         setEditingId(null);
         setEditName('');
@@ -215,6 +217,7 @@ function GroceryListContent() {
         setEditCategory('');
     };
 
+    // Update item with edited information
     const saveEdit = (id: string) => {
         setItems(prev =>
         prev.map(it =>
@@ -236,6 +239,7 @@ function GroceryListContent() {
         if (e.key === 'Escape') cancelEdit();
     };
 
+    // Add a new item to the grocery list
     const addItem = () => {
         if (!newItem.trim()) return;
 
@@ -251,6 +255,7 @@ function GroceryListContent() {
         setNewItem('');
     };
 
+    // Add a new category of items
     const addCategory = () => {
         if (!newCategory.trim() || categories.includes(newCategory)) return;
 
@@ -258,16 +263,19 @@ function GroceryListContent() {
         setNewCategory('');
     };
 
+    // Check off an item from the list by ID
     const toggleItem = (id: string) => {
         setItems(items.map(item =>
             item.id === id ? {...item, completed: !item.completed } : item
         ));
     };
 
+    // Delete an item by ID
     const deleteItem = (id: string) => {
         setItems(items.filter((item) => item.id !== id));
     };
 
+    // Delete a category by name
     const deleteCategory = (category: string) => {
         // Move items from deleted category to first available category
         const newCategories = categories.filter(cat => cat !== category);
@@ -281,6 +289,7 @@ function GroceryListContent() {
         setCategories(newCategories);
     };
 
+    // Remove all completed items from the list
     const clearCompleted = () => {
         setItems(items.filter(item => !item.completed));
     };
@@ -296,6 +305,7 @@ function GroceryListContent() {
         return true;
     });
 
+    // Filter items by category name
     const getItemsByCategory = (category: string) => {
         return filteredItems.filter(item => item.category === category);
     };

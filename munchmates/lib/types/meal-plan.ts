@@ -1,5 +1,7 @@
 // lib/types/meal-plan.ts
 // Meal plan type definitions
+// Provides MealPlanEntry, MealType, DayPlan, WeeklyMealPlan, AggregatedIngredient
+// and createEmptyWeekPlan(), getWeekMonday(), generateMealEntryId()
 
 export interface MealPlanEntry {
   id: string;

@@ -88,8 +88,8 @@ const MealPlanner = () => {
     end.setDate(start.getDate() + 6);
 
     return {
-      start: start.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
-      end: end.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
+      start: start.toLocaleDateString(undefined, { month: 'short', day: 'numeric' }),
+      end: end.toLocaleDateString(undefined, { month: 'short', day: 'numeric' }),
       fullRange: `${start.toLocaleDateString()} - ${end.toLocaleDateString()}`,
     };
   };
@@ -260,7 +260,7 @@ const MealPlanner = () => {
     if (!weekPlan) return [];
     return weekPlan.days.map((day) => ({
       date: day.date,
-      label: new Date(day.date).toLocaleDateString('en-US', {
+      label: new Date(day.date).toLocaleDateString(undefined, {
         month: 'short',
         day: 'numeric',
       }),
@@ -432,7 +432,7 @@ const MealPlanner = () => {
                                 <div className="w-28 flex-shrink-0 flex flex-col justify-center">
                                   <p className="font-bold text-lg">{DAYS[dayIndex]}</p>
                                   <p className="text-sm text-muted-foreground">
-                                    {dayDate.toLocaleDateString('en-US', {
+                                    {dayDate.toLocaleDateString(undefined, {
                                       month: 'short',
                                       day: 'numeric',
                                     })}

@@ -8,7 +8,9 @@ export async function authedFetch(input: RequestInfo, init: RequestInit = {}) {
     const headers = new Headers(init.headers || {});
     headers.set('Content-Type', 'application/json');
 
+    // validate authentication
     if (keycloak.authenticated) {
+        // add token if available
         const token = await ensureToken();
         if (token) {
             headers.set('Authorization', `Bearer ${token}`);

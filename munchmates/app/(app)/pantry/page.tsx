@@ -100,6 +100,7 @@ const defaultItems: PantryItem[] = [
 ];
 
 const Pantry = () => {
+    // Retrieves pantry items per user from browser local storage
     const [items, setItems] = useState<PantryItem[]>(() => {
         if (typeof window !== 'undefined') {
             const stored = localStorage.getItem(PANTRY_STORAGE_KEY);
@@ -134,6 +135,7 @@ const Pantry = () => {
         localStorage.setItem(PANTRY_STORAGE_KEY, JSON.stringify(items));
     }, [items]);
 
+    // Prefills input content for editiing items
     const beginEdit = (item: PantryItem) => {
         setEditingId(item.id);
         setEditName(item.name);
@@ -142,6 +144,7 @@ const Pantry = () => {
         setEditExpiry(item.expiryDate ?? '');
     };
 
+    // Clears input fields
     const cancelEdit = () => {
         setEditingId(null);
         setEditName('');
@@ -150,6 +153,7 @@ const Pantry = () => {
         setEditExpiry('');
     };
 
+    // Updates edited item
     const saveEdit = (id: number) => {
         setItems(prev =>
         prev.map(it =>
@@ -199,6 +203,7 @@ const Pantry = () => {
         cancelEdit();
     };
 
+    // Calculates difference between current and expiration date
     const getDaysUntilExpiry = (expiryDate: string): number => {
         const today = new Date();
         const expiry = new Date(expiryDate);
@@ -300,7 +305,7 @@ const Pantry = () => {
                                                 onChange={(e) => setItemName(e.target.value)}
                                                 onKeyPress={handleKeyPress}
                                             />
-                                            <Input 
+                                            <Input
                                                 placeholder="Quantity (e.g., 2 lbs, 500 ml)"
                                                 value={itemQuantity}
                                                 onChange={(e) => setItemQuantity(e.target.value)}

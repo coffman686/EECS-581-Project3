@@ -60,6 +60,7 @@ import { DietaryDialog } from '@/components/ingredients/Dietary';
 type IdClaims = { name?: string; preferred_username?: string; email?: string };
 type AccessClaims = { preferred_username?: string; email?: string; realm_access?: { roles?: string[] } };
 
+// Meal planner entry
 interface MealPlanEntry {
     id: string;
     recipeId: number;
@@ -69,6 +70,7 @@ interface MealPlanEntry {
     originalServings: number;
 }
 
+// Meal plan for single day
 interface DayPlan {
     date: string;
     breakfast?: MealPlanEntry;
@@ -76,11 +78,13 @@ interface DayPlan {
     dinner?: MealPlanEntry;
 }
 
+// Meal plan for entire week
 interface WeeklyMealPlan {
     weekStart: string;
     days: DayPlan[];
 }
 
+// Pantry items
 interface PantryItem {
     id: number;
     name: string;
@@ -90,6 +94,7 @@ interface PantryItem {
     addedDate: string;
 }
 
+// Grocery list items
 interface GroceryItem {
     id: string;
     name: string;
@@ -99,6 +104,7 @@ interface GroceryItem {
     fromMealPlan?: boolean;
 }
 
+// Saved recipes
 interface SavedRecipe {
     recipeId: number;
     recipeName: string;
@@ -106,6 +112,7 @@ interface SavedRecipe {
     recipeImage?: string;
 }
 
+// Shared recipes
 interface SharedCollection {
     id: string;
     name: string;
@@ -133,6 +140,7 @@ function formatLocalDateStr(d: Date): string {
     return `${year}-${month}-${day}`;
 }
 
+// Greet user based on current time
 function getGreeting(): string {
     const hour = new Date().getHours();
     if (hour < 12) return 'Good morning';
@@ -140,6 +148,7 @@ function getGreeting(): string {
     return 'Good evening';
 }
 
+// Calculate difference between current date and expiration date
 function getDaysUntilExpiry(expiryDate: string): number {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
@@ -148,8 +157,9 @@ function getDaysUntilExpiry(expiryDate: string): number {
     return Math.ceil((expiry.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
 }
 
+// Format date with user locale
 function formatDate(date: Date): string {
-    return date.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
+    return date.toLocaleDateString(undefined, { weekday: 'long', month: 'long', day: 'numeric' });
 }
 
 // Motivational tips
@@ -179,6 +189,7 @@ export default function Dashboard() {
     const [diets, setDiets] = useState<string[]>([]);
     const [intolerances, setIntolerances] = useState<string[]>([]);
 
+    // Open dietary preferences modal if uninitialized
     useEffect(() => {
         const localDietsInit = localStorage.getItem("hasDietsInit");
         if (localDietsInit !== "true") {
@@ -186,6 +197,7 @@ export default function Dashboard() {
         }
     }, []);
 
+    // Close preferences modal and complete initialization
     function closeDiet(e: React.SyntheticEvent) {
         e.preventDefault();
         localStorage.setItem("hasDietsInit", "true");
@@ -336,6 +348,7 @@ export default function Dashboard() {
         loadCollections();
     }, []);
 
+    // Setup sidebar quick actions
     const quickActions = [
         { href: '/recipes', icon: BookOpen, label: 'Find Recipes', description: 'Discover new dishes' },
         { href: '/meal-planner', icon: CalendarDays, label: 'Plan Meals', description: 'Organize your week' },

@@ -43,6 +43,7 @@ import { usePathname } from "next/navigation";
 import { useState } from "react";
 import { Button } from "../ui/button";
 
+// data for sidebar elements
 const navItems = [
     { href: "/dashboard", icon: <LayoutDashboard />, label: "Dashboard" },
     { href: "/recipes", icon: <BookOpen />, label: "Recipes" },

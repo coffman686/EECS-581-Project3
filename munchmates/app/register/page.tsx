@@ -1,6 +1,11 @@
 // app/register/page.tsx
-// Registration page for MunchMates application.
-// Initializes Keycloak registration flow and redirects users accordingly.
+// Handle user registration with keyclock
+// Features:
+// - Initialize keyclock SSO
+// - Provide loading states for preparing registration
+// - Redirect user to keyclock registration and authentication page
+// - Authenticated users return to dashboard upon completion
+// - Link back to home and sign in
 
 'use client';
 import { useEffect, useState } from 'react';
@@ -16,11 +21,11 @@ export default function Register() {
         (async () => {
             // Initialize Keycloak first
             await initKeycloak('check-sso');
-            
+
             if (!mounted) return;
-            
+
             setReady(true);
-            
+
             // Trigger registration with redirect back to dashboard
             register({
                 redirectUri: `${window.location.origin}/dashboard`
@@ -31,14 +36,14 @@ export default function Register() {
     }, []);
 
     return (
-        <main style={{ 
-            padding: 48, 
-            maxWidth: 400, 
-            margin: '0 auto', 
-            textAlign: 'center' 
+        <main style={{
+            padding: 48,
+            maxWidth: 400,
+            margin: '0 auto',
+            textAlign: 'center'
         }}>
             <h1 style={{ marginBottom: 24 }}>Create Account</h1>
-            
+
             {!ready ? (
                 <p>Preparing registration...</p>
             ) : (
@@ -46,7 +51,7 @@ export default function Register() {
                     <p style={{ marginBottom: 24, color: '#666' }}>
                         Redirecting to registration...
                     </p>
-                    <button 
+                    <button
                         onClick={() => register({ redirectUri: `${window.location.origin}/dashboard` })}
                         style={{
                             padding: '12px 24px',
@@ -62,7 +67,7 @@ export default function Register() {
                     </button>
                 </>
             )}
-            
+
             <div style={{ marginTop: 32, fontSize: 14 }}>
                 <p>
                     Already have an account?{' '}

@@ -1,7 +1,12 @@
-// munchmates/app/api/spoonacular/recipes/information/route.ts
-// Spoonacular recipe information route.
-// Retrieves detailed recipe data by ID and handles Spoonacular-specific
-// errors like daily quota limits.
+// file: recipes/information/route.ts
+// GET endpoint to fetch additioinal recipe information
+// (apparently there's two of these)
+// Inputs: spooncular recipe ID
+// Output:
+// - Recipe information if successful
+// - 404 if id not provided
+// - 402 if API limit has been reached
+// - 500 otherwise
 
 import { NextRequest, NextResponse } from 'next/server';
 import { getRecipeInformation } from '@/lib/spoonacular';
@@ -9,11 +14,11 @@ import { getRecipeInformation } from '@/lib/spoonacular';
 export async function GET(request: NextRequest) {
     const searchParams = request.nextUrl.searchParams;
     const idParam = searchParams.get('id');
-    
+
     if (!idParam) {
         return NextResponse.json({ error: 'Missing id parameter' }, { status: 400 });
     }
-    
+
     try {
         const id = parseInt(idParam, 10);
         const recipeInfo = await getRecipeInformation(id);
@@ -21,7 +26,7 @@ export async function GET(request: NextRequest) {
     } catch (error) {
         console.error('Error fetching recipe information:', error);
         const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-        
+
         // Check for API limit exceeded
         if (errorMessage.includes('402')) {
             return NextResponse.json(
@@ -29,7 +34,7 @@ export async function GET(request: NextRequest) {
                 { status: 402 }
             );
         }
-        
+
         return NextResponse.json(
             { error: 'Failed to fetch recipe information', details: errorMessage },
             { status: 500 }

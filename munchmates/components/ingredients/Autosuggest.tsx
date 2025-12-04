@@ -1,7 +1,7 @@
-// munchmates/components/ingredients/Autosuggest.tsx
-// Autosuggest input component.
-// Filters a list of strings based on user input and displays
-// a clickable dropdown of suggestions.
+// Autosuggest.tsx
+// Provides input field with autosuggestion dropdown
+// Inputs:
+// - data: data to be used for suggestion items
 
 import { useState, useEffect } from 'react';
 import { Input } from '../ui/input';
@@ -11,6 +11,7 @@ export default function Autosuggest({ data, query, setQuery }: { data: string[],
     const [filteredData, setFilteredData] = useState<string[]>([]);
     const [isFocused, setIsFocused] = useState(false);
     useEffect(() => {
+        // filter items based on search query
         if (query === '') {
             setFilteredData([]);
         } else {

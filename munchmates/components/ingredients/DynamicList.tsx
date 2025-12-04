@@ -1,8 +1,8 @@
-// munchmates/components/ingredients/DynamicList.tsx
-// Dynamic ingredient list component.
-// Allows users to add ingredients via autosuggest input,
-// grocery list dropdown, or pantry dropdown.
-// Displays current ingredients as removable badges.
+// DynamicList.tsx
+// List that supports a dynamic number of items and several views (list, ship, etc)
+// Paired with Autosuggest to provide ingredient display and input component
+// - Completes items from presupplied list of ingredients and currently selected items
+// - Provides additional dropdowns grocery list and pantry items
 
 import { useState, useEffect } from "react";
 import Autosuggest from "./Autosuggest";
@@ -551,7 +551,7 @@ export default function IngredientList({
                   setQuery={setQuery}
               />
             </div>
-            
+
             {/* Pantry Dropdown */}
             {availablePantryItems.length > 0 && (
               <Select onValueChange={handleAddFromPantry}>

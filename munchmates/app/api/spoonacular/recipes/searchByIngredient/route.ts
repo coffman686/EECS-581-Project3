@@ -1,10 +1,15 @@
-// munchmates/app/api/spoonacular/recipes/searchByIngredient/route.ts
-// Queries Spoonacular for recipes filtered by ingredients, cuisine,
-// dish type, diet, and intolerances, returning summarized results.
+// searchByIngredients/route.ts
+// endpoints for searching a recipe that contain a list of ingredients
+// Inputs:
+// - ingredients: CS list of ingredients the recipe should contain
+// - cuisine: the cuisine the recipe should be a part of
+// - dishType: the type of recipe to look for
+// - diets: the user's diet
+// - intolerances: the user's intolerances and allergens
 
 import { NextRequest, NextResponse } from 'next/server';
 import { searchRecipes } from '@/lib/spoonacular';
-  
+
 export async function GET(request: NextRequest) {
     const searchParams = request.nextUrl.searchParams;
     const ingredients = searchParams.get('ingredients') ?? undefined;

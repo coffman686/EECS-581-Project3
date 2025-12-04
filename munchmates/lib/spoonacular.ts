@@ -146,7 +146,7 @@ export interface NutritionInfo {
 //search for recipes by query
 //@param query - search query (e.g., "pasta", "chicken")
 //@param options - additional search parameters
- 
+
 export async function searchRecipes(
   query: string,
   options: {

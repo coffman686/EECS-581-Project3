@@ -1,6 +1,8 @@
-// munchmates/components/ingredients/Dietary.tsx
-// Dietary preferences dialog component.
-// Allows users to select dietary restrictions and intolerances
+// Dietary.tsx
+// Dialog for selecting user diet as well allegens/intolerances
+// Features:
+// - Uses local storage for storing data persistently
+// - Offers options directly supported by spoonacular
 
 'use client';
 
@@ -55,6 +57,7 @@ function DietaryDialog({
   setIntolerances,
 }: DietaryDialogProps) {
 
+  // save preferences on update
   useEffect(() => {
     const localDiets = localStorage.getItem("diets");
     if (localDiets) {
@@ -67,11 +70,13 @@ function DietaryDialog({
     }
   }, [setDiets, setIntolerances]);
 
+  // initialize data from local storage
   useEffect(() => {
     localStorage.setItem("diets", JSON.stringify(diets));
     localStorage.setItem("intolerances", JSON.stringify(intolerances));
   }, [diets, intolerances]);
 
+  // add or remove an item from preferences on user selection
   function toggleItem(item: string, setItems: Dispatch<SetStateAction<string[]>>) {
     setItems((prevItems: string[]) => {
       if (prevItems.includes(item)) {
@@ -82,6 +87,7 @@ function DietaryDialog({
     });
   }
 
+  // differentiate selected and unselected items
   function itemClasses(items: string[], item: string) {
     const color = () => {
       if (items.includes(item)) {
@@ -140,6 +146,7 @@ function DietaryDialog({
   );
 }
 
+// get diets from local storage
 function getDiets() {
   const localDiets = localStorage.getItem("diets");
   if (localDiets) {
@@ -147,6 +154,7 @@ function getDiets() {
   }
 }
 
+// get intolerances from local storage
 function getIntolerances() {
   const localIntolerances = localStorage.getItem("intolerances");
   if (localIntolerances) {

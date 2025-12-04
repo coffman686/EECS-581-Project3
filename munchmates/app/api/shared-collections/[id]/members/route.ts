@@ -1,12 +1,17 @@
-// munchmates/app/api/shared-collections/[id]/members/route.ts
-// Manage members of a shared collection.
-// Supports adding, removing, and updating member roles.
+// sharedCollections/member/[id]/route.ts
+// Endpoints to manage members within a collection
+// This focuses on managing the lists of users within a collection and their permissions as the owner
+// Validates member role (owner or editor) before performing actions
+// Requires authenticated user
+//   POST: adds a new member
+//   DELETE: removes a member
+//   PUT: updates a members role within the collection
 
 import { NextRequest, NextResponse } from "next/server";
 import { verifyBearer } from "@/lib/verifyToken";
-import { 
-    sharedCollections, 
-    CollectionMember 
+import {
+    sharedCollections,
+    CollectionMember
 } from "../../../../../lib/sharedCollectionsStore";
 
 type RouteContext = {

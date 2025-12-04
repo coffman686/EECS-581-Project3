@@ -15,7 +15,7 @@ import {
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
-import { 
+import {
     Card,
     CardContent,
     CardHeader,
@@ -172,5 +172,3 @@ export default function LandingPage() {
         </div>
     );
 }
-
-

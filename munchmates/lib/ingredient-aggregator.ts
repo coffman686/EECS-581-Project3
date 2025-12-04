@@ -1,5 +1,9 @@
-// lib/ingredient-aggregator.ts
-// Aggregate ingredients from a weekly meal plan into a consolidated shopping list
+// file: ingredient-aggregator.ts
+// Aggregates ingredients from weekly meal plans together cohesively
+// - Fetches recipe ingredient infromation via spoonacular API
+// - Standardizes ingredient units across the same items
+// - Pools together items by type and category
+// - Produces human readable final output with reasonable units
 
 import { WeeklyMealPlan, MealPlanEntry, AggregatedIngredient } from './types/meal-plan';
 

@@ -17,14 +17,14 @@ import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
-import { 
-    Dialog, 
-    DialogContent, 
-    DialogDescription, 
-    DialogFooter, 
-    DialogHeader, 
-    DialogTitle, 
-    DialogTrigger 
+import {
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogFooter,
+    DialogHeader,
+    DialogTitle,
+    DialogTrigger
 } from '@/components/ui/dialog';
 import {
     Select,
@@ -33,11 +33,11 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@/components/ui/select";
-import { 
-    FolderHeart, 
+import {
+    FolderHeart,
     ArrowLeft,
-    Users, 
-    ChefHat, 
+    Users,
+    ChefHat,
     BookOpen,
     Trash2,
     UserPlus,
@@ -199,7 +199,7 @@ const SharedCollectionDetailPage = ({ params }: PageProps) => {
     };
 
     const formatDate = (dateString: string) => {
-        return new Date(dateString).toLocaleDateString('en-US', {
+        return new Date(dateString).toLocaleDateString(undefined, {
             year: 'numeric',
             month: 'short',
             day: 'numeric',

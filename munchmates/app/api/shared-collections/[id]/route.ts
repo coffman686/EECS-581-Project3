@@ -1,15 +1,18 @@
-// munchmates/app/api/shared-collections/[id]/route.ts
-// Shared collection by ID route.
-// Supports getting, updating, and deleting a specific shared collection.
-// Authenticates user and checks membership and permissions.
+// sharedCollections/[id]/route.ts
+// Endpoints to retrieve, update, and manage a recipe collection
+// This pertains specifically to accessing and modifying individual collections
+// Requires authenticated user
+//   GET: retrieves collection information
+//   PUT: handles updating collection information, recipe addition, recipe removal and removes recipes
+//   DELETE: allows user to leave a collection
 
 import { NextRequest, NextResponse } from "next/server";
 import { verifyBearer } from "@/lib/verifyToken";
-import { 
-    sharedCollections, 
-    SharedCollection, 
+import {
+    sharedCollections,
+    SharedCollection,
     CollectionMember,
-    SharedRecipe 
+    SharedRecipe
 } from "../../../../lib/sharedCollectionsStore";
 
 type RouteContext = {

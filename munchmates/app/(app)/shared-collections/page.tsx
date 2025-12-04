@@ -16,20 +16,20 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { 
-    Dialog, 
-    DialogContent, 
-    DialogDescription, 
-    DialogFooter, 
-    DialogHeader, 
-    DialogTitle, 
-    DialogTrigger 
+import {
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogFooter,
+    DialogHeader,
+    DialogTitle,
+    DialogTrigger
 } from '@/components/ui/dialog';
-import { 
-    FolderHeart, 
-    Plus, 
-    Users, 
-    ChefHat, 
+import {
+    FolderHeart,
+    Plus,
+    Users,
+    ChefHat,
     BookOpen,
     Trash2,
     Settings,
@@ -41,6 +41,7 @@ import {
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 
+// Represent user in a shared collection
 type CollectionMember = {
     userId: string;
     userName: string;
@@ -48,6 +49,7 @@ type CollectionMember = {
     joinedAt: string;
 };
 
+// Shared singular recipe
 type SharedRecipe = {
     recipeId: number;
     recipeName: string;
@@ -56,6 +58,7 @@ type SharedRecipe = {
     addedAt: string;
 };
 
+// Shared collection fo recipes
 type SharedCollection = {
     id: string;
     name: string;
@@ -96,6 +99,7 @@ const SharedCollectionsPage = () => {
         }
     };
 
+    // Create a new collection from user input
     const handleCreateCollection = async () => {
         if (!newCollectionName.trim()) return;
 
@@ -128,6 +132,7 @@ const SharedCollectionsPage = () => {
         }
     };
 
+    // Delete a collection with confirmation dialog
     const handleDeleteCollection = async (collectionId: string) => {
         if (!confirm('Are you sure you want to delete this collection? This action cannot be undone.')) {
             return;
@@ -150,14 +155,16 @@ const SharedCollectionsPage = () => {
         }
     };
 
+    // Format the date with user locale
     const formatDate = (dateString: string) => {
-        return new Date(dateString).toLocaleDateString('en-US', {
+        return new Date(dateString).toLocaleDateString(undefined, {
             year: 'numeric',
             month: 'short',
             day: 'numeric',
         });
     };
 
+    // Get corresponding role color for user type
     const getRoleIcon = (role: string) => {
         switch (role) {
             case 'owner':
